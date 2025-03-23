@@ -1,0 +1,12 @@
+{
+  "name": "pfc",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Tr1pin",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
