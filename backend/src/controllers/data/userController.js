@@ -1,7 +1,6 @@
 import { UserModel } from '../../models/data/userModel.js';
 
 export class UserController {
-
     //Getters de Usuarios
 
     //Todos los usuarios
@@ -11,7 +10,7 @@ export class UserController {
             res.status(200).json(users);
         } catch (err) {
             console.log("error");
-            res.status(500).json({ message: 'Internal server error' });
+            res.status(500).json({ message: err.message });
         }
     }
 
@@ -23,7 +22,7 @@ export class UserController {
             res.status(200).json(users);
         } catch (err) {
             console.log("error");
-            res.status(500).json({ message: 'Internal server error' });
+            res.status(500).json({ message: err.message });
         }
     }
 
@@ -35,7 +34,7 @@ export class UserController {
             res.status(200).json(users);
         } catch (err) {
             console.log("error");
-            res.status(500).json({ message: 'Internal server error' });
+            res.status(500).json({ message: err.message });
         }
     }
 
@@ -47,7 +46,7 @@ export class UserController {
             res.status(200).json(users);
         } catch (err) {
             console.log("error");
-            res.status(500).json({ message: 'Internal server error' });
+            res.status(500).json({ message: err.message });
         }
     }
 
@@ -59,11 +58,20 @@ export class UserController {
             res.status(200).json(users);
         } catch (err) {
             console.log("error");
-            res.status(500).json({ message: 'Internal server error' });
+            res.status(500).json({ message: err.message });
         }
     }
 
-
     //Crear Usuario
+    static async crearUsuario(req, res) {
+        try {
+            const { nombre, email, password } = req.body;
+            const user = await UserModel.createUsuario({ nombre, email, password });
+            res.status(200).json(user);
+        } catch (err) {
+            console.log("error");
+            res.status(500).json({ message: err.message });
+        }
+    }
 
 }

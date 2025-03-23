@@ -1,16 +1,18 @@
 import mysql from 'mysql2/promise'
-import { DEFAULT_MYSQL_CONECTION } from '../../../config.js'
+import bcrypt from 'bcrypt';
+import { validateUser } from '../../schemas/user.js';
+import { randomUUID } from 'crypto';
+import { DEFAULT_MYSQL_CONECTION, SALT_ROUNDS } from '../../../config.js'
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION
-
 
 export class UserModel {
   //Getters de Usuarios
   static async getAll() {
     const connection = await mysql.createConnection(connectionString);
-    const [rows] = await connection.query('SELECT * FROM usuarios');
+    const [res] = await connection.query('SELECT * FROM usuarios');
     connection.destroy();
-    return rows; 
+    return res; 
   }
 
   //Usuario por ID
@@ -21,13 +23,13 @@ export class UserModel {
     }
 
     const connection = await mysql.createConnection(connectionString);
-    const rows = await connection.query(
+    const res = await connection.query(
         `SELECT * FROM usuarios WHERE id = ?`, 
         [id]
     );
 
     connection.destroy();
-    return rows[0];
+    return res[0];
   }
 
   //Usuario por Tipo
@@ -44,7 +46,7 @@ export class UserModel {
     );
 
     connection.destroy();
-    return rows[0];
+    return res[0];
   }
 
   //Usuario por Email
@@ -55,13 +57,13 @@ export class UserModel {
     }
 
     const connection = await mysql.createConnection(connectionString);
-    const rows = await connection.query(
+    const res = await connection.query(
         `SELECT * FROM usuarios WHERE email = ?`, 
         [email]
     );
 
     connection.destroy();
-    return rows[0];
+    return res[0];
   }
 
   //Usuario por Nombre
@@ -78,6 +80,31 @@ export class UserModel {
     );
 
     connection.destroy();
-    return rows[0];
+    return res[0];
+  }
+
+  //Crear Usuario
+  static async createUsuario({ nombre, email, password }) {
+      
+      if (!nombre || !email || !password) {
+        throw new Error("Faltan datos");
+      }
+  
+      if(validateUser({ nombre, email, password }).success === false){
+        throw new Error("Datos invalidos");
+      }
+
+      const connection = await mysql.createConnection(connectionString);
+      const uuidRandom = randomUUID();
+      const passwordEncriptado = bcrypt.hashSync(password, SALT_ROUNDS);
+      const tipo = "cliente";
+
+      const [res] = await connection.query(
+          `INSERT INTO usuarios (id, nombre, email, password, tipo) VALUES (?, ?, ?, ?, ?)`, 
+          [uuidRandom, nombre, email, passwordEncriptado, tipo]
+      );
+  
+      connection.destroy();
+      return { message: "Usuario registrado correctamente" };
   }
 }

@@ -7,3 +7,5 @@ export const DEFAULT_MYSQL_CONECTION = {
     password: '',
     port: 3306
 };
+
+export const SALT_ROUNDS = 10;
