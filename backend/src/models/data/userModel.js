@@ -1,8 +1,9 @@
 import mysql from 'mysql2/promise'
 import bcrypt from 'bcrypt';
-import { validateUser } from '../../schemas/user.js';
+import { validateUser, validatePartialUser } from '../../schemas/user.js';
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION, SALT_ROUNDS } from '../../../config.js'
+import { console } from 'inspector';
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION
 
@@ -11,7 +12,7 @@ export class UserModel {
   static async getAll() {
     const connection = await mysql.createConnection(connectionString);
     const [res] = await connection.query('SELECT * FROM usuarios');
-    connection.destroy();
+    await connection.end();
     return res; 
   }
 
@@ -28,7 +29,7 @@ export class UserModel {
         [id]
     );
 
-    connection.destroy();
+    await connection.end();
     return res[0];
   }
 
@@ -45,7 +46,7 @@ export class UserModel {
         [tipo]
     );
 
-    connection.destroy();
+    await connection.end();
     return res[0];
   }
 
@@ -62,7 +63,7 @@ export class UserModel {
         [email]
     );
 
-    connection.destroy();
+    await connection.end();
     return res[0];
   }
 
@@ -79,7 +80,7 @@ export class UserModel {
         [nombre]
     );
 
-    connection.destroy();
+    await connection.end();
     return res[0];
   }
 
@@ -87,11 +88,11 @@ export class UserModel {
   static async createUsuario({ nombre, email, password }) {
       
       if (!nombre || !email || !password) {
-        throw new Error("Faltan datos");
+        throw new Error("Faltan datos para crear un Usuario");
       }
   
       if(validateUser({ nombre, email, password }).success === false){
-        throw new Error("Datos invalidos");
+        throw new Error(validateUser().error.message);
       }
 
       const connection = await mysql.createConnection(connectionString);
@@ -104,7 +105,62 @@ export class UserModel {
           [uuidRandom, nombre, email, passwordEncriptado, tipo]
       );
   
-      connection.destroy();
+      await connection.end();
       return { message: "Usuario registrado correctamente" };
   }
+
+  //Actualizar Usuario
+  static async actualizarUsuario({ id, nombre, email, password }) {
+    if (!id) {
+      throw new Error("El ID es requerido");
+    }
+
+    const connection = await mysql.createConnection(connectionString);
+    const updates = [];
+    const values = {};
+
+    if (nombre) {
+      updates.push("nombre = ?");
+      values.nombre = nombre;
+    }
+
+    if (email) {
+      updates.push("email = ?");
+      values.email = email;
+    }
+
+    if (password) {
+      values.password = bcrypt.hashSync(password, SALT_ROUNDS);
+      updates.push("password = ?");
+    }
+
+    if (updates.length === 0) {
+      throw new Error("No hay datos para actualizar");
+    }
+
+    // 🔹 Filtrar valores undefined antes de la validación
+    const filteredValues = Object.fromEntries(
+      Object.entries(values).filter(([_, value]) => value !== undefined)
+    );
+
+    // 🔹 Validación correcta
+    console.log("Values: "+values);
+    if(validatePartialUser(values).success === false){
+      throw new Error(validatePartialUser().error.message);
+    }
+    
+
+    // 🔹 Construcción de la query con valores en orden
+    const query = `UPDATE usuarios SET ${updates.join(", ")} WHERE id = ?`;
+    const queryValues = [...Object.values(filteredValues), id];
+
+    console.log("Query: "+query);
+    console.log("QueryValues: "+queryValues);
+
+    await connection.query(query, queryValues);
+    await connection.end();
+
+    return { message: "Usuario actualizado correctamente" };
+  }
+  
 }

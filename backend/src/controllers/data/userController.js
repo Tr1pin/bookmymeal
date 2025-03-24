@@ -74,4 +74,16 @@ export class UserController {
         }
     }
 
+    //Actualizar Usuario
+    static async actualizarUsuario(req, res) {
+        try {
+            const { id, nombre, email, password } = req.body;
+            const user = await UserModel.actualizarUsuario({ id, nombre, email, password });
+            res.status(200).json(user);
+        } catch (err) {
+            console.log("error");
+            res.status(500).json({ message: err.message });
+        }
+    }
+
 }

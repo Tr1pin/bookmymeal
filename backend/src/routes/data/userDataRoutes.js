@@ -12,5 +12,6 @@ router.get('/user/nombre/:nombre', UserController.getByNombre);
 
 //Post de Usuarios
 router.post("/user", UserController.crearUsuario);
+router.put("/user", UserController.actualizarUsuario);
 
 export default router;
