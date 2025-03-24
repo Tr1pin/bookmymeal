@@ -86,4 +86,28 @@ export class UserController {
         }
     }
 
+    //Eliminar Usuario
+    static async eliminarUsuario(req, res) {
+        try {
+            const { id } = req.params;
+            const user = await UserModel.eliminarUsuario({ id });
+            res.status(200).json(user);
+        } catch (err) {
+            console.log("error");
+            res.status(500).json({ message: err.message });
+        }
+    }
+
+    //Actualizar Rol del Usuario
+    static async actualizarRolUsuario(req, res) {
+        try {
+            const { id, tipo } = req.body;
+            const user = await UserModel.actualizarRolUsuario({ id, tipo });
+            res.status(200).json(user);
+        } catch (err) {
+            console.log("error");
+            res.status(500).json({ message: err.message });
+        }
+    }
+
 }

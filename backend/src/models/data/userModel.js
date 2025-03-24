@@ -138,19 +138,14 @@ export class UserModel {
       throw new Error("No hay datos para actualizar");
     }
 
-    // 🔹 Filtrar valores undefined antes de la validación
     const filteredValues = Object.fromEntries(
       Object.entries(values).filter(([_, value]) => value !== undefined)
     );
 
-    // 🔹 Validación correcta
-    console.log("Values: "+values);
     if(validatePartialUser(values).success === false){
       throw new Error(validatePartialUser().error.message);
     }
     
-
-    // 🔹 Construcción de la query con valores en orden
     const query = `UPDATE usuarios SET ${updates.join(", ")} WHERE id = ?`;
     const queryValues = [...Object.values(filteredValues), id];
 
@@ -162,5 +157,39 @@ export class UserModel {
 
     return { message: "Usuario actualizado correctamente" };
   }
+  
+  //Eliminar Usuario
+  static async eliminarUsuario({ id }) {
+    if (!id) {
+      throw new Error("El ID es requerido");
+    }
+  
+    const connection = await mysql.createConnection(connectionString);
+  
+    await connection.query("DELETE FROM usuarios WHERE id = ?", [id]);
+  
+    await connection.end();
+    return { message: "Usuario eliminado correctamente" };
+  }
+
+  //Actualizar Rol de Usuario
+  static async actualizarRolUsuario({ id, tipo }) {
+    if (!id || !tipo) {
+      throw new Error("ID y tipo son requeridos");
+    }
+  
+    const validRoles = ["cliente", "admin", "empleado"];
+    if (!validRoles.includes(tipo)) {
+      throw new Error("Rol inválido");
+    }
+  
+    const connection = await mysql.createConnection(connectionString);
+  
+    await connection.query("UPDATE usuarios SET tipo = ? WHERE id = ?", [tipo, id]);
+  
+    await connection.end();
+    return { message: "Rol actualizado correctamente" };
+  }
+  
   
 }

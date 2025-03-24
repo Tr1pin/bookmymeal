@@ -13,5 +13,9 @@ router.get('/user/nombre/:nombre', UserController.getByNombre);
 //Post de Usuarios
 router.post("/user", UserController.crearUsuario);
 router.put("/user", UserController.actualizarUsuario);
+router.put("/user/actualizarRol", UserController.actualizarRolUsuario);
+
+//Delete Usuarios
+router.delete("/user/:id", UserController.eliminarUsuario);
 
 export default router;
