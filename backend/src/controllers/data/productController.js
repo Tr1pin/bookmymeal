@@ -1,4 +1,3 @@
-
 import { ProductModel } from '../../models/data/productModel.js';
 
 export class ProductController {
