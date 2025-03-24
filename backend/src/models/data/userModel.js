@@ -191,5 +191,4 @@ export class UserModel {
     return { message: "Rol actualizado correctamente" };
   }
   
-  
 }
