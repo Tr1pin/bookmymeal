@@ -1,6 +1,8 @@
 import mysql from 'mysql2/promise';
-import { DEFAULT_MYSQL_CONECTION } from '../../../config.js';
 import { randomUUID } from 'crypto';
+import { DEFAULT_MYSQL_CONECTION } from '../../../config.js';
+import { validatePedido, validatePartialPedido } from '../../schemas/pedido.js';
+import { UserModel } from '../../models/data/userModel.js';
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION;
 
@@ -25,6 +27,15 @@ export class PedidoModel {
             throw new Error("Faltan datos para crear un pedido");
         }
         const uuid = randomUUID();
+
+        if(validatePedido({usuario_id, total, estado}).error){
+            throw new Error(validatePedido(usuario_id, total, estado).error);
+        }
+
+        if(!UserModel.getById({id: usuario_id})){
+            throw new Error("El usuario no existe");
+        }
+
         const connection = await mysql.createConnection(connectionString);
         await connection.query('INSERT INTO pedidos (id, usuario_id, total, estado) VALUES (?, ?, ?, ?)',
             [uuid, usuario_id, total, estado]);
@@ -34,6 +45,11 @@ export class PedidoModel {
 
     static async actualizarPedido({ id, estado }) {
         if (!id || !estado) throw new Error("ID y estado son requeridos");
+
+        if(validatePartialPedido({estado}).error){
+            throw new Error(validatePartialPedido(estado).error);
+        }
+
         const connection = await mysql.createConnection(connectionString);
         await connection.query('UPDATE pedidos SET estado = ? WHERE id = ?', [estado, id]);
         await connection.end();
@@ -42,6 +58,7 @@ export class PedidoModel {
 
     static async eliminarPedido({ id }) {
         if (!id) throw new Error("El ID es requerido");
+        
         const connection = await mysql.createConnection(connectionString);
         await connection.query('DELETE FROM pedidos WHERE id = ?', [id]);
         await connection.end();

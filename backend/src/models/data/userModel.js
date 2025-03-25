@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import { validateUser, validatePartialUser } from '../../schemas/user.js';
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION, SALT_ROUNDS } from '../../../config.js'
-import { console } from 'inspector';
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION
 

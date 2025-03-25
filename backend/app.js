@@ -5,6 +5,7 @@ import userDataRoutes from './src/routes/data/userDataRoutes.js';
 import productDataRoutes from './src/routes/data/productDataRoutes.js';
 import tableDataRoutes from './src/routes/data/tableDataRoutes.js';
 import pedidoDataRoutes from './src/routes/data/pedidoDataRoutes.js';
+import detallesPedidosDataRoutes from './src/routes/data/detallesPedidoRouter.js';
 
 export const createApp = () => {
     const app = express();
@@ -16,6 +17,7 @@ export const createApp = () => {
     app.use("/productos/", productDataRoutes);
     app.use("/mesas/", tableDataRoutes);
     app.use("/pedidos/", pedidoDataRoutes);
+    app.use("/detalles-pedidos/", detallesPedidosDataRoutes);
 
     app.listen( DEFAULT_PORT, () =>{
         console.log(`Server listening on port  http://localhost:${DEFAULT_PORT}`);
