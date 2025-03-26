@@ -14,6 +14,7 @@ export const createApp = () => {
     app.use(cors());
     app.use(express.json());
 
+    // Calls to endponits
     app.use("/users/", userDataRoutes);
     app.use("/productos/", productDataRoutes);
     app.use("/mesas/", tableDataRoutes);

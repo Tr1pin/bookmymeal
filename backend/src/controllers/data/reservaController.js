@@ -72,10 +72,10 @@ export class ReservaController {
         }
     }
 
-    static async updateReservation ( res, req ) {
+    static async updateReservation ( req, res ) {
         try {
-            const { reserva_id, estado, date, hour, personas } = req.body;
-            const updateres = await ReservaModel.updateReservation( { reserva_id, estado, date, hour, personas } );
+            const { id, estado, fecha, hora, personas } = req.body;
+            const updateres = await ReservaModel.updateReservation( { id, estado, date: fecha, hour: hora, personas } );
             
             res.status(200).json(updateres);
         }catch (err) {

@@ -1,11 +1,12 @@
 import { z } from 'zod';
 
 const reservaSchema = z.object({
-    usuario_id: z.string().uuid({ message: 'usuario_id debe ser un UUID válido' }),
-    mesa_id: z.string().uuid({ message: 'mesa_id debe ser un UUID válido' }),
-    fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'fecha debe estar en formato YYYY-MM-DD' }),
-    hora: z.string().regex(/^\d{2}:\d{2}:\d{2}$/, { message: 'hora debe estar en formato HH:MM:SS' }),
-    estado: z.enum(['pendiente', 'confirmada', 'cancelada'], { message: 'estado inválido' })
+    usuario_id: z.string().uuid({ message: 'El usuario_id debe ser un UUID válido' }),
+    mesa_id: z.string().uuid({ message: 'La mesa_id debe ser un UUID válido' }),
+    fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'La fecha debe estar en formato YYYY-MM-DD' }),
+    hora: z.string().regex(/^\d{2}:\d{2}:\d{2}$/, { message: 'La hora debe estar en formato HH:MM:SS' }),
+    estado: z.enum(['pendiente', 'confirmada', 'cancelada'], { message: 'estado inválido' }),
+    personas: z.number().int().positive()
 });
 
 export function validateReserva(input) {
