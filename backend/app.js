@@ -7,6 +7,7 @@ import tableDataRoutes from './src/routes/data/tableDataRoutes.js';
 import pedidoDataRoutes from './src/routes/data/pedidoDataRoutes.js';
 import detallesPedidosDataRoutes from './src/routes/data/detallesPedidoRouter.js';
 import reservasDataRoutes from './src/routes/data/reservasDataRouter.js';
+import userlogContoller from './src/routes/auth/userlogRouter.js';
 
 export const createApp = () => {
     const app = express();
@@ -15,6 +16,7 @@ export const createApp = () => {
     app.use(express.json());
 
     // Calls to endponits
+    app.use("/", userlogContoller);
     app.use("/users/", userDataRoutes);
     app.use("/productos/", productDataRoutes);
     app.use("/mesas/", tableDataRoutes);

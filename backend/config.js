@@ -1,6 +1,6 @@
-export const DEFAULT_PORT = 3001;
+export const DEFAULT_PORT = 3001; // should be changed in production
 
-export const DEFAULT_MYSQL_CONECTION = {
+export const DEFAULT_MYSQL_CONECTION = { // should be changed in production
     host: 'localhost',
     user: 'root',
     database: 'BookMyMeal',
@@ -8,4 +8,6 @@ export const DEFAULT_MYSQL_CONECTION = {
     port: 3306
 };
 
-export const SALT_ROUNDS = 10;
+export const SALT_ROUNDS = 10; // should be changed in production
+
+export const JWT_SECRET = 'JhgjwIa5OhRkdqQdnPIPUiFXgYSdB7N17FmjbbkozVdOmUXIGZJsda1jdajnsdadast2peasJKq'; //should be changed in production

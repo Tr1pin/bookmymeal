@@ -61,7 +61,7 @@ export class UserModel {
         `SELECT * FROM usuarios WHERE email = ?`, 
         [email]
     );
-
+    console.log("User en model: "+ res[0]);
     await connection.end();
     return res[0];
   }
@@ -89,6 +89,7 @@ export class UserModel {
       if (!nombre || !email || !password) {
         throw new Error("Faltan datos para crear un Usuario");
       }
+      console.log("variables en el model ",  [ nombre, email, password]);
   
       if(validateUser({ nombre, email, password }).success === false){
         throw new Error(validateUser().error.message);
@@ -103,7 +104,7 @@ export class UserModel {
           `INSERT INTO usuarios (id, nombre, email, password, tipo) VALUES (?, ?, ?, ?, ?)`, 
           [uuidRandom, nombre, email, passwordEncriptado, tipo]
       );
-  
+      
       await connection.end();
       return { message: "Usuario registrado correctamente" };
   }
