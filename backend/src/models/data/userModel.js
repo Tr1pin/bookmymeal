@@ -51,7 +51,6 @@ export class UserModel {
 
   //Usuario por Email
   static async getByEmail({ email }) {
-
     if (!email) {
       throw new Error("El Email es undefined o null");
     }
@@ -61,7 +60,7 @@ export class UserModel {
         `SELECT * FROM usuarios WHERE email = ?`, 
         [email]
     );
-    console.log("User en model: "+ res[0]);
+
     await connection.end();
     return res[0];
   }
@@ -89,7 +88,6 @@ export class UserModel {
       if (!nombre || !email || !password) {
         throw new Error("Faltan datos para crear un Usuario");
       }
-      console.log("variables en el model ",  [ nombre, email, password]);
   
       if(validateUser({ nombre, email, password }).success === false){
         throw new Error(validateUser().error.message);
