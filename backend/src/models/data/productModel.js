@@ -1,6 +1,6 @@
 
 import mysql from 'mysql2/promise';
-import { validateProduct, validatePartialProduct } from '../../schemas/product.js';
+import { validateProduct, validatePartialProduct } from '../../../schemas/product.js';
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION } from '../../../config.js';
 

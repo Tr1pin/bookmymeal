@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise'
 import bcrypt from 'bcrypt';
-import { validateUser, validatePartialUser } from '../../schemas/user.js';
+import { validateUser, validatePartialUser } from '../../../schemas/user.js';
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION, SALT_ROUNDS } from '../../../config.js'
 

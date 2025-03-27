@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION } from '../../../config.js';
-import { validatePedido, validatePartialPedido } from '../../schemas/pedido.js';
+import { validatePedido, validatePartialPedido } from '../../../schemas/pedido.js';
 import { UserModel } from '../../models/data/userModel.js';
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION;

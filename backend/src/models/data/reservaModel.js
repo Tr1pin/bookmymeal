@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise'
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION } from '../../../config.js'
-import { validateReserva, validatePartialReserva } from '../../schemas/reserva.js'
+import { validateReserva, validatePartialReserva } from '../../../schemas/reserva.js'
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION
 

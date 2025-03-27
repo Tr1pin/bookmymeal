@@ -1,6 +1,6 @@
 
 import mysql from 'mysql2/promise';
-import { validateMesa, validatePartialMesa } from '../../schemas/table.js';
+import { validateMesa, validatePartialMesa } from '../../../schemas/table.js';
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION } from '../../../config.js';
 
