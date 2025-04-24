@@ -2,6 +2,7 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* DaisyUI plugin should be added to the tailwind.config.js plugins array instead */
 @layer base {
     @font-face {
         font-family: "Cinzel";
