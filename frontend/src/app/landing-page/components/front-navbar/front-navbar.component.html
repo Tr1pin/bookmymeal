@@ -8,15 +8,31 @@
             </li>
         </ul>
     </div>
+
     <body class="sm:flex sm:items-center sm:justify-center lg:hidden md:hidden">
         <div class="relative inline-block group">
-            <button class="text-white px-4 py-2 rounded-md">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /> </svg>
+            <button class="text-white px-4 py-2 rounded-md group-hover:block">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
             </button>
             <div class="absolute hidden mt-0.5 w-40 bg-white rounded-md shadow-lg group-hover:block group-focus-within:block left-[-105px]">
-                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl">Reservar</a>
-                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl">Carta</a>
-                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl">Cuenta</a>
+                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl" routerLink="reservas">Reservar</a>
+                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl" routerLink="carta">Carta</a>
+                <div class="group/cuenta relative btn-block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl cursor-pointer">
+                    <div class="flex justify-between">
+                        Cuenta
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                        </svg> 
+                    </div>
+                    
+                    <div class="absolute hidden mt-2 w-50 bg-white rounded-md shadow-lg left-[-65px] group-hover/cuenta:block group-focus-within/cuenta:block">
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl" routerLink="login">Iniciar sesión</a>
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl" routerLink="register">Registrarse</a>
+                    </div>
+                </div>
             </div>
         </div>
     </body>
