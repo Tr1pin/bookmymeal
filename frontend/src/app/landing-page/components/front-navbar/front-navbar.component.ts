@@ -6,4 +6,5 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink],
   templateUrl: './front-navbar.component.html'
 })
-export class FrontNavbarComponent { }
+export class FrontNavbarComponent {
+}
