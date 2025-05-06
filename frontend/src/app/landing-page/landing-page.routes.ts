@@ -34,10 +34,6 @@ export const landingPageRoutes: Routes = [
          },
     ]
    },
-   {
-      path: '**',
-      redirectTo: ''
-   }
 ] 
 
 export default landingPageRoutes;
