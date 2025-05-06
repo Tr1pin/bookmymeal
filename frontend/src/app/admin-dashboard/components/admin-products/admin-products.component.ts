@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ProductsService } from '../../../products/services/products.service';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'admin-products',
@@ -6,4 +8,13 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   templateUrl: './admin-products.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminProductsComponent { }
+export class AdminProductsComponent { 
+  productService = inject(ProductsService);
+
+  productsResource = rxResource({
+    request: () => ({}),
+    loader: ({ request }) => {
+      return this.productService.getProducts();
+    }
+  })
+}
