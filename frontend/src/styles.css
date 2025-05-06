@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* DaisyUI plugin should be added to the tailwind.config.js plugins array instead */
+@layer base {
+    @font-face {
+        font-family: "Cinzel";
+        src: url('../public/assets/fonts/CinzelDecorative/CinzelDecorative-Regular.ttf') format('truetype');
+    }
+}
