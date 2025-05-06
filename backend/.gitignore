@@ -1,6 +1,6 @@
 .eslintrc.js
 eslint.config.mjs
-config.js
+.config.js
 node_modules/
 .vscode/
 .env
