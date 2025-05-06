@@ -4,7 +4,7 @@ export const DEFAULT_MYSQL_CONECTION = { // should be changed in production
     host: 'localhost',
     user: 'root',
     database: 'BookMyMeal',
-    password: '',
+    password: 'jpql.1531',
     port: 3306
 };
 
