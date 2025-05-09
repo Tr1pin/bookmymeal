@@ -39,6 +39,7 @@ export class PedidoModel {
         const connection = await mysql.createConnection(connectionString);
         await connection.query('INSERT INTO pedidos (id, usuario_id, total, estado) VALUES (?, ?, ?, ?)',
             [uuid, usuario_id, total, estado]);
+        
         await connection.end();
         return { message: "Pedido creado correctamente" };
     }
