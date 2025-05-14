@@ -8,7 +8,20 @@ const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION
 export class ReservaModel {
     static async getAll() {
         const connection = await mysql.createConnection(connectionString);
-        const [res] = await connection.query('SELECT * FROM reservas');
+        const [res] = await connection.query(`
+            SELECT 
+                r.id AS reserva_id,
+                u.nombre AS nombre_usuario,
+                m.numero AS numero_mesa,
+                r.fecha,
+                r.hora,
+                r.estado,
+                r.personas
+            FROM reservas r
+            JOIN usuarios u ON r.usuario_id = u.id
+            JOIN mesas m ON r.mesa_id = m.id
+            ORDER BY r.fecha, r.hora;
+        `);
 
         await connection.end();
         return res;
