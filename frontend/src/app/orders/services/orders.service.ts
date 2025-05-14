@@ -14,7 +14,7 @@ export class OrdersService {
   
   
   getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.baseUrl+'/pedidos/')
+    return this.http.get<Order[]>(this.baseUrl+'/pedidos/pedidosProductos')
       .pipe(tap((resp) => console.log(resp)));
   }
 }
