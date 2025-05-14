@@ -6,6 +6,7 @@ const router = Router();
 // Rutas CRUD para pedidos
 //Getters
 router.get('', PedidoController.getAll);
+router.get('/pedidosProductos', PedidoController.getPedidos);
 router.get('/id/:id', PedidoController.getById);
 
 //Post, Put, Delete

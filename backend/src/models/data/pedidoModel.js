@@ -14,6 +14,20 @@ export class PedidoModel {
         return res;
     }
 
+    //Lista de pedidos con su lista de productos
+    static async getPedidos() {
+        const connection = await mysql.createConnection(connectionString);
+        const [res] = await connection.query(
+            `SELECT p.id AS pedido_id, p.estado, p.total, pr.nombre AS producto, dp.cantidad, dp.subtotal 
+                    FROM pedidos p 
+                    JOIN detalles_pedido dp ON p.id = dp.pedido_id 
+                    JOIN productos pr ON dp.producto_id = pr.id 
+                    ORDER BY p.id;`
+                );
+        await connection.end();
+        return res;
+    }
+
     static async getById({ id }) {
         if (!id) throw new Error("El ID es requerido");
         const connection = await mysql.createConnection(connectionString);

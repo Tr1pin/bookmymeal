@@ -10,6 +10,15 @@ export class PedidoController {
         }
     }
 
+    static async getPedidos(req, res) {
+        try { 
+            res.status(200).json(await PedidoModel.getPedidos()); 
+        }
+        catch (err) { 
+            res.status(500).json({ message: err.message }); 
+        }
+    }
+
     static async getById(req, res) {
         try { 
             res.status(200).json(await PedidoModel.getById({ id: req.params.id })); 
