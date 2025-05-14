@@ -4,9 +4,11 @@
         <!-- head -->
       <thead class="text-lg">
         <tr>
-          <th>Estado</th>
-          <th>Reserva</th>
-          <th>Usuario</th>
+          <th>Nº Pedido</th>
+          <th>Cliente</th>
+          <th>Productos</th>
+          <td>Total</td>
+          <td>Estado</td>
           <td>Acciones</td>
         </tr>
       </thead>
@@ -15,9 +17,15 @@
       <tbody class="text-sm">
         @for (order of orderResource.value(); track $index) {
         <tr>
+          <td>{{ order.numero_pedido }}</td>
+          <td>{{ order.usuario.nombre }}</td>
+          <td>
+          @for(product of order.productos; track $index) {
+            <p>- {{ product.nombre }}</p>
+          }
+          </td>
+          <td>{{ order.total }}</td>
           <td>{{ order.estado }}</td>
-          <td>{{ order.reserva_id }}...</td>
-          <td>{{ order.usuario_id }}</td>
           <td class="flex justify-center gap-5">
             <label for="my_modal_6">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
