@@ -18,36 +18,56 @@ export class PedidoModel {
     static async getPedidos() {
         const connection = await mysql.createConnection(connectionString);
         const [res] = await connection.query(
-            `SELECT p.id AS pedido_id, p.estado, p.total, pr.nombre AS producto, dp.cantidad, dp.subtotal 
-                    FROM pedidos p 
-                    JOIN detalles_pedido dp ON p.id = dp.pedido_id 
-                    JOIN productos pr ON dp.producto_id = pr.id 
-                    ORDER BY p.id;`
-                );
-        
+            `SELECT 
+                p.id AS pedido_id, 
+                p.numero_pedido,
+                u.nombre AS nombre_usuario,
+                p.estado, 
+                p.total,
+                p.usuario_id, 
+                pr.nombre AS producto, 
+                pr.precio, 
+                dp.cantidad, 
+                dp.subtotal 
+            FROM pedidos p 
+            JOIN usuarios u ON p.usuario_id = u.id
+            JOIN detalles_pedido dp ON p.id = dp.pedido_id 
+            JOIN productos pr ON dp.producto_id = pr.id 
+            ORDER BY p.id;
+        `);
         
         const pedidosAgrupados = [];
-
         for (const item of res) {
             let pedido = pedidosAgrupados.find(p => p.pedido_id === item.pedido_id);
             if (!pedido) {
-                pedido = {
-                pedido_id: item.pedido_id,
-                estado: item.estado,
-                total: item.total,
-                productos: []
-            };
-            pedidosAgrupados.push(pedido);
+                    pedido = {
+                    pedido_id: item.pedido_id,
+                    estado: item.estado,
+                    total: item.total,
+                    productos: [],
+                    usuario:{
+                        nombre: '',
+                        id: ''
+                    }
+                };
+                pedidosAgrupados.push(pedido);
 
-        }
-
-        pedido.productos.push(
-            {
-                nombre: item.producto,
-                cantidad: item.cantidad,
-                subtotal: item.subtotal
             }
-        );
+
+            pedido.productos.push(
+                {
+                    nombre: item.producto,
+                    cantidad: item.cantidad,
+                    subtotal: item.subtotal,
+                    precio: item.precio
+                }
+            );
+            pedido.usuario = 
+                {
+                    nombre: item.nombre_usuario,
+                    id: item.usuario_id
+                }
+            ;
         }
 
         await connection.end();
