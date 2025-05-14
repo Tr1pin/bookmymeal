@@ -8,7 +8,7 @@ const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION;
 export class DetallePedidoModel {
     static async getAll() {
         const connection = await mysql.createConnection(connectionString);
-        const [res] = await connection.query('SELECT * FROM detalles_pedidos');
+        const [res] = await connection.query('SELECT * FROM detalles_pedido');
         await connection.end();
         return res;
     }
@@ -17,7 +17,7 @@ export class DetallePedidoModel {
         if (!id) throw new Error("El ID es requerido");
 
         const connection = await mysql.createConnection(connectionString);
-        const [res] = await connection.query('SELECT * FROM detalles_pedidos WHERE id = ?', [id]);
+        const [res] = await connection.query('SELECT * FROM detalles_pedido WHERE id = ?', [id]);
         await connection.end();
         return res[0];
     }
@@ -34,7 +34,7 @@ export class DetallePedidoModel {
         const uuid = randomUUID();
 
         const connection = await mysql.createConnection(connectionString);
-        await connection.query('INSERT INTO detalles_pedidos (id, pedido_id, producto_id, cantidad, subtotal) VALUES (?, ?, ?, ?, ?)',
+        await connection.query('INSERT INTO detalles_pedido (id, pedido_id, producto_id, cantidad, subtotal) VALUES (?, ?, ?, ?, ?)',
             [uuid, pedido_id, producto_id, cantidad, subtotal]);
         await connection.end();
         return { message: "Detalle de pedido creado correctamente" };
@@ -57,7 +57,7 @@ export class DetallePedidoModel {
         if (!updates.length) throw new Error("No hay datos para actualizar");
 
         const connection = await mysql.createConnection(connectionString);
-        const query = `UPDATE detalles_pedidos SET ${updates.join(", ")} WHERE id = ?`;
+        const query = `UPDATE detalles_pedido SET ${updates.join(", ")} WHERE id = ?`;
         const queryValues = [...Object.values(values), id];
         await connection.query(query, queryValues);
         await connection.end();
@@ -68,7 +68,7 @@ export class DetallePedidoModel {
         if (!id) throw new Error("El ID es requerido");
 
         const connection = await mysql.createConnection(connectionString);
-        await connection.query('DELETE FROM detalles_pedidos WHERE id = ?', [id]);
+        await connection.query('DELETE FROM detalles_pedido WHERE id = ?', [id]);
         await connection.end();
         return { message: "Detalle de pedido eliminado correctamente" };
     }
