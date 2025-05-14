@@ -44,6 +44,7 @@ export class PedidoModel {
                     pedido_id: item.pedido_id,
                     estado: item.estado,
                     total: item.total,
+                    numero_pedido: item.numero_pedido,
                     productos: [],
                     usuario:{
                         nombre: '',
