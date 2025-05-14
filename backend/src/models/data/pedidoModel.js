@@ -24,8 +24,34 @@ export class PedidoModel {
                     JOIN productos pr ON dp.producto_id = pr.id 
                     ORDER BY p.id;`
                 );
+        
+        
+        const pedidosAgrupados = [];
+
+        for (const item of res) {
+            let pedido = pedidosAgrupados.find(p => p.pedido_id === item.pedido_id);
+            if (!pedido) {
+                pedido = {
+                pedido_id: item.pedido_id,
+                estado: item.estado,
+                total: item.total,
+                productos: []
+            };
+            pedidosAgrupados.push(pedido);
+
+        }
+
+        pedido.productos.push(
+            {
+                nombre: item.producto,
+                cantidad: item.cantidad,
+                subtotal: item.subtotal
+            }
+        );
+        }
+
         await connection.end();
-        return res;
+        return pedidosAgrupados;
     }
 
     static async getById({ id }) {
