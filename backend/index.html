@@ -1,16 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Formulario de Producto</title>
 </head>
 <body>
-    <form action="http://localhost:3001/images/upload" method="POST" enctype="multipart/form-data">
-        <label for="file">Selecciona un archivo .jpg:</label><br><br>
-        <input type="file" name="file" accept=".jpg,.jpeg" required><br><br>
-        <button type="submit">Subir</button>
-    </form>
-    <img src="http://localhost:3001/images/1747508300413-346293400-japon-4k-qbc6mlnwowjbszld.jpg" alt="Japon 4K" width="400">
+  <h1>Crear Producto</h1>
+  <form id="productoForm" action="http://localhost:3001/productos/" method="POST" enctype="multipart/form-data">
+    <label for="nombre">Nombre:</label>
+    <input type="text" name="nombre" id="nombre" required><br><br>
+
+    <label for="descripcion">Descripción:</label>
+    <textarea name="descripcion" id="descripcion" required></textarea><br><br>
+
+    <label for="precio">Precio:</label>
+    <input type="number" name="precio" id="precio" step="0.01" required><br><br>
+
+    <label for="disponible">Disponible:</label>
+    <input type="checkbox" name="disponible" id="disponible"><br><br>
+
+    <label for="imagen">Imagen:</label>
+    <input type="file" name="imagen" id="imagen" accept="image/*" required><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    document.getElementById('productoForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      // Si el checkbox está marcado, se envía como "on", si no, no se envía
+      if (!form.disponible.checked) {
+        formData.set('disponible', 'false');
+      } else {
+        formData.set('disponible', 'true');
+      }
+
+      const response = await fetch('http://localhost:3001/productos/', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      console.log(result);
+      alert('Producto enviado correctamente');
+    });
+  </script>
 </body>
 </html>

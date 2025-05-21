@@ -15,13 +15,14 @@ import userlogContoller from './src/routes/auth/userlogRouter.js';
 
 export const createApp = () => {
     const app = express();
+
+    app.use(cors());
+    app.use(express.json());
+
     // Get the directory name of the current module
     // To serve static images
     const filename = fileURLToPath(import.meta.url);
     const dir = dirname(filename);
-
-    app.use(cors());
-    app.use(express.json());
     // Expose images folder
     app.use('/images', express.static(path.join(dir, 'images')));
 
