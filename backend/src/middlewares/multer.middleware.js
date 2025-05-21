@@ -1,14 +1,19 @@
 import multer from 'multer';
 import path from 'path';
 
-// Configuración del almacenamiento
+// Storage config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images/');
+    cb(null, 'images/products');
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
+  filename: (req, file, cb) => {  
+    const productId = req.body.id || 'unknown';
+    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '');
+    const randomString = Math.random().toString(36).substring(2, 10);
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    const uniqueName = `${productId}_${timestamp}_${randomString}${ext}`;
+    cb(null, uniqueName);
   }
 });
 
@@ -20,15 +25,15 @@ const fileFilter = (req, file, cb) => {
   if ((ext === '.jpg' || ext === '.jpeg') && mime === 'image/jpeg') {
     cb(null, true);
   } else {
-    cb(new Error('Solo se permiten archivos .jpg'), false);
+    cb(new Error('Solo se permiten archivos .jpg, .jpeg'), false);
   }
 };
 
-// Exportar middleware configurado
-const uploadImage = multer({
+// Middleware para múltiples imágenes
+const uploadImages = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } 
-});
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB por archivo
+}); // 'images' es el nombre del campo en el formulario, y 10 es el número máximo de archivos permitidos
 
-export { uploadImage };
+export { uploadImages };
