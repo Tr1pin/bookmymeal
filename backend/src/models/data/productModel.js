@@ -76,32 +76,36 @@ export class ProductModel {
     return res;
   }
 
-  static async crearProducto({ nombre, descripcion, precio, disponible, images }) {
+  static async crearProducto({ nombre, descripcion, precio, disponible, imagenes }) {
     try {
-      console.log(nombre, descripcion, precio, disponible, images);
+      console.log(nombre, descripcion, precio, disponible, imagenes);
       if (!nombre || !descripcion || !precio || disponible === undefined) {
         throw new Error("Faltan datos para crear un producto");
       }
 
-      const validation = validateProduct({ nombre, descripcion, precio, disponible });
+      precio = Number(precio);
+      const disponibleValue = disponible === 'true' || disponible === true ? true : false;
+      console.log(typeof precio, typeof disponibleValue, typeof nombre, typeof descripcion);
+      const validation = validateProduct({ nombre, descripcion, precio, disponible: disponibleValue });
+      console.log(validation.success);
       if (!validation.success) {
         throw new Error(validation.error.message);
       }
+      console.log("LLego aqui 2");
 
-      const disponibleValue = disponible === 'true' || disponible === true ? 1 : 0;
       const uuid = randomUUID();
-
+      const disponibleValueDB = disponibleValue === 'true' || disponibleValue === true ? true : false;
+      console.log("Llego aqui 3");
       // Extraer nombres de archivos
-      const imageFilenames = images.map(image => image.filename); // array de strings
+      const imageFilenames = imagenes.map(image => image.filename); // array de strings
 
       const connection = await mysql.createConnection(connectionString);
-
+  console.log("LLego aqui 3");
       // Insertar producto
       await connection.query(
         'INSERT INTO productos (id, nombre, descripcion, precio, disponible) VALUES (?, ?, ?, ?, ?)',
-        [uuid, nombre, descripcion, precio, disponibleValue]
+        [uuid, nombre, descripcion, precio, disponibleValueDB]
       );
-
       // Insertar imágenes asociadas
       for (const filename of imageFilenames) {
         await connection.query(
@@ -109,8 +113,6 @@ export class ProductModel {
           [uuid, filename]
         );
       }
-
-      uploadImages.array('images', 10);
 
       await connection.end();
       return({ message: "Producto creado correctamente", id: uuid });
