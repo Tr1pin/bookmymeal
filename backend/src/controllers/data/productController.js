@@ -48,9 +48,11 @@ export class ProductController {
 
   static async crearProducto(req, res) {
     try { 
-      
-      console.log("Datos recibidos:", req.body);
-        res.status(200).json(await ProductModel.crearProducto(req.body)); 
+        const { nombre, descripcion, precio, disponible } = req.body;
+        console.log(nombre, descripcion, precio, disponible);
+        const imagenes = req.files || [];
+        console.log(imagenes);
+        res.status(200).json(await ProductModel.crearProducto( { nombre, descripcion, precio, disponible, imagenes })); 
     }
     catch (err) { 
         res.status(500).json({ message: err.message }); 

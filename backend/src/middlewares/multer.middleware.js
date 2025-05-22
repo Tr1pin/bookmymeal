@@ -7,12 +7,12 @@ const storage = multer.diskStorage({
     cb(null, 'images/products');
   },
   filename: (req, file, cb) => {  
-    const productId = req.body.id || 'unknown';
+    const productNombre = req.body.nombre || 'unknown';
     const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '');
     const randomString = Math.random().toString(36).substring(2, 10);
     const ext = path.extname(file.originalname).toLowerCase();
 
-    const uniqueName = `${productId}_${timestamp}_${randomString}${ext}`;
+    const uniqueName = `${productNombre}_${timestamp}_${randomString}${ext}`;
     cb(null, uniqueName);
   }
 });
