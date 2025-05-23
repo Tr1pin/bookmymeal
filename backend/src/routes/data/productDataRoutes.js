@@ -13,7 +13,7 @@ router.get('/disponible/', ProductController.getByDisponibilidad);
 
 // Operaciones Create, Update y Delete.
 router.post("", uploadImages.array('imagen', 10), ProductController.crearProducto);
-router.put("", ProductController.actualizarProducto);
+router.put("", uploadImages.array('imagen', 10), ProductController.actualizarProducto);
 router.delete("/:id", ProductController.eliminarProducto);
 
 export default router;
