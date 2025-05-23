@@ -19,16 +19,37 @@
     <label for="disponible">Disponible:</label>
     <input type="checkbox" name="disponible" id="disponible"><br><br>
 
-    <label for="imagen">Imagen:</label>
-    <input type="file" name="imagen" id="imagen" required><br><br>
+    <label for="imagen">Imágenes (Selecciona múltiples):</label>
+    <input type="file" name="imagen" id="imagen" multiple accept="image/*" required><br>
+    <div id="imagePreview" class="preview-container"></div>
+    <br>
 
     <button type="submit">Enviar</button>
   </form>
 
   <script>
-   document.getElementById('productoForm').addEventListener('submit', formulario);
+    // Mostrar vista previa de imágenes
+    document.getElementById('imagen').addEventListener('change', function(e) {
+      const preview = document.getElementById('imagePreview');
+      preview.innerHTML = ''; // Limpiar previsualizaciones anteriores
+      
+      for (const file of this.files) {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('image-preview');
+            preview.appendChild(img);
+          }
+          reader.readAsDataURL(file);
+        }
+      }
+    });
 
-async function formulario(e) {
+    document.getElementById('productoForm').addEventListener('submit', formulario);
+
+    async function formulario(e) {
       e.preventDefault();
       console.log("En la función");
 
@@ -41,29 +62,32 @@ async function formulario(e) {
       formData.append("precio", form.elements['precio'].value);
       formData.append("disponible", form.elements['disponible'].checked ? 'true' : 'false');
 
-      // Agregar archivos
+      // Agregar múltiples archivos
       const archivos = form.elements['imagen'].files;
       for (let i = 0; i < archivos.length; i++) {
         formData.append("imagen", archivos[i]);
       }
 
-
-      // Mostrar contenido del FormData (solo para depuración)
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
-      alert('Producto enviado correctamente');
-      // Enviar al servidor
-      const response = await 
-      fetch('http://localhost:3001/productos/', {
-        method: 'POST',
-        body: formData,
-      })
-        .then(response => {
-          console.log(response.json());
-          console.log(response);
+      try {
+        const response = await fetch('http://localhost:3001/productos/', {
+          method: 'POST',
+          body: formData,
         });
-      alert('Producto enviado correctamente');
+
+        const data = await response.json();
+        console.log('Respuesta del servidor:', data);
+        
+        if (response.ok) {
+          alert('Producto creado correctamente');
+          form.reset();
+          document.getElementById('imagePreview').innerHTML = '';
+        } else {
+          alert('Error al crear el producto: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al enviar el producto');
+      }
     }
   </script>
 </body>
