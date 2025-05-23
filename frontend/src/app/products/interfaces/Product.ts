@@ -1,7 +1,8 @@
-export interface Product{
-    id: string,
-    nombre: string,
-    descripcion: string,
-    precio: Number,
-    disponible: Boolean
+export interface Product {
+    producto_id: string;
+    nombre: string;
+    descripcion: string;
+    precio: string;
+    disponible: number;
+    imagens: string[];
 }
