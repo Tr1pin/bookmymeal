@@ -85,4 +85,14 @@ export class ProductController {
         res.status(500).json({ message: err.message }); 
     }
   }
+
+  static async deleteProductImage(req, res) {
+    try {
+      const { id: productId, filename } = req.params;
+      const result = await ProductModel.deleteProductImage({ productId, filename });
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
 }
