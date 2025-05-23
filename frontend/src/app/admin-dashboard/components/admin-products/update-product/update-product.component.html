@@ -1,0 +1,103 @@
+<main class="h-full w-full overflow-y-auto">
+  <div class="container mx-auto px-4 py-10">
+    <header class="text-lg md:text-3xl font-bold font-mono text-white mb-10">
+      <h1 class="text-3xl text-blue-500 text-center">Actualizar Producto</h1>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto w-full">
+      <!-- Product Data Form -->
+      <section class="bg-gray-900 rounded-xl p-6 text-xl" aria-labelledby="product-data-title">
+        <h2 id="product-data-title" class="text-2xl text-blue-500 mb-6">Datos del Producto</h2>
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-7">
+          <fieldset class="form-control w-full flex flex-col gap-3">
+            <label for="nombre" class="label">
+              <span class="label-text text-white">Nombre del producto</span>
+            </label>
+            <input type="text" id="nombre" formControlName="nombre" placeholder="Nombre" 
+              class="input input-bordered w-full" />
+          </fieldset>
+
+          <fieldset class="form-control w-full flex flex-col gap-3">
+            <label for="descripcion" class="label">
+              <span class="label-text text-white">Descripción</span>
+            </label>
+            <textarea id="descripcion" formControlName="descripcion" placeholder="Descripción"
+              class="textarea textarea-bordered h-10 w-full"></textarea>
+          </fieldset>
+
+          <fieldset class="form-control w-full flex flex-col gap-3">
+            <label for="precio" class="label">
+              <span class="label-text text-white">Precio</span>
+            </label>
+            <input type="number" id="precio" formControlName="precio" placeholder="0.00" 
+              class="input input-bordered w-full" step="0.01" />
+          </fieldset>
+
+          <fieldset class="form-control w-full flex flex-col gap-3">
+            <legend class="label-text text-white mb-2">Disponibilidad</legend>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="disponible" formControlName="disponible" 
+                class="toggle toggle-primary" />
+              <label for="disponible" class="text-sm text-gray-300">Producto disponible</label>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+
+      <!-- Image Upload Form -->
+      <section class="bg-gray-900 rounded-xl p-6 flex flex-col" aria-labelledby="images-title">
+        @if (imagePreviews.length > 0 && !(imagePreviews.length === 1 && imagePreviews[0] === null)) {
+          <h2 id="images-title" class="text-2xl text-blue-500 mb-6">Imágenes del Producto</h2>
+        } @else {
+          <h2 id="images-title" class="text-2xl text-blue-500 mb-6">Añadir Imágenes</h2>
+        }
+        <div class="flex flex-col gap-6">
+          <fieldset class="form-control w-full text-xl">
+            <label for="imagen" class="label">
+              <span class="label-text text-white">Seleccionar Imágenes</span>
+            </label>
+            <input type="file" id="imagen" (change)="onFileChange($event)" accept="image/*" multiple
+              class="file-input file-input-bordered w-full" />
+          </fieldset>
+
+          <!-- Images Preview -->
+          @if (imagePreviews.length > 0 && !(imagePreviews.length === 1 && imagePreviews[0] === null)) {
+            <section class="mt-4" aria-label="Previsualización de imágenes">
+              <h3 class="text-lg text-white mb-2">Imágenes del Producto</h3>
+              <div class="grid grid-cols-2 gap-4">
+                @for (preview of imagePreviews; track preview.preview; let i = $index) {
+                  @if (preview !== null) {
+                    <figure class="relative group">
+                      <div class="w-full aspect-square rounded-lg overflow-hidden bg-gray-800">
+                        <img 
+                          [src]="preview.preview || fallbackImage" 
+                          [alt]="'Vista previa ' + (i + 1)" 
+                          class="w-full h-full object-contain"
+                          (error)="handleImageError(preview)" 
+                        />
+                      </div>
+                      <button type="button" (click)="removeImage(i)" 
+                        class="absolute top-2 right-2 btn btn-circle btn-sm btn-error opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Eliminar imagen">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </figure>
+                  }
+                }
+              </div>
+            </section>
+          }
+
+          <nav class="flex justify-end gap-4 mt-6">
+            <a routerLink="/admin-dashboard/productos" class="btn" role="button">Cancelar</a>
+            <button type="submit" class="btn btn-primary bg-blue-500" [disabled]="productForm.invalid" (click)="onSubmit()">
+              Actualizar Producto
+            </button>
+          </nav>
+        </div>
+      </section>
+    </div>
+  </div>
+</main> 
