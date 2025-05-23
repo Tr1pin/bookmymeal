@@ -10,8 +10,8 @@ export class ImageModel {
         }
         const filename = fileURLToPath(import.meta.url);
         const dir = path.dirname(filename);
-        const imagePath = path.join(dir, 'images', name);
-
+        const imagePath = path.join(dir, '..', '..', '..', 'images', 'products', name);
+        
         // Validate if the image exists   
         try {
             await fs.access(imagePath); // Verifica que existe
