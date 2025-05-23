@@ -24,7 +24,7 @@ export const createApp = () => {
     const filename = fileURLToPath(import.meta.url);
     const dir = dirname(filename);
     // Expose images folder
-    app.use('/images', express.static(path.join(dir, 'images')));
+    app.use('/images/products', express.static(path.join(dir, 'images', 'products')));
 
     // Calls to endponits
     app.use("/", userlogContoller);
