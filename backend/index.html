@@ -52,7 +52,7 @@ async function formulario(e) {
       for (let pair of formData.entries()) {
         console.log(`${pair[0]}: ${pair[1]}`);
       }
-  alert('Producto enviado correctamente');
+      alert('Producto enviado correctamente');
       // Enviar al servidor
       const response = await 
       fetch('http://localhost:3001/productos/', {
