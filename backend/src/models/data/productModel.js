@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise';
 import { validateProduct, validatePartialProduct } from '../../../schemas/product.js';
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION } from '../../../config.js';
-import { uploadImages } from '../../middlewares/multer.middleware.js';
+import { ImageModel } from '../../models/data/imagesModel.js';
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION;
 
@@ -149,8 +149,20 @@ export class ProductModel {
     if (!id) throw new Error("El ID es requerido");
 
     const connection = await mysql.createConnection(connectionString);
+
+    const images = await connection.query(`
+        SELECT 
+          JSON_ARRAYAGG(filename) AS imagenes
+        FROM imagenes_productos
+          WHERE producto_id = ?`, [id]
+        );
     await connection.query('DELETE FROM productos WHERE id = ?', [id]);
     await connection.query('DELETE FROM imagenes_productos WHERE producto_id = ?', [id]);
+
+    // All images assigned to a product are deleted.
+    for (let i = 0; i < (images.length - 1); i++) {
+      ImageModel.deleteImage({name: images[0].at(i)});
+    }
 
     await connection.end();
     return { message: "Producto eliminado correctamente" };

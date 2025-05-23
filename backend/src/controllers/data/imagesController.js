@@ -5,19 +5,6 @@ import { ImageModel } from '../../models/data/imagesModel.js';
 
 
 export class ImageController {
-    static async uploadImage(req, res) {
-        try {
-            if (!req.file) {
-                return res.status(400).json({ error: 'No se subió ningún archivo' });
-            }
-
-            const fileInfo = await ImageModel.uptloadImage(req.file);
-            return res.status(200).json({ message: 'Archivo subido', file: fileInfo });
-        } catch (err) {
-            return res.status(500).json({ error: err.message });
-        }
-    }
-
     static async getImageUrl (req, res)  {
         const { name } = req.params;
       
