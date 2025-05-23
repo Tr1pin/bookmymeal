@@ -61,7 +61,16 @@ export class ProductController {
 
   static async actualizarProducto(req, res) {
     try { 
-        res.status(200).json(await ProductModel.actualizarProducto(req.body)); 
+        const { id, nombre, descripcion, precio, disponible } = req.body;
+        const imagenes = req.files || [];
+        res.status(200).json(await ProductModel.actualizarProducto({ 
+          id, 
+          nombre, 
+          descripcion, 
+          precio, 
+          disponible,
+          imagenes 
+        })); 
     }
     catch (err) { 
         res.status(500).json({ message: err.message }); 

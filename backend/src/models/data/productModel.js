@@ -120,7 +120,7 @@ export class ProductModel {
     }
   }
 
-  static async actualizarProducto({ id, nombre, descripcion, precio, disponible }) {
+  static async actualizarProducto({ id, nombre, descripcion, precio, disponible, imagenes }) {
     if (!id) throw new Error("El ID es requerido");
 
     const updates = [];
@@ -128,20 +128,63 @@ export class ProductModel {
 
     if (nombre) updates.push("nombre = ?"), values.nombre = nombre;
     if (descripcion) updates.push("descripcion = ?"), values.descripcion = descripcion;
-    if (precio) updates.push("precio = ?"), values.precio = precio;
-    if (disponible !== undefined) updates.push("disponible = ?"), values.disponible = disponible;
-    if (!updates.length) throw new Error("No hay datos para actualizar");
-
-    if (!validatePartialProduct(values).success) throw new Error(validatePartialProduct().error.message);
-
-    const connection = await mysql.createConnection(connectionString);
-    const query = `UPDATE productos SET ${updates.join(", ")} WHERE id = ?`;
+    if (precio) updates.push("precio = ?"), values.precio = Number(precio);
+    if (disponible !== undefined) updates.push("disponible = ?"), values.disponible = disponible === 'true' || disponible === true;
     
-    const queryValues = [...Object.values(values), id];
-    await connection.query(query, queryValues);
+    if (!updates.length && (!imagenes || imagenes.length === 0)) {
+      throw new Error("No hay datos para actualizar");
+    }
 
-    await connection.end();
-    return { message: "Producto actualizado correctamente" };
+    if (Object.keys(values).length > 0) {
+      if (!validatePartialProduct(values).success) {
+        throw new Error(validatePartialProduct(values).error.message);
+      }
+    }
+
+    try {
+      // Start transaction
+      const connection = await mysql.createConnection(connectionString);
+
+      // Update product details if there are any
+      if (updates.length > 0) {
+        const query = `UPDATE productos SET ${updates.join(", ")} WHERE id = ?`;
+        const queryValues = [...Object.values(values), id];
+        await connection.query(query, queryValues);
+      }
+
+      // Handle image updates if there are new images
+      if (imagenes && imagenes.length > 0) {
+        // Get current images
+        const [currentImages] = await connection.query(
+          'SELECT filename FROM imagenes_productos WHERE producto_id = ?',
+          [id]
+        );
+
+        // Delete old images from filesystem
+        for (const image of currentImages) {
+          await ImageModel.deleteImage({ name: image.filename });
+        }
+
+        // Delete old image records from database
+        await connection.query('DELETE FROM imagenes_productos WHERE producto_id = ?', [id]);
+
+        // Insert new images
+        for (const image of imagenes) {
+          await connection.query(
+            'INSERT INTO imagenes_productos (producto_id, filename) VALUES (?, ?)',
+            [id, image.filename]
+          );
+        }
+      }
+
+      await connection.end();
+      return { message: "Producto actualizado correctamente" };
+    } catch (error) {
+      // Rollback in case of error
+      await connection.rollback();
+      await connection.end();
+      throw error;
+    }
   }
 
   static async eliminarProducto({ id }) {
