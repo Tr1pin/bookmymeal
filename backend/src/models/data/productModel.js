@@ -1,4 +1,3 @@
-
 import mysql from 'mysql2/promise';
 import { validateProduct, validatePartialProduct } from '../../../schemas/product.js';
 import { randomUUID } from 'crypto';
@@ -100,7 +99,7 @@ export class ProductModel {
       const imageFilenames = imagenes.map(image => image.filename); // array de strings
 
       const connection = await mysql.createConnection(connectionString);
-  console.log("LLego aqui 3");
+    console.log("LLego aqui 3");
       // Insertar producto
       await connection.query(
         'INSERT INTO productos (id, nombre, descripcion, precio, disponible) VALUES (?, ?, ?, ?, ?)',
@@ -150,19 +149,21 @@ export class ProductModel {
 
     const connection = await mysql.createConnection(connectionString);
 
-    const images = await connection.query(`
-        SELECT 
-          JSON_ARRAYAGG(filename) AS imagenes
+    // Get all images for the product
+    const [imagesResult] = await connection.query(`
+        SELECT filename
         FROM imagenes_productos
-          WHERE producto_id = ?`, [id]
-        );
-    await connection.query('DELETE FROM productos WHERE id = ?', [id]);
-    await connection.query('DELETE FROM imagenes_productos WHERE producto_id = ?', [id]);
+        WHERE producto_id = ?`, [id]
+    );
 
-    // All images assigned to a product are deleted.
-    for (let i = 0; i < (images.length - 1); i++) {
-      ImageModel.deleteImage({name: images[0].at(i)});
+    // Delete each image file
+    for (const image of imagesResult) {
+      await ImageModel.deleteImage({ name: image.filename });
     }
+    
+    // Delete database records
+    await connection.query('DELETE FROM imagenes_productos WHERE producto_id = ?', [id]);
+    await connection.query('DELETE FROM productos WHERE id = ?', [id]);
 
     await connection.end();
     return { message: "Producto eliminado correctamente" };

@@ -27,20 +27,29 @@ export class ImageModel {
             return ({ message: 'falta el nombre de la imagen' });
         }
 
+        // Ensure name is a string
+        let imageName;
         if (Array.isArray(name)) {
-            name = name[0]; // Manejo en caso de array de nombres
+            imageName = name[0];
+        } else if (typeof name === 'object' && name !== null) {
+            imageName = name.filename;
+        } else {
+            imageName = name;
+        }
+
+        if (!imageName) {
+            throw new Error('Nombre de imagen inválido');
         }
 
         const filename = fileURLToPath(import.meta.url);
         const dir = dirname(filename);
-
-        const imageName = typeof name === 'object' && name !== null ? name.filename : name;
-        const imagePath = path.join(dir.toString(), '..', '..', '..', 'images', 'products', imageName);
-
+        
+        // Construct absolute path more safely
+        const imagePath = path.join(dir, '..', '..', '..', 'images', 'products', imageName);
 
         try {
-            await fs.access(imagePath); // Verifica que existe
-            await fs.unlink(imagePath); // Borra el archivo
+            await fs.access(imagePath); // Verify file exists
+            await fs.unlink(imagePath); // Delete the file
             return 'Imagen eliminada correctamente';
         } catch (err) {
             throw new Error('No se pudo eliminar la imagen: ' + err.message);
