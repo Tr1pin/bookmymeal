@@ -41,7 +41,22 @@ export class ProductModel {
     if (!id) throw new Error("El ID es requerido");
 
     const connection = await mysql.createConnection(connectionString);
-    const [res] = await connection.query('SELECT * FROM productos WHERE id = ?', [id]);
+    const [res] = await connection.query(`
+      SELECT 
+        p.id AS producto_id,
+        p.nombre,
+        p.descripcion,
+        FORMAT(p.precio, 2) AS precio,
+        p.disponible,
+        JSON_ARRAYAGG(i.filename) AS imagens
+      FROM 
+        productos p
+      LEFT JOIN 
+        imagenes_productos i ON p.id = i.producto_id
+      WHERE 
+        p.id = ?
+      GROUP BY 
+        p.id, p.nombre, p.descripcion, p.precio, p.disponible`, [id]);
 
     await connection.end();
     return res[0];
@@ -51,9 +66,25 @@ export class ProductModel {
     if (!nombre) throw new Error("El nombre es requerido");
 
     const connection = await mysql.createConnection(connectionString);
-    const [res] = await connection.query('SELECT * FROM productos WHERE nombre = ?', [nombre]);
+    const [res] = await connection.query(`
+      SELECT 
+        p.id AS producto_id,
+        p.nombre,
+        p.descripcion,
+        FORMAT(p.precio, 2) AS precio,
+        p.disponible,
+        JSON_ARRAYAGG(i.filename) AS imagens
+      FROM 
+        productos p
+      LEFT JOIN 
+        imagenes_productos i ON p.id = i.producto_id
+      WHERE 
+        p.nombre = ?
+      GROUP BY 
+        p.id, p.nombre, p.descripcion, p.precio, p.disponible`, [nombre]);
 
     await connection.end();
+    console.log(res);
     return res;
   }
 
@@ -144,45 +175,36 @@ export class ProductModel {
     try {
       // Start transaction
       const connection = await mysql.createConnection(connectionString);
+      await connection.beginTransaction();
 
-      // Update product details if there are any
-      if (updates.length > 0) {
-        const query = `UPDATE productos SET ${updates.join(", ")} WHERE id = ?`;
-        const queryValues = [...Object.values(values), id];
-        await connection.query(query, queryValues);
-      }
-
-      // Handle image updates if there are new images
-      if (imagenes && imagenes.length > 0) {
-        // Get current images
-        const [currentImages] = await connection.query(
-          'SELECT filename FROM imagenes_productos WHERE producto_id = ?',
-          [id]
-        );
-
-        // Delete old images from filesystem
-        for (const image of currentImages) {
-          await ImageModel.deleteImage({ name: image.filename });
+      try {
+        // Update product details if there are any
+        if (updates.length > 0) {
+          const query = `UPDATE productos SET ${updates.join(", ")} WHERE id = ?`;
+          const queryValues = [...Object.values(values), id];
+          await connection.query(query, queryValues);
         }
 
-        // Delete old image records from database
-        await connection.query('DELETE FROM imagenes_productos WHERE producto_id = ?', [id]);
-
-        // Insert new images
-        for (const image of imagenes) {
-          await connection.query(
-            'INSERT INTO imagenes_productos (producto_id, filename) VALUES (?, ?)',
-            [id, image.filename]
-          );
+        // Handle image updates if there are new images
+        if (imagenes && imagenes.length > 0) {
+          // Insert new images
+          for (const image of imagenes) {
+            await connection.query(
+              'INSERT INTO imagenes_productos (producto_id, filename) VALUES (?, ?)',
+              [id, image.filename]
+            );
+          }
         }
-      }
 
-      await connection.end();
-      return { message: "Producto actualizado correctamente" };
+        await connection.commit();
+        await connection.end();
+        return { message: "Producto actualizado correctamente" };
+      } catch (error) {
+        await connection.rollback();
+        await connection.end();
+        throw error;
+      }
     } catch (error) {
-      // Rollback in case of error
-      await connection.rollback();
-      await connection.end();
       throw error;
     }
   }
@@ -210,5 +232,48 @@ export class ProductModel {
 
     await connection.end();
     return { message: "Producto eliminado correctamente" };
+  }
+
+  static async deleteProductImage({ productId, filename }) {
+    if (!productId || !filename) {
+      throw new Error("Se requiere el ID del producto y el nombre del archivo");
+    }
+
+    const connection = await mysql.createConnection(connectionString);
+    await connection.beginTransaction();
+
+    try {
+      // First check if the image exists in the database
+      const [imageExists] = await connection.query(
+        'SELECT filename FROM imagenes_productos WHERE producto_id = ? AND filename = ?',
+        [productId, filename]
+      );
+
+      if (imageExists.length === 0) {
+        throw new Error("La imagen no existe en la base de datos");
+      }
+
+      // Delete the image record from database first
+      await connection.query(
+        'DELETE FROM imagenes_productos WHERE producto_id = ? AND filename = ?',
+        [productId, filename]
+      );
+
+      // Then try to delete the physical file
+      try {
+        await ImageModel.deleteImage({ name: filename });
+      } catch (fileError) {
+        // Log the error but don't fail the transaction if file is already gone
+        console.error('Error deleting physical file:', fileError);
+      }
+
+      await connection.commit();
+      await connection.end();
+      return { message: "Imagen eliminada correctamente" };
+    } catch (error) {
+      await connection.rollback();
+      await connection.end();
+      throw error;
+    }
   }
 }
