@@ -5,6 +5,8 @@ import { ReservasComponent } from "../landing-page/layouts/reservas/reservas.com
 import { AdminOrdersComponent } from "./components/admin-orders/admin-orders.component";
 import { AdminProductsComponent } from "./components/admin-products/admin-products.component";
 import { AdminReservationsComponent } from "./components/admin-reservations/admin-reservations.component";
+import { CreateProductComponent } from "./components/admin-products/create-product/create-product.component";
+import { UpdateProductComponent } from "./components/admin-products/update-product/update-product.component";
 
 export const adminDashboardRoutes: Routes = [
    {
@@ -25,7 +27,20 @@ export const adminDashboardRoutes: Routes = [
       },
       {
          path: 'productos',
-         component: AdminProductsComponent
+         children: [
+            {
+               path: '',
+               component: AdminProductsComponent
+            },
+            {
+               path: 'crear',
+               component: CreateProductComponent
+            },
+            {
+               path: 'actualizar/:id',
+               component: UpdateProductComponent
+            }
+         ]
       }  
     ]
    },
