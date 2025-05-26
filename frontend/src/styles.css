@@ -4,6 +4,10 @@
 
 /* DaisyUI plugin should be added to the tailwind.config.js plugins array instead */
 @layer base {
+    html, body {
+        @apply m-0 p-0 h-full;
+    }
+
     @font-face {
         font-family: "Cinzel";
         src: url('../public/assets/fonts/CinzelDecorative/CinzelDecorative-Regular.ttf') format('truetype');
