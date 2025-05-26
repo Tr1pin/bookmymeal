@@ -1,36 +1,36 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../../products/services/products.service';
 import { Product } from '../../../../products/interfaces/Product';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-product-details',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './product-details.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductDetailsComponent implements OnInit {
-  product: Product | undefined;
-  loading = true;
-  error: string | null = null;
-  
+export class ProductDetailsComponent {
   private productService = inject(ProductsService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.queryParamMap.get('id');
-    if (id) {
-      this.productService.getProduct(id).subscribe({
-        next: (data) => {
-          this.product = data;
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = 'No se pudo cargar el producto';
-          this.loading = false;
-        }
-      });
-    } else {
-      this.error = 'ID de producto no especificado';
-      this.loading = false;
-    }
+  // Get product id from the route
+  productId = this.route.snapshot.params['id'];
+  // Default image
+  fallbackImage = '../../../../../assets/images/static/empty.jpg';
+
+  // Load product data
+  productResource = rxResource<Product, { id: string }>({
+    request: () => ({ id: this.productId }),
+    loader: ({ request }) => this.productService.getProduct(request.id)
+  });
+
+  // Function to check if image is not found, if its not, show the default image
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    if (img) img.src = this.fallbackImage;
   }
 }
