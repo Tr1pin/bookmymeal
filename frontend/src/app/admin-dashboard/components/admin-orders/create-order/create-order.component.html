@@ -1,0 +1,90 @@
+<section class="mt-14 text-lg md:text-lg sm:text-md font-bold font-mono text-white flex flex-col gap-10 justify-center">
+  <div class="flex justify-center items-center">
+    <h1 class="text-2xl text-blue-500">Crear Pedido</h1>
+  </div>
+
+  <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 max-w-2xl mx-auto w-full p-4">
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="label-text text-white">ID Usuario</span>
+      </label>
+      <input type="text" formControlName="usuario_id" class="input input-bordered w-full bg-gray-700 text-white" />
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="text-white">Estado</span>
+      </label>
+      <select formControlName="estado" class="select select-bordered w-full bg-gray-700 text-white">
+        <option value="pendiente">Pendiente</option>
+        <option value="en preparación">En preparación</option>
+        <option value="listo">Listo</option>
+        <option value="entregado">Entregado</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="text-white">Productos</span>
+      </label>
+      
+      <div formArrayName="productos" class="flex flex-col gap-4">
+        @for (producto of productosFormArray.controls; track $index) {
+          <div [formGroupName]="$index" class="flex gap-4 items-end">
+            <div class="flex-1">
+              <label class="label">
+                <span class="text-white text-sm">Producto</span>
+              </label>
+              <select formControlName="producto_id" class="select select-bordered w-full bg-gray-700 text-white">
+                <option value="">Seleccione un producto</option>
+                @if (productsResource.value(); as products) {
+                  @for (producto of products; track producto.producto_id) {
+                    <option [value]="producto.producto_id">{{ producto.nombre }} - {{ producto.precio }}€</option>
+                  }
+                }
+              </select>
+            </div>
+            
+            <div class="w-24">
+              <label class="label">
+                <span class="text-white text-sm">Cantidad</span>
+              </label>
+              <input type="number" formControlName="cantidad" min="1" class="input input-bordered w-full bg-gray-700 text-white" />
+            </div>
+
+            <div class="w-24">
+              <label class="label">
+                <span class="text-white text-sm">Subtotal</span>
+              </label>
+              <input type="number" formControlName="subtotal" readonly class="input input-bordered w-full bg-gray-700 text-white" />
+            </div>
+
+            <button type="button" class="btn btn-error" (click)="removeProducto($index)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+
+      <button type="button" class="btn btn-primary mt-4" (click)="addProducto()">
+        Añadir Producto
+      </button>
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="text-white">Total (IVA incluido)</span>
+      </label>
+      <input type="number" formControlName="total" readonly class="input input-bordered w-full bg-gray-700 text-white" />
+    </div>
+
+    <div class="flex justify-end gap-4 mt-4">
+      <a routerLink="/admin/pedidos" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Crear Pedido</button>
+    </div>
+  </form>
+</section> 
