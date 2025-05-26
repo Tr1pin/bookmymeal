@@ -1,17 +1,17 @@
 <main class="h-full w-full overflow-y-auto">
-  <div class="container mx-auto px-4 py-10">
-    <header class="text-lg md:text-3xl font-bold font-mono text-white mb-10">
-      <h1 class="text-3xl text-blue-500 text-center">Crear Producto</h1>
+  <div class="container mx-auto px-4 py-5 mt-0">
+    <header class="text-lg md:pt-5 sm:pt-5 mb-7 font-bold font-mono text-white">
+      <h1 class=" text-2xl text-blue-500 text-center">Crear Producto</h1>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto w-full">
       <!-- Product Data Form -->
       <section class="bg-gray-900 rounded-xl p-6 text-xl" aria-labelledby="product-data-title">
-        <h2 id="product-data-title" class="text-2xl text-blue-500 mb-6">Datos del Producto</h2>
+        <h2 id="product-data-title" class="text-xl text-blue-500 mb-6">Datos del Producto</h2>
         <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-7">
           <fieldset class="form-control w-full flex flex-col gap-3">
             <label for="nombre" class="label">
-              <span class="label-text text-white">Nombre del producto</span>
+              <span class="label-text text-lg text-white">Nombre del producto</span>
             </label>
             <input type="text" id="nombre" formControlName="nombre" placeholder="Nombre" 
               class="input input-bordered w-full" />
@@ -19,7 +19,7 @@
 
           <fieldset class="form-control w-full flex flex-col gap-3">
             <label for="descripcion" class="label">
-              <span class="label-text text-white">Descripción</span>
+              <span class="label-text text-lg text-white">Descripción</span>
             </label>
             <textarea id="descripcion" formControlName="descripcion" placeholder="Descripción"
               class="textarea textarea-bordered h-10 w-full"></textarea>
@@ -27,14 +27,14 @@
 
           <fieldset class="form-control w-full flex flex-col gap-3">
             <label for="precio" class="label">
-              <span class="label-text text-white">Precio</span>
+              <span class="label-text text-lg text-white">Precio</span>
             </label>
             <input type="number" id="precio" formControlName="precio" placeholder="0.00" 
               class="input input-bordered w-full" step="0.01" />
           </fieldset>
 
           <fieldset class="form-control w-full flex flex-col gap-3">
-            <legend class="label-text text-white mb-2">Disponibilidad</legend>
+            <legend class="label-text text-lg text-white mb-2">Disponibilidad</legend>
             <div class="flex items-center gap-2">
               <input type="checkbox" id="disponible" formControlName="disponible" 
                 class="toggle toggle-primary" />
@@ -46,11 +46,11 @@
 
       <!-- Image Upload Form -->
       <section class="bg-gray-900 rounded-xl p-6 flex flex-col" aria-labelledby="images-title">
-        <h2 id="images-title" class="text-2xl text-blue-500 mb-6">Imágenes del Producto</h2>
+        <h2 id="images-title" class="text-xl text-blue-500 mb-6">Imágenes del Producto</h2>
         <div class="flex flex-col gap-6">
           <fieldset class="form-control w-full text-xl">
             <label for="imagen" class="label">
-              <span class="label-text text-white">Seleccionar Imágenes</span>
+              <span class="label-text text-white text-lg">Seleccionar Imágenes</span>
             </label>
             <input type="file" id="imagen" (change)="onFileChange($event)" accept="image/*" multiple
               class="file-input file-input-bordered w-full" />
