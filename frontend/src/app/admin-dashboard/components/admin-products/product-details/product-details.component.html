@@ -1,0 +1,77 @@
+<main class="h-full w-full overflow-y-auto">
+  <div class="container mx-auto px-4 py-10">
+    <header class="text-lg md:text-3xl font-bold font-mono text-white mb-10">
+      <h1 class="text-3xl text-blue-500 text-center">Detalles del Producto</h1>
+    </header>
+
+    @if (productResource.isLoading()) {
+      <div class="flex justify-center items-center">
+        <span class="loading loading-spinner loading-lg text-blue-500"></span>
+      </div>
+    } @else if (productResource.error()) {
+      <div class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Error al cargar los detalles del producto.</span>
+      </div>
+    } @else {
+      @if (productResource.value(); as product) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto w-full">
+          <!-- Product Images -->
+          <section class="bg-gray-900 rounded-xl p-6" aria-labelledby="product-images-title">
+            <h2 id="product-images-title" class="text-2xl text-blue-500 mb-6">Imágenes del Producto</h2>
+            <div class="flex flex-wrap gap-4">
+              @for (image of product.imagens; track $index) {
+                <div class="relative w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+                  <img [src]="'http://localhost:3001/images/products/' + image" 
+                       [alt]="'Imagen ' + ($index + 1) + ' de ' + product.nombre"
+                       class="w-full h-48 object-cover rounded-lg shadow-md"
+                       (error)="onImageError($event)">
+                </div>
+              }
+            </div>
+          </section>
+
+          <!-- Product Information -->
+          <section class="bg-gray-900 rounded-xl p-6" aria-labelledby="product-info-title">
+            <h2 id="product-info-title" class="text-2xl text-blue-500 mb-6">Información del Producto</h2>
+            <div class="flex flex-col gap-4 text-white">
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Nombre</h3>
+                <p class="text-xl">{{ product.nombre }}</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Descripción</h3>
+                <p class="text-lg">{{ product.descripcion }}</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Precio</h3>
+                <p class="text-xl">{{ product.precio }}€</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Estado</h3>
+                @if (product.disponible === 1) {
+                  <p class="text-green-500 text-lg">Disponible</p>
+                } @else {
+                  <p class="text-red-500 text-lg">No Disponible</p>
+                }
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-4 mt-8">
+              <button class="btn" routerLink="/admin-dashboard/productos">Volver</button>
+              <a [routerLink]="['/admin-dashboard/productos/actualizar', product.producto_id]" class="btn btn-primary bg-blue-500">
+                Editar Producto
+              </a>
+            </div>
+          </section>
+        </div>
+      }
+    }
+  </div>
+</main>
