@@ -7,6 +7,7 @@ import { AdminProductsComponent } from "./components/admin-products/admin-produc
 import { AdminReservationsComponent } from "./components/admin-reservations/admin-reservations.component";
 import { CreateProductComponent } from "./components/admin-products/create-product/create-product.component";
 import { UpdateProductComponent } from "./components/admin-products/update-product/update-product.component";
+import { ProductDetailsComponent } from "./components/admin-products/product-details/product-details.component";
 
 export const adminDashboardRoutes: Routes = [
    {
@@ -39,6 +40,10 @@ export const adminDashboardRoutes: Routes = [
             {
                path: 'actualizar/:id',
                component: UpdateProductComponent
+            },
+            {
+               path: 'detalles/:id',
+               component: ProductDetailsComponent
             }
          ]
       }  
