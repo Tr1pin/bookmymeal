@@ -8,6 +8,9 @@ import { AdminReservationsComponent } from "./components/admin-reservations/admi
 import { CreateProductComponent } from "./components/admin-products/create-product/create-product.component";
 import { UpdateProductComponent } from "./components/admin-products/update-product/update-product.component";
 import { ProductDetailsComponent } from "./components/admin-products/product-details/product-details.component";
+import { CreateOrderComponent } from "./components/admin-orders/create-order/create-order.component";
+import { UpdateOrderComponent } from "./components/admin-orders/update-order/update-order.component";
+import { OrderDetailsComponent } from "./components/admin-orders/order-details/order-details.component";
 
 export const adminDashboardRoutes: Routes = [
    {
@@ -24,7 +27,24 @@ export const adminDashboardRoutes: Routes = [
       },
       {
          path: 'pedidos',
-         component: AdminOrdersComponent
+         children: [
+            {
+               path: '',
+               component: AdminOrdersComponent
+            },
+            {
+               path: 'crear',
+               component: CreateOrderComponent
+            },
+            {
+               path: 'actualizar/:id',
+               component: UpdateOrderComponent
+            },
+            {
+               path: 'detalles/:id',
+               component: OrderDetailsComponent
+            }
+         ]
       },
       {
          path: 'productos',
