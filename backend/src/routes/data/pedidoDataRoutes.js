@@ -8,6 +8,7 @@ const router = Router();
 router.get('', PedidoController.getAll);
 router.get('/pedidosProductos', PedidoController.getPedidos);
 router.get('/id/:id', PedidoController.getById);
+router.get('/usuario/:username', PedidoController.getPedidosByUsername);
 
 //Post, Put, Delete
 router.post("", PedidoController.crearPedido);

@@ -54,4 +54,14 @@ export class PedidoController {
             res.status(500).json({ message: err.message }); 
         }
     }
+
+    static async getPedidosByUsername(req, res) {
+        try { 
+            const username = req.params.username;
+            res.status(200).json(await PedidoModel.getPedidosByUsername(username)); 
+        }
+        catch (err) { 
+            res.status(500).json({ message: err.message }); 
+        }
+    }
 }
