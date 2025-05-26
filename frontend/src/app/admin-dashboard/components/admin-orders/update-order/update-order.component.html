@@ -1,0 +1,27 @@
+<section class="mt-14 text-lg md:text-lg sm:text-md font-bold font-mono text-white flex flex-col gap-10 justify-center">
+  <div class="flex justify-center items-center">
+    <h1 class="text-2xl text-blue-500">Actualizar Pedido</h1>
+  </div>
+
+  @if (orderResource.value(); as order) {
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 max-w-2xl mx-auto w-full p-4">
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text text-white">Estado</span>
+        </label>
+        <select formControlName="estado" class="select select-bordered w-full bg-gray-700 text-white">
+          <option value="pendiente">Pendiente</option>
+          <option value="en preparación">En preparación</option>
+          <option value="listo">Listo</option>
+          <option value="entregado">Entregado</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-4 mt-4">
+        <a routerLink="/admin-dashboard/pedidos" class="btn">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Actualizar Pedido</button>
+      </div>
+    </form>
+  }
+</section> 
