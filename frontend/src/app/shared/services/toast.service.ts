@@ -39,9 +39,9 @@ export class ToastService {
     toast.appendChild(alert);
     document.body.appendChild(toast);
 
-    // Remove toast after 3 seconds
+    // Remove toast after 3,5 seconds
     setTimeout(() => {
       toast.remove();
-    }, 3000);
+    }, 3500);
   }
 } 
