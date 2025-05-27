@@ -6,14 +6,14 @@
   <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 max-w-2xl mx-auto w-full p-4">
     <div class="form-control w-full">
       <label class="label">
-        <span class="label-text text-white">ID Usuario</span>
+        <span class="label-text text-blue-300">ID Usuario</span>
       </label>
       <input type="text" formControlName="usuario_id" class="input input-bordered w-full bg-gray-700 text-white" />
     </div>
 
     <div class="form-control w-full">
       <label class="label">
-        <span class="text-white">Estado</span>
+        <span class="text-blue-300">Estado</span>
       </label>
       <select formControlName="estado" class="select select-bordered w-full bg-gray-700 text-white">
         <option value="pendiente">Pendiente</option>
@@ -26,7 +26,7 @@
 
     <div class="form-control w-full">
       <label class="label">
-        <span class="text-white">Productos</span>
+        <span class="text-blue-300">Productos</span>
       </label>
       
       <div formArrayName="productos" class="flex flex-col gap-4">
@@ -77,13 +77,13 @@
 
     <div class="form-control w-full">
       <label class="label">
-        <span class="text-white">Total (IVA incluido)</span>
+        <span class="text-blue-300">Total (IVA incluido)</span>
       </label>
       <input type="number" formControlName="total" readonly class="input input-bordered w-full bg-gray-700 text-white" />
     </div>
 
     <div class="flex justify-end gap-4 mt-4">
-      <a routerLink="/admin/pedidos" class="btn">Cancelar</a>
+      <a routerLink="/admin-dashboard/pedidos" class="btn">Cancelar</a>
       <button type="submit" class="btn btn-primary">Crear Pedido</button>
     </div>
   </form>

@@ -9,9 +9,7 @@
       <thead class="text-lg text-blue-300 font-bold">
         <tr class="text-center">
           <th>Nº Pedido</th>
-          <th>Cliente</th>
           <th>Productos</th>
-          <td>Total</td>
           <td>Estado</td>
           <td>Acciones</td>
         </tr>
@@ -22,13 +20,11 @@
         @for (order of orderResource.value(); track $index) {
         <tr>
           <td>{{ order.numero_pedido }}</td>
-          <td>{{ order.usuario.nombre }}</td>
           <td>
             @for(product of order.productos; track $index) {
               <p>- {{ product.nombre }}</p>
             }
           </td>
-          <td>{{ order.total }}€</td>
           <td>
             @switch (order.estado) {
               @case ('pendiente') {
@@ -79,8 +75,6 @@
         </tr>
         }
         <tr>
-          <td></td>
-          <td></td>
           <td></td>
           <td></td>
           <td></td>
