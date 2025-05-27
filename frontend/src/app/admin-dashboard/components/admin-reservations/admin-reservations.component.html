@@ -8,11 +8,9 @@
       <!-- head -->
       <thead class="text-lg text-blue-300 font-bold">
         <tr class="text-center">
-          <th>Cliente</th>
           <th>Mesa</th>
           <th>Fecha y Hora</th>
           <td>Personas</td>
-          <td>Estado</td>
           <td>Acciones</td>
         </tr>
       </thead>
@@ -21,23 +19,9 @@
       <tbody class="text-sm text-center">
         @for (reser of reservationResource.value(); track $index) {
         <tr>
-          <td>{{ reser.nombre_usuario }}</td>
-          <td>{{ reser.numero_mesa }}</td>
+          <td>Nº{{ reser.numero_mesa }}</td>
           <td>{{ reser.fecha | fechaUtcIso }} - {{ reser.hora }}</td>
           <td>{{ reser.personas }}</td>
-          <td>
-            @switch (reser.estado) {
-              @case ('pendiente') {
-                <span class="text-yellow-500">{{ reser.estado }}</span>
-              }
-              @case ('confirmada') {
-                <span class="text-green-500">{{ reser.estado }}</span>
-              }
-              @case ('cancelada') {
-                <span class="text-red-500">{{ reser.estado }}</span>
-              }
-            }
-          </td>
           <td class="flex flex-col align-middle justify-center gap-5">
             <div class="flex align-middle justify-center gap-5">
               <!-- Button to update reservation-->
