@@ -189,14 +189,20 @@ export class PedidoModel {
     static async actualizarPedido({ id, estado }) {
         if (!id || !estado) throw new Error("ID y estado son requeridos");
 
-        if(validatePartialPedido({estado}).error){
-            throw new Error(validatePartialPedido(estado).error);
+        const validacion = validatePartialPedido({ id, estado });
+        if (!validacion.success) {
+            throw new Error(JSON.stringify(validacion.error.errors));
         }
 
         const connection = await mysql.createConnection(connectionString);
-        await connection.query('UPDATE pedidos SET estado = ? WHERE id = ?', [estado, id]);
-        await connection.end();
-        return { message: "Pedido actualizado correctamente" };
+        try {
+            await connection.query('UPDATE pedidos SET estado = ? WHERE id = ?', [estado, id]);
+            await connection.end();
+            return { message: "Pedido actualizado correctamente" };
+        } catch (error) {
+            await connection.end();
+            throw new Error(`Error al actualizar el pedido: ${error.message}`);
+        }
     }
 
     static async eliminarPedido({ id }) {
