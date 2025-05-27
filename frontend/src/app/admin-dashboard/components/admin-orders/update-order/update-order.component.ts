@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { OrdersService } from '../../../../orders/services/orders.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -14,7 +14,7 @@ import { tap } from 'rxjs';
   templateUrl: './update-order.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UpdateOrderComponent {
+export class UpdateOrderComponent implements OnInit {
   private fb = inject(FormBuilder);
   private orderService = inject(OrdersService);
   private router = inject(Router);
@@ -26,7 +26,13 @@ export class UpdateOrderComponent {
   orderResource = rxResource<Order, { id: string }>({
     request: () => ({ id: this.orderId }),
     loader: ({ request }) => this.orderService.getOrder(request.id).pipe(
-      tap(order => console.log(order))
+      tap(order => {
+        if (order) {
+          this.orderForm.patchValue({
+            estado: order.estado
+          });
+        }
+      })
     )
   });
 
@@ -35,12 +41,7 @@ export class UpdateOrderComponent {
   });
 
   ngOnInit() {
-    const order = this.orderResource.value();
-    if (order) {
-      this.orderForm.patchValue({
-        estado: order.estado
-      });
-    }
+    // La inicialización del formulario ahora se hace en el tap del orderResource
   }
 
   async onSubmit() {
@@ -49,12 +50,22 @@ export class UpdateOrderComponent {
       return;
     }
 
+    const estado = this.orderForm.get('estado')?.value;
+    if (!estado) {
+      this.toastService.showToast('El estado es requerido', 'error');
+      return;
+    }
+
     try {
-      await this.orderService.updateOrder(this.orderId, this.orderForm.get('estado')?.value);
+      await this.orderService.updateOrder(this.orderId, estado);
       this.toastService.showToast('Pedido actualizado correctamente', 'success');
-      this.router.navigate(['/admin/pedidos']);
-    } catch (error) {
-      this.toastService.showToast('Error al actualizar el pedido', 'error');
+      this.router.navigate(['/admin-dashboard/pedidos']);
+    } catch (error: any) {
+      console.error('Error al actualizar el pedido:', error);
+      this.toastService.showToast(
+        error.message || 'Error al actualizar el pedido',
+        'error'
+      );
     }
   }
 } 
