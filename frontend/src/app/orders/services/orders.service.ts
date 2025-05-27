@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Order } from '../interfaces/Order';
 import { Observable, firstValueFrom } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, catchError } from 'rxjs/operators';
 
 interface CreateOrderData {
   usuario_id: string;
@@ -38,10 +38,22 @@ export class OrdersService {
   }
 
   async updateOrder(id: string, estado: string): Promise<Order> {
-    const response = await firstValueFrom(
-      this.http.put<Order>(`${this.baseUrl}/pedidos`, { id, estado })
-    );
-    return response;
+    try {
+      const response = await firstValueFrom(
+        this.http.put<Order>(`${this.baseUrl}/pedidos`, { id, estado })
+          .pipe(
+            tap(response => console.log('Respuesta de actualización:', response)),
+            catchError((error: HttpErrorResponse) => {
+              console.error('Error en la actualización:', error);
+              throw new Error(error.error?.message || 'Error al actualizar el pedido');
+            })
+          )
+      );
+      return response;
+    } catch (error) {
+      console.error('Error en updateOrder:', error);
+      throw error;
+    }
   }
 
   async deleteOrder(id: string): Promise<void> {
