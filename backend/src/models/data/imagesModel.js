@@ -15,7 +15,7 @@ export class ImageModel {
         // Validate if the image exists   
         try {
             await fs.access(imagePath); // Verifica que existe
-            const imageUrl = `http://localhost:3001/images/${name}`;
+            const imageUrl = `http://localhost:3001/images/products/${name}`;
             return ({ imageUrl: imageUrl });
         } catch (err) {
             throw new Error('No se pudo encontrar la imagen');
