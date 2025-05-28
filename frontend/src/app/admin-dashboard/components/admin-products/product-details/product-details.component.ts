@@ -31,7 +31,6 @@ export class ProductDetailsComponent {
   // Function to check if image is not found, if its not, show the default image
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
-    console.error('Error loading image:', img.src);
     if (img) img.src = this.fallbackImage;
   }
 
@@ -50,7 +49,6 @@ export class ProductDetailsComponent {
       
       // Filter out null values and return only valid image names
       const validImages = Array.isArray(images) ? images.filter(img => img !== null && img !== '') : [];
-      console.log('Valid images found:', validImages);
       return validImages;
     } catch (error) {
       console.error('Error parsing product images:', error);
@@ -60,8 +58,6 @@ export class ProductDetailsComponent {
 
   // Helper method to construct image URL
   getImageUrl(imageName: string): string {
-    const url = `http://localhost:3001/images/products/${imageName}`;
-    console.log('Constructed image URL:', url);
-    return url;
+    return `http://localhost:3001/images/products/${imageName}`;
   }
 }
