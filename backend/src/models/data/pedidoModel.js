@@ -125,6 +125,7 @@ export class PedidoModel {
     }
 
     static async crearPedido({ usuario_id, total, estado, productos }) {
+        console.log(usuario_id, total, estado, productos);
         if (!usuario_id || !total || !estado || !productos || productos.length === 0) {
             throw new Error("Faltan datos para crear un pedido");
         }
