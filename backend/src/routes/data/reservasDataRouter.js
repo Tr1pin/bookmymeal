@@ -13,6 +13,7 @@ router.get('/fecha/:date', ReservaController.getReservationByDate);
 
 //Post de Reservas
 router.post('', ReservaController.createReservation);
+router.post('/with-user', ReservaController.createReservationWithUserId);
 router.put('', ReservaController.updateReservation);
 /* router.post('/checkReservation', ReservaController.checkReservation); */
 

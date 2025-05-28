@@ -60,10 +60,22 @@ export class ReservaController {
         }
     }
 
+    static async createReservationWithUserId ( req, res ) {
+        try {
+            const { usuario_id, fecha, hora, personas } = req.body;
+            const newReserva = await ReservaModel.createReservationWithUserId( { usuario_id, fecha, hora, personas } );
+
+            res.status(200).json(newReserva);
+        } catch (err) {
+            console.log("error");
+            res.status(500).json({ message: err.message }); 
+        }
+    }
+
     static async createReservation ( req, res ) {
         try {
-            const { usuario_id, fecha, hora, estado, personas } = req.body;
-            const newReserva = await ReservaModel.createReservation( { usuario_id, fecha, hora, estado, personas } );
+            const { nombre, telefono, fecha, hora, personas } = req.body;
+            const newReserva = await ReservaModel.createReservation( { nombre, telefono, fecha, hora, personas } );
 
             res.status(200).json(newReserva);
         } catch (err) {
