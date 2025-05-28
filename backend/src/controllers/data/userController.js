@@ -65,8 +65,8 @@ export class UserController {
     //Crear Usuario
     static async crearUsuario(req, res) {
         try {
-            const { nombre, email, password } = req.body;
-            const user = await UserModel.createUsuario({ nombre, email, password });
+            const { nombre, email, password, telefono } = req.body;
+            const user = await UserModel.createUsuario({ nombre, email, password, telefono });
             res.status(200).json(user);
         } catch (err) {
             console.log("error");
@@ -77,8 +77,8 @@ export class UserController {
     //Actualizar Usuario
     static async actualizarUsuario(req, res) {
         try {
-            const { id, nombre, email, password } = req.body;
-            const user = await UserModel.actualizarUsuario({ id, nombre, email, password });
+            const { id, nombre, email, password, telefono } = req.body;
+            const user = await UserModel.actualizarUsuario({ id, nombre, email, password, telefono });
             res.status(200).json(user);
         } catch (err) {
             console.log("error");
