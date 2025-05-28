@@ -83,7 +83,7 @@ export class UserModel {
   }
 
   //Crear Usuario
-  static async createUsuario({ nombre, email, password }) {
+  static async createUsuario({ nombre, email, password, telefono }) {
     
       if (!nombre || !email || !password) {
         throw new Error("Faltan datos para crear un Usuario");
@@ -100,8 +100,8 @@ export class UserModel {
       const tipo = "cliente";
 
       const [res] = await connection.query(
-          `INSERT INTO usuarios (id, nombre, email, password, rol) VALUES (?, ?, ?, ?, ?)`, 
-          [uuidRandom, nombre, email, passwordEncriptado, tipo]
+          `INSERT INTO usuarios (id, nombre, telefono, email, password, rol) VALUES (?, ?, ?, ?, ?, ?)`, 
+          [uuidRandom, nombre, telefono || null, email, passwordEncriptado, tipo]
       );
       
       await connection.end();
@@ -109,7 +109,7 @@ export class UserModel {
   }
 
   //Actualizar Usuario
-  static async actualizarUsuario({ id, nombre, email, password }) {
+  static async actualizarUsuario({ id, nombre, email, password, telefono }) {
     if (!id) {
       throw new Error("El ID es requerido");
     }
@@ -121,6 +121,11 @@ export class UserModel {
     if (nombre) {
       updates.push("nombre = ?");
       values.nombre = nombre;
+    }
+
+    if (telefono) {
+      updates.push("telefono = ?");
+      values.telefono = telefono;
     }
 
     if (email) {
