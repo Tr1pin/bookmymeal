@@ -1,0 +1,73 @@
+<section class="mt-14 text-lg md:text-lg sm:text-md font-bold font-mono text-white flex flex-col gap-10 justify-center">
+  <div class="flex justify-center items-center">
+    <h1 class="text-2xl text-blue-500">Crear Reserva</h1>
+  </div>
+
+  <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 max-w-2xl mx-auto w-full p-4">
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="label-text text-blue-300">Nombre del Cliente</span>
+      </label>
+      <input type="text" formControlName="nombre" class="input input-bordered w-full bg-gray-700 text-white" placeholder="Ingrese el nombre completo" />
+      <div class="label">
+        <span class="label-text-alt text-red-400" *ngIf="reservationForm.get('nombre')?.invalid && reservationForm.get('nombre')?.touched">
+          El nombre es requerido (mínimo 2 caracteres)
+        </span>
+      </div>
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="label-text text-blue-300">Teléfono</span>
+      </label>
+      <input type="tel" formControlName="telefono" class="input input-bordered w-full bg-gray-700 text-white" placeholder="Ej: 123456789" />
+      <div class="label">
+        <span class="label-text-alt text-red-400" *ngIf="reservationForm.get('telefono')?.invalid && reservationForm.get('telefono')?.touched">
+          Ingrese un teléfono válido (9 dígitos)
+        </span>
+      </div>
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="label-text text-blue-300">Fecha</span>
+      </label>
+      <input type="date" formControlName="fecha" class="input input-bordered w-full bg-gray-700 text-white" />
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="label-text text-blue-300">Hora</span>
+      </label>
+      <select formControlName="hora" class="select select-bordered w-full bg-gray-700 text-white">
+        <option value="">Seleccione una hora</option>
+        <option value="12:00">12:00</option>
+        <option value="12:30">12:30</option>
+        <option value="13:00">13:00</option>
+        <option value="13:30">13:30</option>
+        <option value="14:00">14:00</option>
+        <option value="14:30">14:30</option>
+        <option value="15:00">15:00</option>
+        <option value="20:00">20:00</option>
+        <option value="20:30">20:30</option>
+        <option value="21:00">21:00</option>
+        <option value="21:30">21:30</option>
+        <option value="22:00">22:00</option>
+        <option value="22:30">22:30</option>
+        <option value="23:00">23:00</option>
+      </select>
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="label-text text-blue-300">Número de Personas</span>
+      </label>
+      <input type="number" formControlName="personas" min="1" max="10" class="input input-bordered w-full bg-gray-700 text-white" />
+    </div>
+
+    <div class="flex justify-end gap-4 mt-4">
+      <a routerLink="/admin-dashboard/reservas" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Crear Reserva</button>
+    </div>
+  </form>
+</section> 

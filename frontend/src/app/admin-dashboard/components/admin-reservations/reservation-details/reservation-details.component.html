@@ -1,0 +1,87 @@
+<main class="h-full w-full overflow-y-auto">
+  <div class="container mx-auto px-4 py-10">
+    <header class="text-lg md:text-3xl font-bold font-mono text-white mb-10">
+      <h1 class="text-3xl text-blue-500 text-center">Detalles de la Reserva</h1>
+    </header>
+
+    @if (reservationResource.isLoading()) {
+      <div class="flex justify-center items-center">
+        <span class="loading loading-spinner loading-lg text-blue-500"></span>
+      </div>
+    } @else if (reservationResource.error()) {
+      <div class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Error al cargar los detalles de la reserva.</span>
+      </div>
+    } @else {
+      @if (reservationResource.value(); as reservation) {
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto w-full">
+          <!-- Información de la Reserva -->
+          <section class="bg-gray-900 rounded-xl p-6" aria-labelledby="reservation-info-title">
+            <h2 id="reservation-info-title" class="text-2xl text-blue-500 mb-6">Información de la Reserva</h2>
+            <div class="flex flex-col gap-4 text-white">
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">ID de Reserva</h3>
+                <p class="text-lg font-mono">{{ reservation.reserva_id }}</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Cliente</h3>
+                <p class="text-xl">{{ reservation.nombre_usuario }}</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Teléfono</h3>
+                <p class="text-xl">{{ reservation.telefono }}</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Mesa</h3>
+                <p class="text-xl">Mesa {{ reservation.numero_mesa }}</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Número de Personas</h3>
+                <p class="text-xl">{{ reservation.personas }} {{ reservation.personas === 1 ? 'persona' : 'personas' }}</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Estado</h3>
+                <div class="badge text-sm p-3" [ngClass]="getEstadoBadgeClass(reservation.estado)">
+                  {{ reservation.estado | titlecase }}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Información de Fecha y Hora -->
+          <section class="bg-gray-900 rounded-xl p-6" aria-labelledby="datetime-info-title">
+            <h2 id="datetime-info-title" class="text-2xl text-blue-500 mb-6">Fecha y Hora</h2>
+            <div class="flex flex-col gap-4 text-white">
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Fecha</h3>
+                <p class="text-xl">{{ reservation.fecha | fechaUtcIso }}</p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-blue-300">Hora</h3>
+                <p class="text-xl">{{ formatTime(reservation.hora) }}</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-center gap-4 mt-8">
+          <button class="btn" routerLink="/admin-dashboard/reservas">Volver</button>
+          <a [routerLink]="['/admin-dashboard/reservas/actualizar', reservation.reserva_id]" class="btn btn-primary bg-blue-500">
+            Actualizar Reserva
+          </a>
+        </div>
+      }
+    }
+  </div>
+</main> 
