@@ -31,6 +31,37 @@ export class ProductDetailsComponent {
   // Function to check if image is not found, if its not, show the default image
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
+    console.error('Error loading image:', img.src);
     if (img) img.src = this.fallbackImage;
+  }
+
+  // Helper method to get valid images from product
+  getValidImages(product: Product): string[] {
+    if (!product.imagens) return [];
+    
+    try {
+      // If imagens is a string, try to parse it as JSON
+      let images: string[];
+      if (typeof product.imagens === 'string') {
+        images = JSON.parse(product.imagens);
+      } else {
+        images = product.imagens;
+      }
+      
+      // Filter out null values and return only valid image names
+      const validImages = Array.isArray(images) ? images.filter(img => img !== null && img !== '') : [];
+      console.log('Valid images found:', validImages);
+      return validImages;
+    } catch (error) {
+      console.error('Error parsing product images:', error);
+      return [];
+    }
+  }
+
+  // Helper method to construct image URL
+  getImageUrl(imageName: string): string {
+    const url = `http://localhost:3001/images/products/${imageName}`;
+    console.log('Constructed image URL:', url);
+    return url;
   }
 }
