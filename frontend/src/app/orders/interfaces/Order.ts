@@ -17,4 +17,5 @@ export interface Order {
 interface User{
     id: string;
     nombre: string;
+    telefono: string;
 } 
