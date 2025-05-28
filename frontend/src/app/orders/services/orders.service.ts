@@ -24,17 +24,15 @@ export class OrdersService {
   
 
   getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.baseUrl+'/pedidos/pedidosProductos')
-      .pipe(tap((resp) => console.log(resp)));
+    return this.http.get<Order[]>(this.baseUrl+'/pedidos/pedidosProductos');
   }
 
   getOrder(id: string): Observable<Order> {
-    return this.http.get<Order>(`${this.baseUrl}/pedidos/id/${id}`).pipe(tap((resp) => console.log(resp)));
+    return this.http.get<Order>(`${this.baseUrl}/pedidos/id/${id}`);
   }
 
   getOrdersByUsername(username: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/pedidos/usuario/${username}`)
-      .pipe(tap((resp) => console.log(resp)));
+    return this.http.get<Order[]>(`${this.baseUrl}/pedidos/usuario/${username}`);
   }
 
   async updateOrder(id: string, estado: string): Promise<Order> {
@@ -42,7 +40,6 @@ export class OrdersService {
       const response = await firstValueFrom(
         this.http.put<Order>(`${this.baseUrl}/pedidos`, { id, estado })
           .pipe(
-            tap(response => console.log('Respuesta de actualización:', response)),
             catchError((error: HttpErrorResponse) => {
               console.error('Error en la actualización:', error);
               throw new Error(error.error?.message || 'Error al actualizar el pedido');

@@ -39,7 +39,6 @@ export class CreateOrderComponent implements OnDestroy {
 
   addProducto() {
     const uniqueId = Date.now() + Math.random();
-    console.log('Adding new producto with ID:', uniqueId);
     
     const productoForm = this.fb.group({
       id: [uniqueId],
@@ -51,14 +50,11 @@ export class CreateOrderComponent implements OnDestroy {
 
     // Subscription para cambios en producto_id
     const productSubscription = productoForm.get('producto_id')?.valueChanges.subscribe(id => {
-      console.log(`Producto ${uniqueId} - producto_id changed to:`, id);
       const producto = this.productsResource.value()?.find(p => p.producto_id === id);
       if (producto) {
         const precio = parseFloat(producto.precio);
         const cantidad = productoForm.get('cantidad')?.value || 1;
         const subtotal = precio * cantidad;
-        
-        console.log(`Producto ${uniqueId} - updating precio: ${precio}, cantidad: ${cantidad}, subtotal: ${subtotal}`);
         
         productoForm.patchValue({
           precio: precio,
@@ -70,12 +66,9 @@ export class CreateOrderComponent implements OnDestroy {
 
     // Subscription para cambios en cantidad
     const cantidadSubscription = productoForm.get('cantidad')?.valueChanges.subscribe(cantidad => {
-      console.log(`Producto ${uniqueId} - cantidad changed to:`, cantidad);
       if (cantidad) {
         const precio = productoForm.get('precio')?.value || 0;
         const subtotal = precio * cantidad;
-        
-        console.log(`Producto ${uniqueId} - updating subtotal: ${subtotal}`);
         
         productoForm.patchValue({
           subtotal: subtotal
@@ -88,12 +81,9 @@ export class CreateOrderComponent implements OnDestroy {
     (productoForm as any)._subscriptions = [productSubscription, cantidadSubscription];
 
     this.productosFormArray.push(productoForm);
-    console.log('Current FormArray length:', this.productosFormArray.length);
   }
 
   removeProducto(index: number) {
-    console.log('Removing producto at index:', index);
-    
     // Limpiar subscripciones antes de remover
     const control = this.productosFormArray.at(index);
     if (control && (control as any)._subscriptions) {
@@ -106,7 +96,6 @@ export class CreateOrderComponent implements OnDestroy {
     
     this.productosFormArray.removeAt(index);
     this.calcularTotal();
-    console.log('FormArray length after removal:', this.productosFormArray.length);
   }
 
   calcularTotal() {
@@ -126,48 +115,31 @@ export class CreateOrderComponent implements OnDestroy {
     }
 
     try {
-      // Debug: Verificar los valores de cada FormControl
-      console.log('FormArray length:', this.productosFormArray.length);
-      this.productosFormArray.controls.forEach((control, index) => {
-        console.log(`Producto ${index}:`, {
-          id: control.get('id')?.value,
-          producto_id: control.get('producto_id')?.value,
-          cantidad: control.get('cantidad')?.value,
-          precio: control.get('precio')?.value,
-          subtotal: control.get('subtotal')?.value
-        });
-      });
-
       const orderData = {
         usuario_id: this.orderForm.get('usuario_id')?.value,
         estado: this.orderForm.get('estado')?.value,
         total: parseFloat(this.orderForm.get('total')?.value),
-        productos: this.productosFormArray.controls.map((control, index) => {
-          const producto = {
+        productos: this.productosFormArray.controls.map((control) => {
+          return {
             producto_id: control.get('producto_id')?.value,
             cantidad: control.get('cantidad')?.value,
             subtotal: control.get('subtotal')?.value
           };
-          console.log(`Mapped producto ${index}:`, producto);
-          return producto;
         })
       };
-      
-      console.log('Final orderData:', orderData);
       
       // Validar que no hay productos duplicados
       const productIds = orderData.productos.map(p => p.producto_id);
       const uniqueProductIds = [...new Set(productIds)];
       
       if (productIds.length !== uniqueProductIds.length) {
-        console.error('Productos duplicados detectados:', productIds);
         this.toastService.showToast('Error: Se detectaron productos duplicados en el pedido', 'error');
         return;
       }
 
       await this.orderService.createOrder(orderData);
       this.toastService.showToast('Pedido creado correctamente', 'success');
-      this.router.navigate(['/admin/pedidos']);
+      this.router.navigate(['/admin-dashboard/pedidos']);
     } catch (error) {
       console.error('Error creating order:', error);
       this.toastService.showToast('Error al crear el pedido', 'error');
