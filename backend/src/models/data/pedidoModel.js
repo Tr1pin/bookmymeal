@@ -17,11 +17,12 @@ export class PedidoModel {
     //Lista de pedidos con su lista de productos
     static async getPedidos() {
         const connection = await mysql.createConnection(connectionString);
-        const [res] = await connection.query(
-            `SELECT 
+        const [res] = await connection.query(`
+            SELECT 
                 p.id AS pedido_id, 
                 p.numero_pedido,
                 u.nombre AS nombre_usuario,
+                u.telefono,
                 p.estado, 
                 p.total,
                 p.usuario_id, 
@@ -48,6 +49,7 @@ export class PedidoModel {
                     productos: [],
                     usuario:{
                         nombre: '',
+                        telefono: '',
                         id: ''
                     }
                 };
@@ -66,6 +68,7 @@ export class PedidoModel {
             pedido.usuario = 
                 {
                     nombre: item.nombre_usuario,
+                    telefono: item.telefono,
                     id: item.usuario_id
                 }
             ;
@@ -83,6 +86,7 @@ export class PedidoModel {
                 p.id AS pedido_id, 
                 p.numero_pedido,
                 u.nombre AS nombre_usuario,
+                u.telefono,
                 p.estado, 
                 p.total,
                 p.usuario_id, 
@@ -116,7 +120,8 @@ export class PedidoModel {
             })),
             usuario: {
                 id: res[0].usuario_id,
-                nombre: res[0].nombre_usuario
+                nombre: res[0].nombre_usuario,
+                telefono: res[0].telefono
             }
         };
 
@@ -219,6 +224,7 @@ export class PedidoModel {
                 p.id AS pedido_id, 
                 p.numero_pedido,
                 u.nombre AS nombre_usuario,
+                u.telefono,
                 p.estado, 
                 p.total,
                 p.usuario_id, 
@@ -247,6 +253,7 @@ export class PedidoModel {
                     productos: [],
                     usuario:{
                         nombre: '',
+                        telefono: '',
                         id: ''
                     }
                 };
@@ -264,6 +271,7 @@ export class PedidoModel {
             pedido.usuario = 
                 {
                     nombre: item.nombre_usuario,
+                    telefono: item.telefono,
                     id: item.usuario_id
                 }
             ;
