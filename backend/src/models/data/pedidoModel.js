@@ -125,20 +125,16 @@ export class PedidoModel {
     }
 
     static async crearPedido({ usuario_id, total, estado, productos }) {
-        console.log(usuario_id, total, estado, productos);
         if (!usuario_id || !total || !estado || !productos || productos.length === 0) {
             throw new Error("Faltan datos para crear un pedido");
         }
 
         const uuid = randomUUID();
-        const numero_pedido = Math.floor(Math.random() * 1000) + 1; // Generar número de pedido aleatorio
+        const numero_pedido = Math.floor(Math.random() * 1000) + 1;
 
-        if(validatePedido({usuario_id, total, estado}).error){
-            throw new Error(validatePedido(usuario_id, total, estado).error);
-        }
-
-        if(!UserModel.getById({id: usuario_id})){
-            throw new Error("El usuario no existe");
+        const validation = validatePedido({usuario_id, total, estado});
+        if (!validation.success) {
+            throw new Error(validation.error.message);
         }
 
         const connection = await mysql.createConnection(connectionString);
@@ -154,9 +150,10 @@ export class PedidoModel {
 
             // Insertar los detalles del pedido
             for (const producto of productos) {
+                const detalleId = randomUUID();
                 await connection.query(
-                    'INSERT INTO detalles_pedido (pedido_id, producto_id, cantidad, subtotal) VALUES (?, ?, ?, ?)',
-                    [uuid, producto.producto_id, producto.cantidad, producto.subtotal]
+                    'INSERT INTO detalles_pedido (id, pedido_id, producto_id, cantidad, subtotal) VALUES (?, ?, ?, ?, ?)',
+                    [detalleId, uuid, producto.producto_id, producto.cantidad, producto.subtotal]
                 );
             }
 
@@ -176,7 +173,7 @@ export class PedidoModel {
                     })),
                     usuario: {
                         id: usuario_id,
-                        nombre: '' // El nombre se obtiene en la consulta de getPedidos
+                        nombre: ''
                     }
                 }
             };
