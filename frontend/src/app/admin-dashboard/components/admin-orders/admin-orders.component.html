@@ -9,6 +9,7 @@
       <thead class="text-lg text-blue-300 font-bold">
         <tr class="text-center">
           <th>Nº Pedido</th>
+          <th>Cliente</th>
           <th>Productos</th>
           <td>Estado</td>
           <td>Acciones</td>
@@ -20,6 +21,12 @@
         @for (order of orderResource.value(); track $index) {
         <tr>
           <td>{{ order.numero_pedido }}</td>
+          <td>
+            <div class="flex flex-col">
+              <span class="font-semibold">{{ order.usuario.nombre }}</span>
+              <span class="text-xs text-gray-400">{{ order.usuario.telefono }}</span>
+            </div>
+          </td>
           <td>
             @for(product of order.productos; track $index) {
               <p>- {{ product.nombre }}</p>
@@ -75,6 +82,7 @@
         </tr>
         }
         <tr>
+          <td></td>
           <td></td>
           <td></td>
           <td></td>
