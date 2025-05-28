@@ -23,7 +23,7 @@ export class UserModel {
     }
 
     const connection = await mysql.createConnection(connectionString);
-    const res = await connection.query(
+    const [res] = await connection.query(
         `SELECT * FROM usuarios WHERE id = ?`, 
         [id]
     );
@@ -40,7 +40,7 @@ export class UserModel {
     }
 
     const connection = await mysql.createConnection(connectionString);
-    const rows = await connection.query(
+    const [res] = await connection.query(
         `SELECT * FROM usuarios WHERE tipo = ?`, 
         [tipo]
     );
@@ -56,7 +56,7 @@ export class UserModel {
     }
 
     const connection = await mysql.createConnection(connectionString);
-    const res = await connection.query(
+    const [res] = await connection.query(
         `SELECT * FROM usuarios WHERE email = ?`, 
         [email]
     );
@@ -73,7 +73,7 @@ export class UserModel {
     }
 
     const connection = await mysql.createConnection(connectionString);
-    const rows = await connection.query(
+    const [res] = await connection.query(
         `SELECT * FROM usuarios WHERE nombre = ?`, 
         [nombre]
     );
@@ -84,22 +84,23 @@ export class UserModel {
 
   //Crear Usuario
   static async createUsuario({ nombre, email, password }) {
-      
+    
       if (!nombre || !email || !password) {
         throw new Error("Faltan datos para crear un Usuario");
       }
-  
+
       if(validateUser({ nombre, email, password }).success === false){
         throw new Error(validateUser().error.message);
       }
 
       const connection = await mysql.createConnection(connectionString);
+
       const uuidRandom = randomUUID();
       const passwordEncriptado = bcrypt.hashSync(password, SALT_ROUNDS);
       const tipo = "cliente";
 
       const [res] = await connection.query(
-          `INSERT INTO usuarios (id, nombre, email, password, tipo) VALUES (?, ?, ?, ?, ?)`, 
+          `INSERT INTO usuarios (id, nombre, email, password, rol) VALUES (?, ?, ?, ?, ?)`, 
           [uuidRandom, nombre, email, passwordEncriptado, tipo]
       );
       
