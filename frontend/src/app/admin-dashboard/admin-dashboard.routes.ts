@@ -11,6 +11,9 @@ import { ProductDetailsComponent } from "./components/admin-products/product-det
 import { CreateOrderComponent } from "./components/admin-orders/create-order/create-order.component";
 import { UpdateOrderComponent } from "./components/admin-orders/update-order/update-order.component";
 import { OrderDetailsComponent } from "./components/admin-orders/order-details/order-details.component";
+import { CreateReservationComponent } from "./components/admin-reservations/create-reservation/create-reservation.component";
+import { UpdateReservationComponent } from "./components/admin-reservations/update-reservation/update-reservation.component";
+import { ReservationDetailsComponent } from "./components/admin-reservations/reservation-details/reservation-details.component";
 
 export const adminDashboardRoutes: Routes = [
    {
@@ -23,7 +26,24 @@ export const adminDashboardRoutes: Routes = [
       } ,
       {
          path: 'reservas',
-         component: AdminReservationsComponent
+         children: [
+            {
+               path: '',
+               component: AdminReservationsComponent
+            },
+            {
+               path: 'crear',
+               component: CreateReservationComponent
+            },
+            {
+               path: 'actualizar/:id',
+               component: UpdateReservationComponent
+            },
+            {
+               path: 'detalles/:id',
+               component: ReservationDetailsComponent
+            }
+         ]
       },
       {
          path: 'pedidos',
