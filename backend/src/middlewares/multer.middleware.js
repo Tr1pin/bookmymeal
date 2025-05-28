@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'path';
+import { randomUUID } from 'crypto';
 
 // Storage config
 const storage = multer.diskStorage({
@@ -8,11 +9,19 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {  
     const productNombre = req.body.nombre || 'unknown';
-    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '');
-    const randomString = Math.random().toString(36).substring(2, 10);
+    
+    // Generate a unique UUID v4 (completely random, no time dependency)
+    const uniqueId = randomUUID().replace(/-/g, '').substring(0, 12);
+    
     const ext = path.extname(file.originalname).toLowerCase();
-
-    const uniqueName = `${productNombre}_${timestamp}_${randomString}${ext}`;
+    
+    // Clean product name for filename (remove special characters and spaces)
+    const cleanProductName = productNombre
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '_')
+      .substring(0, 20); // Limit length
+    
+    const uniqueName = `${cleanProductName}_${uniqueId}${ext}`;
     cb(null, uniqueName);
   }
 });
