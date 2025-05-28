@@ -12,8 +12,9 @@ export class ReservaModel {
             SELECT 
                 r.id AS reserva_id,
                 u.nombre AS nombre_usuario,
+                u.telefono,
                 m.numero AS numero_mesa,
-                r.fecha,
+                DATE_FORMAT(r.fecha, '%Y-%m-%d') as fecha,
                 r.hora,
                 r.estado,
                 r.personas
@@ -33,10 +34,21 @@ export class ReservaModel {
         }
 
         const connection = await mysql.createConnection(connectionString);
-        const res = await connection.query(
-            `SELECT * FROM reservas WHERE id = ?`,
-            [id]
-        );
+        const [res] = await connection.query(`
+            SELECT 
+                r.id AS reserva_id,
+                u.nombre AS nombre_usuario,
+                u.telefono,
+                m.numero AS numero_mesa,
+                DATE_FORMAT(r.fecha, '%Y-%m-%d') as fecha,
+                r.hora,
+                r.estado,
+                r.personas
+            FROM reservas r
+            JOIN usuarios u ON r.usuario_id = u.id
+            JOIN mesas m ON r.mesa_id = m.id
+            WHERE r.id = ?
+        `, [id]);
 
         await connection.end();
         return res[0];
@@ -90,9 +102,59 @@ export class ReservaModel {
         return res[0];
     }
 
-    //POST reservation 
-    static async createReservation({ usuario_id, fecha, hora, personas }) {
+    //POST reservation with existing user ID
+    static async createReservationWithUserId({ usuario_id, fecha, hora, personas }) {
         if (!usuario_id || !fecha || !hora || !personas) {
+            throw new Error("Faltan datos para crear la reserva");
+        }
+
+        const connection = await mysql.createConnection(connectionString);
+        const estado = 'pendiente';
+
+        try {
+            //Comprobar si hay mesas disponibles
+            const [mesas] = await connection.execute(
+                `SELECT id FROM mesas 
+                WHERE (capacidad+1) >= ? 
+                AND id NOT IN (
+                    SELECT mesa_id FROM reservas 
+                    WHERE fecha = ? AND hora = ? AND estado IN ('pendiente', 'confirmada')
+                ) 
+                LIMIT 1`,
+                [personas, fecha, hora]
+            );
+
+            if (mesas.length === 0) {
+                return { mensaje: "No hay mesas disponibles a esa hora y ese dia." };
+            }
+
+            const mesa_id = mesas[0].id;
+            const id = randomUUID();
+
+            const validation = validateReserva({ usuario_id, mesa_id, fecha, hora, estado, personas });
+            if(!validation.success){
+                throw new Error(validation.error.message);
+            }
+
+            // Crear la reserva
+            const [result] = await connection.execute(
+                `INSERT INTO reservas (id, usuario_id, mesa_id, fecha, hora, estado, personas) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [id, usuario_id, mesa_id, fecha, hora, estado, personas]
+            );
+
+            await connection.end();
+            return { message: "Reserva creada correctamente" };
+
+        } catch (error) {
+            console.error("Error " + error);
+            throw new Error("Error en la base de datos: " + error.message);
+        }
+    }
+
+    //POST reservation 
+    static async createReservation({ nombre, telefono, fecha, hora, personas }) {
+        if (!nombre || !telefono || !fecha || !hora || !personas) {
           throw new Error("Faltan datos para crear la reserva");
         }
     
@@ -100,10 +162,18 @@ export class ReservaModel {
         const estado = 'confirmada';
 
         try {
+            // Crear un usuario temporal con el nombre y teléfono
+            const usuario_id = randomUUID();
+            await connection.execute(
+                `INSERT INTO usuarios (id, nombre, telefono, email, password, rol) 
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [usuario_id, nombre, telefono, `temp_${usuario_id}@reserva.com`, 'temp_password', 'cliente']
+            );
+
             //Comprobar si hay mesas disponibles
           const [mesas] = await connection.execute(
                 `SELECT id FROM mesas 
-                WHERE capacidad >= ? 
+                WHERE (capacidad+1) >= ? 
                 AND id NOT IN (
                     SELECT mesa_id FROM reservas 
                     WHERE fecha = ? AND hora = ? AND estado IN ('pendiente', 'confirmada')
@@ -119,7 +189,6 @@ export class ReservaModel {
           const mesa_id = mesas[0].id;
     
           const id = randomUUID();
-
 
           const validation = validateReserva({ usuario_id, mesa_id, fecha, hora, estado, personas });
           if(!validation.success){
@@ -194,8 +263,11 @@ export class ReservaModel {
           let { mesa_id, personas: oldPersonas, fecha: oldDate, hora: oldHour } = reservas[0];
           let newMesaId = mesa_id; // Mantener la mesa actual si es válida
   
-          date = date.split('T')[0]; 
-          console.log(date);
+          // Solo procesar la fecha si se proporciona
+          if (date) {
+              date = date.split('T')[0]; 
+          }
+          
           // Si cambia el número de personas, verificar la mesa actual
           if (personas && personas !== oldPersonas) {
               const [mesas] = await connection.execute(
@@ -209,7 +281,6 @@ export class ReservaModel {
                   [personas, date || oldDate, hour || oldHour]
               );
   
-              console.log( [personas, date || oldDate, hour || oldHour]);
               if (mesas.length === 0) {
                   return { success: false, message: "No hay mesas disponibles para la nueva cantidad de personas" };
               }
@@ -224,7 +295,8 @@ export class ReservaModel {
           if (date) updates.push("fecha = ?"), values.fecha = date;
           if (hour) updates.push("hora = ?"), values.hora = hour;
           if (personas) updates.push("personas = ?"), values.personas = personas;
-          if (newMesaId) updates.push("mesa_id = ?"), values.mesa_id = newMesaId;
+          if (newMesaId !== mesa_id) updates.push("mesa_id = ?"), values.mesa_id = newMesaId;
+          
           if (!updates.length) throw new Error("No hay datos para actualizar");
   
           const validation = validatePartialReserva(values);
