@@ -9,7 +9,9 @@ const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION;
 export class ProductModel {
   static async getAll() {
     const connection = await mysql.createConnection(connectionString);
-    const [res] = await connection.query('SELECT * FROM productos');
+    const [res] = await connection.query(
+      'SELECT p.*, cp.nombre AS categoria_nombre FROM productos p LEFT JOIN categorias_producto cp ON p.categoria_id = cp.id'
+    );
 
     await connection.end();
     return res;
@@ -24,13 +26,16 @@ export class ProductModel {
         p.descripcion,
         FORMAT(p.precio, 2) AS precio,
         p.disponible,
+        cp.nombre AS categoria_nombre,
         JSON_ARRAYAGG(i.filename) AS imagens
       FROM 
         productos p
       LEFT JOIN 
         imagenes_productos i ON p.id = i.producto_id
+      LEFT JOIN
+        categorias_producto cp ON p.categoria_id = cp.id
       GROUP BY 
-        p.id, p.nombre, p.descripcion, p.precio, p.disponible;`);
+        p.id, p.nombre, p.descripcion, p.precio, p.disponible, cp.nombre;`);
 
     
     await connection.end();
@@ -48,15 +53,18 @@ export class ProductModel {
         p.descripcion,
         FORMAT(p.precio, 2) AS precio,
         p.disponible,
+        cp.nombre AS categoria_nombre,
         JSON_ARRAYAGG(i.filename) AS imagens
       FROM 
         productos p
       LEFT JOIN 
         imagenes_productos i ON p.id = i.producto_id
+      LEFT JOIN
+        categorias_producto cp ON p.categoria_id = cp.id
       WHERE 
         p.id = ?
       GROUP BY 
-        p.id, p.nombre, p.descripcion, p.precio, p.disponible`, [id]);
+        p.id, p.nombre, p.descripcion, p.precio, p.disponible, cp.nombre`, [id]);
 
     await connection.end();
     return res[0];
@@ -73,15 +81,18 @@ export class ProductModel {
         p.descripcion,
         FORMAT(p.precio, 2) AS precio,
         p.disponible,
+        cp.nombre AS categoria_nombre,
         JSON_ARRAYAGG(i.filename) AS imagens
       FROM 
         productos p
       LEFT JOIN 
         imagenes_productos i ON p.id = i.producto_id
+      LEFT JOIN
+        categorias_producto cp ON p.categoria_id = cp.id
       WHERE 
         p.nombre = ?
       GROUP BY 
-        p.id, p.nombre, p.descripcion, p.precio, p.disponible`, [nombre]);
+        p.id, p.nombre, p.descripcion, p.precio, p.disponible, cp.nombre`, [nombre]);
 
     await connection.end();
     console.log(res);
@@ -106,88 +117,107 @@ export class ProductModel {
     return res;
   }
 
-  static async crearProducto({ nombre, descripcion, precio, disponible, imagenes }) {
+  static async crearProducto({ nombre, descripcion, precio, disponible, imagenes, categoria_id }) {
     try {
-      console.log(nombre, descripcion, precio, disponible, imagenes);
-      if (!nombre || !descripcion || !precio || disponible === undefined) {
-        throw new Error("Faltan datos para crear un producto");
+      console.log(nombre, descripcion, precio, disponible, imagenes, categoria_id);
+      if (!nombre || !descripcion || !precio || disponible === undefined || !categoria_id) {
+        throw new Error("Faltan datos para crear un producto, incluyendo categoria_id");
       }
 
       precio = Number(precio);
       const disponibleValue = disponible === 'true' || disponible === true ? true : false;
-      console.log(typeof precio, typeof disponibleValue, typeof nombre, typeof descripcion);
-      const validation = validateProduct({ nombre, descripcion, precio, disponible: disponibleValue });
-      console.log(validation.success);
+      // Asegúrate de que categoria_id también se valida si es necesario. Momentáneamente, asumimos que es un UUID válido.
+      const validation = validateProduct({ nombre, descripcion, precio, disponible: disponibleValue, categoria_id });
       if (!validation.success) {
-        throw new Error(validation.error.message);
+        // Adaptar el mensaje de error si la validación de categoria_id falla
+        throw new Error(validation.error.errors.map(e => e.message).join(', '));
       }
-      console.log("LLego aqui 2");
 
       const uuid = randomUUID();
-      const disponibleValueDB = disponibleValue === 'true' || disponibleValue === true ? true : false;
-      console.log("Llego aqui 3");
-      // Extraer nombres de archivos
-      const imageFilenames = imagenes.map(image => image.filename); // array de strings
+      const disponibleValueDB = disponibleValue; // Ya es booleano
+      
+      const imageFilenames = imagenes.map(image => image.filename);
 
       const connection = await mysql.createConnection(connectionString);
-    console.log("LLego aqui 3");
-      // Insertar producto
-      await connection.query(
-        'INSERT INTO productos (id, nombre, descripcion, precio, disponible) VALUES (?, ?, ?, ?, ?)',
-        [uuid, nombre, descripcion, precio, disponibleValueDB]
-      );
-      // Insertar imágenes asociadas
-      for (const filename of imageFilenames) {
-        await connection.query(
-          'INSERT INTO imagenes_productos (producto_id, filename) VALUES (?, ?)',
-          [uuid, filename]
-        );
-      }
+      await connection.beginTransaction(); // Iniciar transacción
 
-      await connection.end();
-      return({ message: "Producto creado correctamente", id: uuid });
+      try {
+        await connection.query(
+          'INSERT INTO productos (id, nombre, descripcion, precio, disponible, categoria_id) VALUES (?, ?, ?, ?, ?, ?)',
+          [uuid, nombre, descripcion, precio, disponibleValueDB, categoria_id]
+        );
+
+        for (const filename of imageFilenames) {
+          await connection.query(
+            'INSERT INTO imagenes_productos (producto_id, filename) VALUES (?, ?)',
+            [uuid, filename]
+          );
+        }
+        await connection.commit(); // Confirmar transacción
+        return({ message: "Producto creado correctamente", id: uuid });
+      } catch (error) {
+        await connection.rollback(); // Revertir en caso de error
+        throw error; // Re-lanzar el error para manejo externo
+      } finally {
+        await connection.end();
+      }
     } catch (error) {
-      return ({ error: error.message });
+      // Asegurarse de que el mensaje de error sea informativo
+      return ({ error: `Error al crear producto: ${error.message}` });
     }
   }
 
-  static async actualizarProducto({ id, nombre, descripcion, precio, disponible, imagenes }) {
+  static async actualizarProducto({ id, nombre, descripcion, precio, disponible, imagenes, categoria_id }) {
     if (!id) throw new Error("El ID es requerido");
 
     const updates = [];
     const values = {};
 
-    if (nombre) updates.push("nombre = ?"), values.nombre = nombre;
-    if (descripcion) updates.push("descripcion = ?"), values.descripcion = descripcion;
-    if (precio) updates.push("precio = ?"), values.precio = Number(precio);
-    if (disponible !== undefined) updates.push("disponible = ?"), values.disponible = disponible === 'true' || disponible === true;
+    if (nombre) { updates.push("nombre = ?"); values.nombre = nombre; }
+    if (descripcion) { updates.push("descripcion = ?"); values.descripcion = descripcion; }
+    if (precio) { updates.push("precio = ?"); values.precio = Number(precio); }
+    if (disponible !== undefined) { updates.push("disponible = ?"); values.disponible = disponible === 'true' || disponible === true; }
+    if (categoria_id) { updates.push("categoria_id = ?"); values.categoria_id = categoria_id; }
     
-    if (!updates.length && (!imagenes || imagenes.length === 0)) {
+    if (updates.length === 0 && (!imagenes || imagenes.length === 0)) {
       throw new Error("No hay datos para actualizar");
     }
+    
+    // Validar solo los campos que se van a actualizar
+    const partialDataToValidate = { ...values };
+    // La validación parcial podría necesitar ajustarse para manejar campos opcionales correctamente.
+    // Si `validatePartialProduct` espera todos los campos potencialmente actualizables,
+    // entonces no es necesario eliminar `categoria_id` si no está presente.
+    // Si `categoria_id` no está en `values` porque no se actualiza, no se incluirá en la validación.
+    
+    // Eliminar `categoria_id` de `partialDataToValidate` si no se está actualizando,
+    // para evitar problemas con `validatePartialProduct` si no espera `categoria_id`.
+    // Sin embargo, si `validatePartialProduct` está diseñado para ignorar campos no presentes, esta línea no es necesaria.
+    // Comentado por ahora, ya que dependerá de la implementación de `validatePartialProduct`.
+    // if (!values.categoria_id) delete partialDataToValidate.categoria_id;
 
+
+    // Solo validar si hay algo que validar en `values`
     if (Object.keys(values).length > 0) {
-      if (!validatePartialProduct(values).success) {
-        throw new Error(validatePartialProduct(values).error.message);
+      const validationResult = validatePartialProduct(values); // Usar 'values' que contiene los campos a actualizar
+      if (!validationResult.success) {
+        throw new Error(validationResult.error.errors.map(e => e.message).join(', '));
       }
     }
 
+
     try {
-      // Start transaction
       const connection = await mysql.createConnection(connectionString);
       await connection.beginTransaction();
 
       try {
-        // Update product details if there are any
         if (updates.length > 0) {
-          const query = `UPDATE productos SET ${updates.join(", ")} WHERE id = ?`;
+          const query = `UPDATE productos SET \${updates.join(", ")} WHERE id = ?`;
           const queryValues = [...Object.values(values), id];
           await connection.query(query, queryValues);
         }
 
-        // Handle image updates if there are new images
         if (imagenes && imagenes.length > 0) {
-          // Insert new images
           for (const image of imagenes) {
             await connection.query(
               'INSERT INTO imagenes_productos (producto_id, filename) VALUES (?, ?)',
@@ -197,15 +227,16 @@ export class ProductModel {
         }
 
         await connection.commit();
-        await connection.end();
         return { message: "Producto actualizado correctamente" };
       } catch (error) {
         await connection.rollback();
+        throw error; 
+      } finally {
         await connection.end();
-        throw error;
       }
     } catch (error) {
-      throw error;
+      // Es mejor relanzar el error para que el controlador lo maneje
+      throw error; // O retornar un objeto de error: return { error: `Error al actualizar producto: ${error.message}` };
     }
   }
 
@@ -274,6 +305,63 @@ export class ProductModel {
       await connection.rollback();
       await connection.end();
       throw error;
+    }
+  }
+
+  static async getProductsGroupedByCategoryWithImages() {
+    const connection = await mysql.createConnection(connectionString);
+    try {
+      const [rows] = await connection.query(`
+        SELECT
+          p.id AS producto_id,
+          p.nombre,
+          p.descripcion,
+          FORMAT(p.precio, 2) AS precio,
+          p.disponible,
+          p.categoria_id,
+          cp.nombre AS categoria_nombre,
+          (SELECT JSON_ARRAYAGG(i.filename) FROM imagenes_productos i WHERE i.producto_id = p.id) AS imagens
+        FROM
+          productos p
+        LEFT JOIN
+          categorias_producto cp ON p.categoria_id = cp.id
+        ORDER BY
+          cp.nombre, p.nombre;
+      `);
+
+      const groupedProducts = {};
+      for (const row of rows) {
+        // Ensure 'imagens' is an array, even if it's null or an empty array string from DB
+        try {
+          row.imagens = JSON.parse(row.imagens);
+          // If imagens is null after parsing (e.g., from JSON_NULL()), or it's an array with a single null value
+          if (row.imagens === null || (Array.isArray(row.imagens) && row.imagens.length === 1 && row.imagens[0] === null)) {
+            row.imagens = []; // Default to an empty array
+          }
+        } catch (e) {
+          // If parsing fails (e.g., not valid JSON) or it's not an array string, default to empty array
+          row.imagens = []; 
+        }
+        
+        const categoryName = row.categoria_nombre || 'Otros'; // Default to 'Otros' if no category
+        if (!groupedProducts[categoryName]) {
+          groupedProducts[categoryName] = [];
+        }
+        // Create a new object for the product to avoid modifying the original row directly if it's used elsewhere
+        const productData = {
+          producto_id: row.producto_id,
+          nombre: row.nombre,
+          descripcion: row.descripcion,
+          precio: row.precio,
+          disponible: row.disponible,
+          categoria_id: row.categoria_id, // Keep categoria_id if needed within the product object
+          imagens: row.imagens
+        };
+        groupedProducts[categoryName].push(productData);
+      }
+      return groupedProducts;
+    } finally {
+      await connection.end();
     }
   }
 }
