@@ -39,8 +39,10 @@
               <select formControlName="producto_id" class="select select-bordered w-full bg-gray-700 text-white">
                 <option value="">Seleccione un producto</option>
                 @if (productsResource.value(); as products) {
-                  @for (producto of products; track producto.producto_id) {
-                    <option [value]="producto.producto_id">{{ producto.nombre }} - {{ producto.precio }}€</option>
+                  @for (product of products; track product.producto_id) {
+                    <option [value]="product.producto_id">
+                      {{ product.nombre }} ({{ product.categoria_nombre || 'Sin categoría' }}) - {{ product.precio }}€
+                    </option>
                   }
                 }
               </select>

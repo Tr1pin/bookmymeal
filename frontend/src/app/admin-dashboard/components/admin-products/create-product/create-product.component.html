@@ -41,6 +41,19 @@
               <label for="disponible" class="text-sm text-gray-300">Producto disponible</label>
             </div>
           </fieldset>
+
+          <fieldset class="form-control w-full flex flex-col gap-3">
+            <label for="categoria_id" class="label">
+              <span class="label-text text-lg text-blue-300">Categoría</span>
+            </label>
+            <select id="categoria_id" formControlName="categoria_id" class="select select-bordered w-full">
+              <option value="" disabled>Seleccione una categoría</option>
+              @for (category of categoriesResource.value() ; track category.id) {
+                <option [value]="category.id">{{ category.nombre }}</option>
+              }
+            </select>
+          </fieldset>
+
         </form>
       </section>
 
