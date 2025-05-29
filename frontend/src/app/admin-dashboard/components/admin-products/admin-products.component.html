@@ -11,7 +11,6 @@
           <th>Nombre</th>
           <th>Descripción</th>
           <th>Precio</th>
-          <!--<th>Disponible</th> -->
           <td>Acciones</td>
         </tr>
       </thead>
@@ -22,6 +21,7 @@
           <td>{{ product.nombre }}</td>
           <td>{{ product.descripcion | slice: 0:50 }}...</td>
           <td>{{ product.precio }}</td>
+          
           <!-- 
             <td>
               @if (product.disponible === 1) {

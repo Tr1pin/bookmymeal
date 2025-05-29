@@ -4,8 +4,11 @@ import { ProductsService } from '../../../../products/services/products.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Product } from '../../../../products/interfaces/Product';
-import { tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { ProductCategoryService } from '../../../../products/services/product-category.service.js';
+import { ProductCategory } from '../../../../products/interfaces/ProductCategory.js';
+import { CommonModule } from '@angular/common';
 
 const FALLBACK_IMAGE = '../../../assets/images/static/empty.jpg';
 
@@ -19,13 +22,14 @@ interface ImagePreview {
 @Component({
   selector: 'update-product',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './update-product.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UpdateProductComponent {
   private fb = inject(FormBuilder);
   private productService = inject(ProductsService);
+  private productCategoryService = inject(ProductCategoryService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastService = inject(ToastService);
@@ -35,13 +39,15 @@ export class UpdateProductComponent {
   selectedFiles: File[] = [];
   currentImages: string[] = [];
   fallbackImage = FALLBACK_IMAGE;
+  categories$: Observable<ProductCategory[]> = this.productCategoryService.getCategories();
 
   productForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required]],
     descripcion: ['', [Validators.required]],
     precio: ['', [Validators.required, Validators.min(0)]],
     disponible: [true, [Validators.required]],
-    imagenes: [null]
+    imagenes: [null],
+    categoria_id: ['', [Validators.required]]
   });
 
   handleImageError(preview: ImagePreview) {
@@ -57,7 +63,8 @@ export class UpdateProductComponent {
             nombre: product.nombre,
             descripcion: product.descripcion,
             precio: product.precio,
-            disponible: product.disponible === 1
+            disponible: product.disponible === 1,
+            categoria_id: product.categoria_id
           });
           
           // Load existing images
@@ -163,6 +170,7 @@ export class UpdateProductComponent {
     formData.append('descripcion', this.productForm.get('descripcion')?.value);
     formData.append('precio', this.productForm.get('precio')?.value);
     formData.append('disponible', this.productForm.get('disponible')?.value);
+    formData.append('categoria_id', this.productForm.get('categoria_id')?.value);
     
     // Append each new image to formData
     const newImages = this.imagePreviews.filter(preview => preview.isNew);

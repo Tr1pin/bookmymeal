@@ -3,6 +3,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ProductsService } from '../../../../products/services/products.service';
 import { Router, RouterLink } from '@angular/router';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { ProductCategoryService } from '../../../../products/services/product-category.service.js';
+import { ProductCategory } from '../../../../products/interfaces/ProductCategory.js';
+import { Observable } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 interface ImagePreview {
   file: File;
@@ -12,25 +17,32 @@ interface ImagePreview {
 @Component({
   selector: 'create-product',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './create-product.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateProductComponent {
   private fb = inject(FormBuilder);
   private productService = inject(ProductsService);
+  private productCategoryService = inject(ProductCategoryService);
   private router = inject(Router);
   private toastService = inject(ToastService);
 
   imagePreviews: ImagePreview[] = [];
   selectedFiles: File[] = [];
 
+  categoriesResource = rxResource({
+    request: () => ({}),
+    loader: ({ request }) => this.productCategoryService.getCategories()
+  });
+
   productForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required]],
     descripcion: ['', [Validators.required]],
     precio: ['', [Validators.required, Validators.min(0)]],
     disponible: [true, [Validators.required]],
-    imagenes: [null, [Validators.required]]
+    imagenes: [null, [Validators.required]],
+    categoria_id: ['', [Validators.required]]
   });
 
   onFileChange(event: any) {
@@ -82,6 +94,7 @@ export class CreateProductComponent {
     formData.append('descripcion', this.productForm.get('descripcion')?.value);
     formData.append('precio', this.productForm.get('precio')?.value);
     formData.append('disponible', this.productForm.get('disponible')?.value);
+    formData.append('categoria_id', this.productForm.get('categoria_id')?.value);
     
     // Append each image to formData
     this.selectedFiles.forEach((file, index) => {
