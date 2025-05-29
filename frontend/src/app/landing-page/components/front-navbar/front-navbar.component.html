@@ -10,6 +10,28 @@
     </div>
 
     <body class="sm:flex sm:items-center sm:justify-center lg:hidden md:hidden">
+        <ul class="flex justify-center items-center gap-2 menu menu-horizontal p-0 h-full">
+            <li class="h-full flex flex-row justify-center items-center">
+                <details>
+                  <summary class="text-xl flex gap-3 h-full"> 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-cart2" viewBox="0 0 16 16">
+                            <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l1.25 5h8.22l1.25-5zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"/>
+                        </svg>
+                    </summary>
+                  <ul class="p-2 w-100 absolute left-[-330px] mt-2 bg-white rounded-md shadow-lg">
+                    <li>
+                        <p class="text-lg text-black font-bold">Mis productos(0)</p>
+                    </li>
+                    <li>
+
+                    </li>
+                    <li>
+                        <button class="btn bg-blue-950 text-white">Confirmar pedido</button>
+                    </li>
+                  </ul>
+                </details>
+              </li>
+        </ul>
         <div class="relative inline-block group">
             <button class="text-white px-4 py-2 rounded-md group-hover:block">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -17,7 +39,13 @@
                 </svg>
             </button>
             <div class="absolute hidden mt-0.5 w-40 bg-white rounded-md shadow-lg group-hover:block group-focus-within:block left-[-105px]">
-                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl" routerLink="reservas">Reservar</a>
+                <a class="px-4 py-2 text-white bg-red-500 text-xl flex justify-between" routerLink="reservas">
+                    Reservar
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-calendar2" viewBox="0 0 16 16">
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/>
+                        <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5z"/>
+                      </svg>
+                </a>
                 <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl" routerLink="carta">Carta</a>
                 <div class="group/cuenta relative btn-block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl cursor-pointer">
                     <div class="flex justify-between">
@@ -38,7 +66,7 @@
     </body>
 
     <div class= "hidden lg:flex md:flex sm:flex-none h-full">
-        <ul class="flex justify-center items-center menu menu-horizontal p-0 h-full">
+        <ul class="flex justify-center items-center gap-2 menu menu-horizontal p-0 h-full">
             <li>
                 <a class="text-xl" routerLink="carta">Carta</a>
             </li>
@@ -82,6 +110,27 @@
                   </div>
                 <a class="text-xl pl-0">Reservar</a>
             </li>
+            <li class="h-full flex flex-row justify-center items-center">
+                <details>
+                  <summary class="text-xl flex gap-3 h-full"> 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-cart2" viewBox="0 0 16 16">
+                            <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l1.25 5h8.22l1.25-5zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"/>
+                        </svg>
+                        0,00 €
+                    </summary>
+                  <ul class="p-2 w-100 absolute left-[-250px] mt-2 bg-white rounded-md shadow-lg">
+                    <li>
+                        <p class="text-lg text-black font-bold">Mis productos(0)</p>
+                    </li>
+                    <li>
+
+                    </li>
+                    <li>
+                        <button class="btn bg-blue-950 text-white">Confirmar pedido</button>
+                    </li>
+                  </ul>
+                </details>
+              </li>
           </ul>
     </div>
   </div>
