@@ -9,7 +9,7 @@ module.exports = {
     },
     extend: {
       colors: {
-        primary: '#1E40AF', // Azul fuerte
+        primary: '#0a2240', // Azul más oscuro
         secondary: '#F59E0B', // Naranja vibrante
       },
     },
