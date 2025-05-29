@@ -1,1 +1,26 @@
-<h1>Carta</h1>
+<article class="flex flex-col gap-5 p-10">
+    <div class="w-full bg-gray-300 p-10">
+        <div class="flex flex-row gap-3">
+            <h1 class="h-13 text-3xl text-gray-700 font-bold">Platos</h1>
+            <span class="w-10 h-10 text-center text-gray-700 text-xl border rounded-xl p-1">19</span>
+        </div>
+        <p class="text-gray-700">Elige entre nuestra gran variedad de platos.</p>
+    </div>
+    <div class="w-full p-10">
+        <div class="flex flex-col gap-10">
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl text-gray-950 font-bold whitespace-nowrap">Platos principales</h1>
+                <div class="flex-1 h-px bg-gray-950"></div>
+            </div>
+            <div class="grid grid-cols-4 md gap-5">
+                @for(product of productsResource.value(); track product.producto_id){
+                    <carta-product-details 
+                        [product]="product" 
+                        [getImageUrl]="getImageUrl" 
+                        [onImageError]="onImageError">
+                    </carta-product-details>
+                }
+            </div>
+        </div>
+    </div>
+</article>
