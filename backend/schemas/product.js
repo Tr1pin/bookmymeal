@@ -7,7 +7,8 @@ const productSchema = z.object({
         .min(10, { message: 'Description must be at least 10 characters long' }),
     precio: z.number({ message: 'Price must be a number' })
         .positive({ message: 'Price must be greater than zero' }),
-    disponible: z.boolean({ message: 'Availability must be a boolean' })
+    disponible: z.boolean({ message: 'Availability must be a boolean' }),
+    categoria_id: z.string().uuid({ message: 'Categoria ID must be a valid UUID' })
 });
 
 export function validateProduct(input) {

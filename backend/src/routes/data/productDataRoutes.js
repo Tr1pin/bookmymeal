@@ -10,6 +10,7 @@ router.get('/productsImages', ProductController.getProductsImages);
 router.get('/id/:id', ProductController.getById);
 router.get('/nombre/:nombre', ProductController.getByNombre);
 router.get('/disponible/:disponible', ProductController.getByDisponibilidad);
+router.get('/grouped', ProductController.getGroupedProductsWithImages);
 
 // Operaciones Create, Update y Delete.
 router.post("", uploadImages.array('imagen', 10), ProductController.crearProducto);

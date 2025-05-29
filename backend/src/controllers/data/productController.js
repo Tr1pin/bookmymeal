@@ -48,11 +48,11 @@ export class ProductController {
 
   static async crearProducto(req, res) {
     try { 
-        const { nombre, descripcion, precio, disponible } = req.body;
-        console.log(nombre, descripcion, precio, disponible);
+        const { nombre, descripcion, precio, disponible, categoria_id } = req.body;
+        console.log(nombre, descripcion, precio, disponible, categoria_id);
         const imagenes = req.files || [];
         console.log(imagenes);
-        res.status(200).json(await ProductModel.crearProducto( { nombre, descripcion, precio, disponible, imagenes })); 
+        res.status(201).json(await ProductModel.crearProducto( { nombre, descripcion, precio, disponible, imagenes, categoria_id })); 
     }
     catch (err) { 
         res.status(500).json({ message: err.message }); 
@@ -61,7 +61,7 @@ export class ProductController {
 
   static async actualizarProducto(req, res) {
     try { 
-        const { id, nombre, descripcion, precio, disponible } = req.body;
+        const { id, nombre, descripcion, precio, disponible, categoria_id } = req.body;
         const imagenes = req.files || [];
         res.status(200).json(await ProductModel.actualizarProducto({ 
           id, 
@@ -69,7 +69,8 @@ export class ProductController {
           descripcion, 
           precio, 
           disponible,
-          imagenes 
+          imagenes,
+          categoria_id 
         })); 
     }
     catch (err) { 
@@ -91,6 +92,15 @@ export class ProductController {
       const { id: productId, filename } = req.params;
       const result = await ProductModel.deleteProductImage({ productId, filename });
       res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+
+  static async getGroupedProductsWithImages(req, res) {
+    try {
+      const groupedProducts = await ProductModel.getProductsGroupedByCategoryWithImages();
+      res.status(200).json(groupedProducts);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
