@@ -12,7 +12,7 @@
                 <h1 class="text-2xl text-gray-950 font-bold whitespace-nowrap">Platos principales</h1>
                 <div class="flex-1 h-px bg-gray-950"></div>
             </div>
-            <div class="grid grid-cols-4 md gap-5">
+            <div class="grid grid-cols-1 md gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
                 @for(product of productsResource.value(); track product.producto_id){
                     <carta-product-details 
                         [product]="product" 
