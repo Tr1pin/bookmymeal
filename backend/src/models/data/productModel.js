@@ -331,16 +331,13 @@ export class ProductModel {
 
       const groupedProducts = {};
       for (const row of rows) {
-        // Ensure 'imagens' is an array, even if it's null or an empty array string from DB
-        try {
-          row.imagens = JSON.parse(row.imagens);
-          // If imagens is null after parsing (e.g., from JSON_NULL()), or it's an array with a single null value
-          if (row.imagens === null || (Array.isArray(row.imagens) && row.imagens.length === 1 && row.imagens[0] === null)) {
-            row.imagens = []; // Default to an empty array
-          }
-        } catch (e) {
-          // If parsing fails (e.g., not valid JSON) or it's not an array string, default to empty array
+        
+        // Ensure 'imagens' is an array and handle cases where it might be null or contain a single null from DB
+        if (row.imagens === null || (Array.isArray(row.imagens) && row.imagens.length === 1 && row.imagens[0] === null)) {
           row.imagens = []; 
+        } else if (!Array.isArray(row.imagens)) {
+          // Fallback if it's somehow not an array and not null (e.g., unexpected string)
+          row.imagens = [];
         }
         
         const categoryName = row.categoria_nombre || 'Otros'; // Default to 'Otros' if no category
