@@ -1,4 +1,4 @@
-<div class="navbar bg-primary shadow-sm font-mono justify-between lg:justify-around md:justify-around">
+<div class="h-full navbar bg-primary shadow-sm font-mono justify-between lg:justify-around md:justify-around p-0">
     <div>
         <ul class="menu menu-horizontal px-1">
             <li>
@@ -37,15 +37,15 @@
         </div>
     </body>
 
-    <div class= "hidden lg:flex md:flex sm:flex-none">
-        <ul class="menu menu-horizontal px-1">
+    <div class= "hidden lg:flex md:flex sm:flex-none h-full">
+        <ul class="flex justify-center items-center menu menu-horizontal p-0 h-full">
             <li>
                 <a class="text-xl" routerLink="carta">Carta</a>
             </li>
 
-            <li>
+            <li class="h-full flex flex-row justify-center items-center">
               <details>
-                <summary class="text-xl flex gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                <summary class="text-xl flex gap-3 h-full"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
                   </svg>  
@@ -73,8 +73,14 @@
               </details>
             </li>
 
-            <li>
-                <a class="text-xl" routerLink="reservas">Reservar</a>
+            <li routerLink="reservas" class="text-white flex flex-row justify-center items-center bg-red-600 h-full cursor-pointer">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-calendar2" viewBox="0 0 16 16">
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/>
+                        <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5z"/>
+                      </svg>
+                  </div>
+                <a class="text-xl pl-0">Reservar</a>
             </li>
           </ul>
     </div>
