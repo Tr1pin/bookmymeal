@@ -11,6 +11,7 @@ import pedidoDataRoutes from './src/routes/data/pedidoDataRoutes.js';
 import detallesPedidosDataRoutes from './src/routes/data/detallesPedidoRouter.js';
 import reservasDataRoutes from './src/routes/data/reservasDataRouter.js';
 import imagesDataRoutes from './src/routes/data/imagesRouter.js';
+import productCategoryDataRoutes from './src/routes/data/productCategoryDataRoutes.js';
 import userlogContoller from './src/routes/auth/userlogRouter.js';
 
 export const createApp = () => {
@@ -35,6 +36,7 @@ export const createApp = () => {
     app.use("/detalles-pedidos/", detallesPedidosDataRoutes);
     app.use("/reservas/", reservasDataRoutes);
     app.use("/images/",  imagesDataRoutes);
+    app.use("/product-categories/", productCategoryDataRoutes);
 
     app.listen( DEFAULT_PORT, () =>{
         console.log(`Server listening on port  http://localhost:${DEFAULT_PORT}`);
