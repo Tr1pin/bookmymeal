@@ -1,26 +1,46 @@
 <article class="flex flex-col gap-5 p-10">
     <div class="w-full bg-gray-300 p-10">
         <div class="flex flex-row gap-3">
-            <h1 class="h-13 text-3xl text-gray-700 font-extrabold">Platos</h1>
-            <span class="w-10 h-10 text-center text-gray-700 text-xl border rounded-xl p-1">19</span>
+            <h1 class="h-13 text-3xl text-gray-700 font-extrabold">Nuestra Carta</h1>
+            <!-- Consider making the count dynamic if needed -->
+            <!-- <span class="w-10 h-10 text-center text-gray-700 text-xl border rounded-xl p-1">{{ productsResource.value()?.length || 0 }}</span> -->
         </div>
         <p class="text-gray-700">Elige entre nuestra gran variedad de platos.</p>
     </div>
-    <div class="w-full p-10">
-        <div class="flex flex-col gap-10">
-            <div class="flex items-center gap-2">
-                <h1 class="text-2xl text-gray-950 font-bold whitespace-nowrap">Platos principales</h1>
-                <div class="flex-1 h-px bg-gray-950"></div>
-            </div>
-            <div class="grid grid-cols-1 md gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
-                @for(product of productsResource.value(); track product.producto_id){
-                    <carta-product-details 
-                        [product]="product" 
-                        [getImageUrl]="getImageUrl" 
-                        [onImageError]="onImageError">
-                    </carta-product-details>
-                }
-            </div>
+
+    @if (productsResource.isLoading()) {
+        <div class="flex justify-center items-center p-10">
+            <span class="loading loading-spinner loading-lg text-blue-500"></span>
         </div>
-    </div>
+    } @else if (productsResource.error()) {
+        <div class="alert alert-error p-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Error al cargar los productos. Por favor, intente más tarde.</span>
+        </div>
+    } @else {
+        <div class="w-full p-10">
+            @for (categoryName of getCategoryNames(groupedProducts()); track categoryName) {
+                <div class="mb-10">
+                    <div class="flex items-center gap-2 mb-5">
+                        <h2 class="text-2xl text-gray-950 font-bold whitespace-nowrap">{{ categoryName }}</h2>
+                        <div class="flex-1 h-px bg-gray-950"></div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                        @for(product of groupedProducts()[categoryName]; track product.producto_id){
+                            <carta-product-details 
+                                [product]="product" 
+                                [getImageUrl]="getImageUrl" 
+                                [onImageError]="onImageError">
+                            </carta-product-details>
+                        }
+                    </div>
+                </div>
+            }
+            @if (getCategoryNames(groupedProducts()).length === 0) {
+                <p class="text-center text-gray-500 text-xl">No hay productos disponibles en este momento.</p>
+            }
+        </div>
+    }
 </article>
