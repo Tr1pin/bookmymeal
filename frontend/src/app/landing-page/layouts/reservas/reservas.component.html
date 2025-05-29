@@ -1,1 +1,52 @@
-<h1>Reservas</h1>
+<article class="flex flex-col justify-center gap-5 p-9 mb-[10%]">
+    <div class="w-full p-10">
+        <div class="flex flex-row gap-3">
+            <h1 class="h-10 w-1000 text-2xl text-blue-950 font-extrabold">Reservar en restaurante</h1>
+        </div>
+        <p class="text-gray-700">Realiza tu reserva aqui de manera sencilla y rápida.</p>
+        <form [formGroup]="reservaForm" class="w-90 mt-5">
+            <label class="label text-black font-semibold text-lg">¿Cuántas personas vais a venir?</label>
+            <div class="flex items-center gap-2 mt-1">
+                <label class="label text-gray-900 font-stretch-50% text-lg">Numero:</label>
+                <button type="button" class="flex justify-center items-center bg-white border-1 border-red-600 text-red-600 font-bold cursor-pointer text-xl py-1 px-3" (click)="decreaseCantidad()">-</button>
+                <input type="text" formControlName="cantidad" readonly class="w-10 text-center bg-white text-gray-900 font-bold text-lg" />
+                <button type="button" class="flex justify-center items-center bg-blue-950 border-1 border-blue-950 text-white font-bold cursor-pointer text-xl py-1 px-3" (click)="increaseCantidad()">+</button>
+            </div>
+
+            <label class="label text-black font-semibold text-lg mt-8">¿Para qué día queréis reservar?</label>
+            <div class="form-control w-full">
+                <label class="label text-gray-900 font-stretch-50% text-lg mt-1">
+                  <span class="label-text">Fecha:</span>
+                </label>
+                <input type="date" formControlName="fecha" class="input input-bordered w-full bg-blue-950 text-white" />
+              </div>
+          
+              <div class="form-control w-full">
+                <label class="label text-gray-900 font-stretch-50% text-lg mt-2">
+                  <span class="label-text">Hora</span>
+                </label>
+                <select formControlName="hora" class="select select-bordered w-full bg-blue-950 text-white">
+                  <option value="">Seleccione una hora</option>
+                  <option class="font-bold text-white" value="">Comida - ▼</option>
+                  <option value="12:00">12:00</option>
+                  <option value="12:30">12:30</option>
+                  <option value="13:00">13:00</option>
+                  <option value="13:30">13:30</option>
+                  <option value="14:00">14:00</option>
+                  <option value="14:30">14:30</option>
+                  <option value="15:00">15:00</option>
+                  <option class="font-bold" value="">Cena - ▼</option>
+                  <option value="20:00">20:00</option>
+                  <option value="20:30">20:30</option>
+                  <option value="21:00">21:00</option>
+                  <option value="21:30">21:30</option>
+                  <option value="22:00">22:00</option>
+                  <option value="22:30">22:30</option>
+                  <option value="23:00">23:00</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn bg-blue-950 mt-2">Crear Reserva</button>
+        </form>
+    </div>
+</article>
