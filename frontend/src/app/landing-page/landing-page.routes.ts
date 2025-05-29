@@ -20,7 +20,16 @@ export const landingPageRoutes: Routes = [
          },
          {
             path: 'reservas',
-            component: ReservasComponent
+            children: [
+               {
+                  path: '',
+                  component: ReservasComponent
+               },
+               {
+                  path: 'detalles',
+                  component: ReservasComponent
+               }
+            ]
          },
     ]
    },
