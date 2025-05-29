@@ -48,6 +48,17 @@ CREATE TABLE IF NOT EXISTS productos (
     disponible BOOLEAN DEFAULT TRUE
 );
 
+-- Tabla de categorias de producto
+CREATE TABLE IF NOT EXISTS categorias_producto (
+    id CHAR(36) PRIMARY KEY,
+    nombre VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Modificar tabla de productos para incluir categoria_id
+ALTER TABLE productos
+ADD COLUMN categoria_id CHAR(36),
+ADD FOREIGN KEY (categoria_id) REFERENCES categorias_producto(id);
+
 -- Tabla de detalles de pedido
 CREATE TABLE IF NOT EXISTS detalles_pedido (
 id CHAR(36) PRIMARY KEY,
@@ -79,6 +90,16 @@ INSERT INTO usuarios (id, nombre, telefono, email, password, rol) VALUES
 ('550e8400-e29b-41d4-a716-446655440009', 'Isabel Romero Díaz', '654321098', 'isabel.romero@gmail.com', '$2b$10$hashedpassword9', 'cliente'),
 ('550e8400-e29b-41d4-a716-446655440010', 'Roberto Admin', '600000000', 'admin@bookmymeal.com', '$2b$10$adminhashedpassword', 'admin');
 
+-- Insertar categorias de producto
+INSERT INTO categorias_producto (id, nombre) VALUES
+('c50e8400-e29b-41d4-a716-446655440001', 'Pizzas'),
+('c50e8400-e29b-41d4-a716-446655440002', 'Hamburguesas'),
+('c50e8400-e29b-41d4-a716-446655440003', 'Ensaladas'),
+('c50e8400-e29b-41d4-a716-446655440004', 'Pastas'),
+('c50e8400-e29b-41d4-a716-446655440005', 'Platos Principales'),
+('c50e8400-e29b-41d4-a716-446655440006', 'Postres'),
+('c50e8400-e29b-41d4-a716-446655440007', 'Bebidas');
+
 -- Insertar mesas más realistas
 INSERT INTO mesas (id, numero, capacidad) VALUES
 ('650e8400-e29b-41d4-a716-446655440001', 1, 2),
@@ -106,22 +127,22 @@ INSERT INTO reservas (id, usuario_id, mesa_id, fecha, hora, estado, personas) VA
 ('750e8400-e29b-41d4-a716-446655440010', '550e8400-e29b-41d4-a716-446655440001', '650e8400-e29b-41d4-a716-446655440010', '2025-01-20', '13:30:00', 'confirmada', 4);
 
 -- Insertar productos más realistas
-INSERT INTO productos (id, nombre, descripcion, precio, disponible) VALUES
-('850e8400-e29b-41d4-a716-446655440001', 'Pizza Margarita', 'Pizza clásica con salsa de tomate, mozzarella fresca y albahaca', 12.50, TRUE),
-('850e8400-e29b-41d4-a716-446655440002', 'Pizza Pepperoni', 'Pizza con salsa de tomate, mozzarella y pepperoni picante', 14.90, TRUE),
-('850e8400-e29b-41d4-a716-446655440003', 'Pizza Cuatro Quesos', 'Pizza con mozzarella, gorgonzola, parmesano y queso de cabra', 16.50, TRUE),
-('850e8400-e29b-41d4-a716-446655440004', 'Hamburguesa Clásica', 'Hamburguesa de ternera con lechuga, tomate, cebolla y salsa especial', 11.90, TRUE),
-('850e8400-e29b-41d4-a716-446655440005', 'Hamburguesa BBQ', 'Hamburguesa de ternera con bacon, queso cheddar y salsa BBQ', 13.50, TRUE),
-('850e8400-e29b-41d4-a716-446655440006', 'Hamburguesa Vegana', 'Hamburguesa de quinoa y verduras con aguacate y salsa tahini', 12.90, TRUE),
-('850e8400-e29b-41d4-a716-446655440007', 'Ensalada César', 'Lechuga romana, pollo a la plancha, parmesano y aderezo César', 9.50, TRUE),
-('850e8400-e29b-41d4-a716-446655440008', 'Ensalada Mediterránea', 'Mix de lechugas, tomate cherry, aceitunas, queso feta y vinagreta', 8.90, TRUE),
-('850e8400-e29b-41d4-a716-446655440009', 'Pasta Carbonara', 'Espaguetis con bacon, huevo, parmesano y pimienta negra', 10.50, TRUE),
-('850e8400-e29b-41d4-a716-446655440010', 'Pasta Boloñesa', 'Espaguetis con salsa de carne tradicional italiana', 11.90, TRUE),
-('850e8400-e29b-41d4-a716-446655440011', 'Risotto de Setas', 'Arroz cremoso con setas variadas y parmesano', 13.90, TRUE),
-('850e8400-e29b-41d4-a716-446655440012', 'Salmón a la Plancha', 'Filete de salmón con verduras salteadas y salsa de limón', 18.50, TRUE),
-('850e8400-e29b-41d4-a716-446655440013', 'Pollo al Curry', 'Pechuga de pollo en salsa de curry con arroz basmati', 14.90, TRUE),
-('850e8400-e29b-41d4-a716-446655440014', 'Tiramisú', 'Postre italiano tradicional con café y mascarpone', 6.50, TRUE),
-('850e8400-e29b-41d4-a716-446655440015', 'Cheesecake de Frutos Rojos', 'Tarta de queso con coulis de frutos del bosque', 7.20, TRUE);
+INSERT INTO productos (id, nombre, descripcion, precio, disponible, categoria_id) VALUES
+('850e8400-e29b-41d4-a716-446655440001', 'Pizza Margarita', 'Pizza clásica con salsa de tomate, mozzarella fresca y albahaca', 12.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
+('850e8400-e29b-41d4-a716-446655440002', 'Pizza Pepperoni', 'Pizza con salsa de tomate, mozzarella y pepperoni picante', 14.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
+('850e8400-e29b-41d4-a716-446655440003', 'Pizza Cuatro Quesos', 'Pizza con mozzarella, gorgonzola, parmesano y queso de cabra', 16.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
+('850e8400-e29b-41d4-a716-446655440004', 'Hamburguesa Clásica', 'Hamburguesa de ternera con lechuga, tomate, cebolla y salsa especial', 11.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
+('850e8400-e29b-41d4-a716-446655440005', 'Hamburguesa BBQ', 'Hamburguesa de ternera con bacon, queso cheddar y salsa BBQ', 13.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
+('850e8400-e29b-41d4-a716-446655440006', 'Hamburguesa Vegana', 'Hamburguesa de quinoa y verduras con aguacate y salsa tahini', 12.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
+('850e8400-e29b-41d4-a716-446655440007', 'Ensalada César', 'Lechuga romana, pollo a la plancha, parmesano y aderezo César', 9.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440003'),
+('850e8400-e29b-41d4-a716-446655440008', 'Ensalada Mediterránea', 'Mix de lechugas, tomate cherry, aceitunas, queso feta y vinagreta', 8.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440003'),
+('850e8400-e29b-41d4-a716-446655440009', 'Pasta Carbonara', 'Espaguetis con bacon, huevo, parmesano y pimienta negra', 10.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440004'),
+('850e8400-e29b-41d4-a716-446655440010', 'Pasta Boloñesa', 'Espaguetis con salsa de carne tradicional italiana', 11.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440004'),
+('850e8400-e29b-41d4-a716-446655440011', 'Risotto de Setas', 'Arroz cremoso con setas variadas y parmesano', 13.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
+('850e8400-e29b-41d4-a716-446655440012', 'Salmón a la Plancha', 'Filete de salmón con verduras salteadas y salsa de limón', 18.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
+('850e8400-e29b-41d4-a716-446655440013', 'Pollo al Curry', 'Pechuga de pollo en salsa de curry con arroz basmati', 14.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
+('850e8400-e29b-41d4-a716-446655440014', 'Tiramisú', 'Postre italiano tradicional con café y mascarpone', 6.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440006'),
+('850e8400-e29b-41d4-a716-446655440015', 'Cheesecake de Frutos Rojos', 'Tarta de queso con coulis de frutos del bosque', 7.20, TRUE, 'c50e8400-e29b-41d4-a716-446655440006');
 
 -- Insertar pedidos más realistas
 INSERT INTO pedidos (id, numero_pedido, usuario_id, estado, total) VALUES
@@ -232,13 +253,16 @@ SELECT
     p.descripcion,
     FORMAT(p.precio, 2) AS precio,
     p.disponible,
+    cp.nombre AS categoria_nombre,
     GROUP_CONCAT(i.filename) AS imagenes
 FROM 
     productos p
 LEFT JOIN 
     imagenes_productos i ON p.id = i.producto_id
+LEFT JOIN 
+    categorias_producto cp ON p.categoria_id = cp.id
 GROUP BY 
-    p.id, p.nombre, p.descripcion, p.precio, p.disponible
+    p.id, p.nombre, p.descripcion, p.precio, p.disponible, cp.nombre
 ORDER BY p.nombre;
 
 
