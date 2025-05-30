@@ -66,6 +66,50 @@
       </div>
     </fieldset>
 
+    <!-- Información de Contacto -->
+    <fieldset class="space-y-4">
+      <h3 class="text-lg font-bold text-black">Información de Contacto</h3>
+      <p class="text-sm text-gray-600">Esta información es necesaria para coordinar la entrega de su pedido.</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="contactName" class="block text-sm font-medium text-gray-700 mb-1">
+            Nombre completo <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="contactName" name="contactName" 
+                 [(ngModel)]="contactInfo.name"
+                 (ngModelChange)="emitOptionsChange()"
+                 required
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                 placeholder="Ej: Juan Pérez">
+        </div>
+        
+        <div>
+          <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-1">
+            Teléfono de contacto <span class="text-red-500">*</span>
+          </label>
+          <input type="tel" id="contactPhone" name="contactPhone" 
+                 [(ngModel)]="contactInfo.phone"
+                 (ngModelChange)="emitOptionsChange()"
+                 required
+                 minlength="9"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                 placeholder="Ej: 612 345 678">
+        </div>
+      </div>
+      
+      <div>
+        <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-1">
+          Email (opcional)
+        </label>
+        <input type="email" id="contactEmail" name="contactEmail" 
+               [(ngModel)]="contactInfo.email"
+               (ngModelChange)="emitOptionsChange()"
+               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+               placeholder="Ej: juan@email.com">
+      </div>
+    </fieldset>
+
     <!-- Delivery Address (only if delivery is selected) -->
     @if (deliveryOption === 'delivery') {
       <section class="space-y-4" role="region">
@@ -76,6 +120,7 @@
             <label for="street" class="block text-sm font-medium text-gray-700 mb-1">Calle y número</label>
             <input type="text" id="street" name="street" 
                    [(ngModel)]="deliveryAddress.street"
+                   (ngModelChange)="emitOptionsChange()"
                    required
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                    placeholder="Ej: Calle Mayor, 123">
@@ -85,38 +130,22 @@
             <label for="city" class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
             <input type="text" id="city" name="city" 
                    [(ngModel)]="deliveryAddress.city"
+                   (ngModelChange)="emitOptionsChange()"
                    required
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                    placeholder="Ej: Madrid">
           </div>
           
-          <div>
+          <div class="md:col-span-2">
             <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Código postal</label>
             <input type="text" id="postalCode" name="postalCode" 
                    [(ngModel)]="deliveryAddress.postalCode"
+                   (ngModelChange)="emitOptionsChange()"
                    required
                    pattern="[0-9]{5}"
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                    placeholder="28001">
           </div>
-          
-          <div>
-            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input type="tel" id="phone" name="phone" 
-                   [(ngModel)]="deliveryAddress.phone"
-                   required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                   placeholder="Ej: 612 345 678">
-          </div>
-        </div>
-        
-        <div>
-          <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notas adicionales (opcional)</label>
-          <textarea id="notes" name="notes" 
-                    [(ngModel)]="deliveryAddress.notes"
-                    rows="2"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                    placeholder="Ej: 2º piso, puerta B"></textarea>
         </div>
       </section>
     }
@@ -164,6 +193,36 @@
       </div>
     </fieldset>
 
+    <!-- Mensaje especial para pagos en efectivo -->
+    @if (paymentMethod === 'cash') {
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+          </div>
+          <div class="ml-4 flex-1">
+            <h4 class="text-lg font-semibold text-yellow-800 mb-2">Pagos en Efectivo</h4>
+            <p class="text-yellow-700 mb-4">
+              Para realizar pedidos con pago en efectivo, por favor contacte directamente con el restaurante:
+            </p>
+            <div class="bg-yellow-100 rounded-lg p-4 mb-4">
+              <div class="flex items-center mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span class="font-bold text-yellow-800">612 345 678</span>
+              </div>
+            </div>
+            <p class="text-sm text-yellow-600">
+              Nuestro equipo le ayudará a completar su pedido y coordinar la entrega.
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+
     <!-- Credit Card Form (only if card is selected) -->
     @if (paymentMethod === 'card') {
       <section class="space-y-4" role="region" aria-label="Información de tarjeta">
@@ -174,6 +233,7 @@
             <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-1">Número de tarjeta</label>
             <input type="text" id="cardNumber" name="cardNumber" 
                    [(ngModel)]="cardInfo.number"
+                   (ngModelChange)="emitOptionsChange()"
                    required
                    maxlength="19"
                    placeholder="1234 5678 9012 3456"
@@ -185,6 +245,7 @@
               <label for="cardExpiry" class="block text-sm font-medium text-gray-700 mb-1">Fecha de expiración</label>
               <input type="text" id="cardExpiry" name="cardExpiry" 
                      [(ngModel)]="cardInfo.expiry"
+                     (ngModelChange)="emitOptionsChange()"
                      required
                      placeholder="MM/AA"
                      maxlength="5"
@@ -195,6 +256,7 @@
               <label for="cardCvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
               <input type="text" id="cardCvv" name="cardCvv" 
                      [(ngModel)]="cardInfo.cvv"
+                     (ngModelChange)="emitOptionsChange()"
                      required
                      maxlength="4"
                      placeholder="123"
@@ -206,6 +268,7 @@
             <label for="cardName" class="block text-sm font-medium text-gray-700 mb-1">Nombre del titular</label>
             <input type="text" id="cardName" name="cardName" 
                    [(ngModel)]="cardInfo.name"
+                   (ngModelChange)="emitOptionsChange()"
                    required
                    placeholder="Nombre completo"
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">

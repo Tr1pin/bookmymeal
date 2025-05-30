@@ -33,10 +33,20 @@ CREATE TABLE IF NOT EXISTS reservas (
 CREATE TABLE IF NOT EXISTS pedidos (
     id CHAR(36) PRIMARY KEY,
     numero_pedido varchar(20),
-    usuario_id CHAR(36) NOT NULL,
+    nombre_contacto VARCHAR(100) NULL,
+    telefono_contacto VARCHAR(15) NULL,
+    email_contacto VARCHAR(100) NULL,
+    usuario_id CHAR(36),
+    tipo_entrega ENUM('recogida', 'domicilio') NOT NULL DEFAULT 'recogida',
+    metodo_pago ENUM('efectivo', 'tarjeta') NOT NULL DEFAULT 'efectivo',
+    direccion_calle VARCHAR(255) NULL,
+    direccion_ciudad VARCHAR(100) NULL,
+    direccion_codigo_postal VARCHAR(10) NULL,
+    direccion_telefono VARCHAR(15) NULL,
     estado ENUM('pendiente', 'en preparación', 'listo', 'entregado', 'cancelado') DEFAULT 'pendiente',
     total DECIMAL(10,2) NOT NULL CHECK (total >= 0),
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
 -- Tabla de productos
@@ -77,6 +87,16 @@ CREATE TABLE IF NOT EXISTS imagenes_productos (
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
 );
 
+-- Insertar categorias de producto
+INSERT INTO categorias_producto (id, nombre) VALUES
+('c50e8400-e29b-41d4-a716-446655440001', 'Pizzas'),
+('c50e8400-e29b-41d4-a716-446655440002', 'Hamburguesas'),
+('c50e8400-e29b-41d4-a716-446655440003', 'Ensaladas'),
+('c50e8400-e29b-41d4-a716-446655440004', 'Pastas'),
+('c50e8400-e29b-41d4-a716-446655440005', 'Platos Principales'),
+('c50e8400-e29b-41d4-a716-446655440006', 'Postres'),
+('c50e8400-e29b-41d4-a716-446655440007', 'Bebidas');
+
 -- Insertar usuarios más realistas
 INSERT INTO usuarios (id, nombre, telefono, email, password, rol) VALUES
 ('550e8400-e29b-41d4-a716-446655440001', 'María García López', '612345678', 'maria.garcia@gmail.com', '$2b$10$hashedpassword1', 'cliente'),
@@ -90,15 +110,23 @@ INSERT INTO usuarios (id, nombre, telefono, email, password, rol) VALUES
 ('550e8400-e29b-41d4-a716-446655440009', 'Isabel Romero Díaz', '654321098', 'isabel.romero@gmail.com', '$2b$10$hashedpassword9', 'cliente'),
 ('550e8400-e29b-41d4-a716-446655440010', 'Roberto Admin', '600000000', 'admin@bookmymeal.com', '$2b$10$adminhashedpassword', 'admin');
 
--- Insertar categorias de producto
-INSERT INTO categorias_producto (id, nombre) VALUES
-('c50e8400-e29b-41d4-a716-446655440001', 'Pizzas'),
-('c50e8400-e29b-41d4-a716-446655440002', 'Hamburguesas'),
-('c50e8400-e29b-41d4-a716-446655440003', 'Ensaladas'),
-('c50e8400-e29b-41d4-a716-446655440004', 'Pastas'),
-('c50e8400-e29b-41d4-a716-446655440005', 'Platos Principales'),
-('c50e8400-e29b-41d4-a716-446655440006', 'Postres'),
-('c50e8400-e29b-41d4-a716-446655440007', 'Bebidas');
+-- Insertar productos más realistas
+INSERT INTO productos (id, nombre, descripcion, precio, disponible, categoria_id) VALUES
+('850e8400-e29b-41d4-a716-446655440001', 'Pizza Margarita', 'Pizza clásica con salsa de tomate, mozzarella fresca y albahaca', 12.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
+('850e8400-e29b-41d4-a716-446655440002', 'Pizza Pepperoni', 'Pizza con salsa de tomate, mozzarella y pepperoni picante', 14.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
+('850e8400-e29b-41d4-a716-446655440003', 'Pizza Cuatro Quesos', 'Pizza con mozzarella, gorgonzola, parmesano y queso de cabra', 16.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
+('850e8400-e29b-41d4-a716-446655440004', 'Hamburguesa Clásica', 'Hamburguesa de ternera con lechuga, tomate, cebolla y salsa especial', 11.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
+('850e8400-e29b-41d4-a716-446655440005', 'Hamburguesa BBQ', 'Hamburguesa de ternera con bacon, queso cheddar y salsa BBQ', 13.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
+('850e8400-e29b-41d4-a716-446655440006', 'Hamburguesa Vegana', 'Hamburguesa de quinoa y verduras con aguacate y salsa tahini', 12.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
+('850e8400-e29b-41d4-a716-446655440007', 'Ensalada César', 'Lechuga romana, pollo a la plancha, parmesano y aderezo César', 9.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440003'),
+('850e8400-e29b-41d4-a716-446655440008', 'Ensalada Mediterránea', 'Mix de lechugas, tomate cherry, aceitunas, queso feta y vinagreta', 8.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440003'),
+('850e8400-e29b-41d4-a716-446655440009', 'Pasta Carbonara', 'Espaguetis con bacon, huevo, parmesano y pimienta negra', 10.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440004'),
+('850e8400-e29b-41d4-a716-446655440010', 'Pasta Boloñesa', 'Espaguetis con salsa de carne tradicional italiana', 11.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440004'),
+('850e8400-e29b-41d4-a716-446655440011', 'Risotto de Setas', 'Arroz cremoso con setas variadas y parmesano', 13.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
+('850e8400-e29b-41d4-a716-446655440012', 'Salmón a la Plancha', 'Filete de salmón con verduras salteadas y salsa de limón', 18.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
+('850e8400-e29b-41d4-a716-446655440013', 'Pollo al Curry', 'Pechuga de pollo en salsa de curry con arroz basmati', 14.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
+('850e8400-e29b-41d4-a716-446655440014', 'Tiramisú', 'Postre italiano tradicional con café y mascarpone', 6.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440006'),
+('850e8400-e29b-41d4-a716-446655440015', 'Cheesecake de Frutos Rojos', 'Tarta de queso con coulis de frutos del bosque', 7.20, TRUE, 'c50e8400-e29b-41d4-a716-446655440006');
 
 -- Insertar mesas más realistas
 INSERT INTO mesas (id, numero, capacidad) VALUES
@@ -126,34 +154,16 @@ INSERT INTO reservas (id, usuario_id, mesa_id, fecha, hora, estado, personas) VA
 ('750e8400-e29b-41d4-a716-446655440009', '550e8400-e29b-41d4-a716-446655440009', '650e8400-e29b-41d4-a716-446655440005', '2025-01-19', '20:00:00', 'completada', 4),
 ('750e8400-e29b-41d4-a716-446655440010', '550e8400-e29b-41d4-a716-446655440001', '650e8400-e29b-41d4-a716-446655440010', '2025-01-20', '13:30:00', 'confirmada', 4);
 
--- Insertar productos más realistas
-INSERT INTO productos (id, nombre, descripcion, precio, disponible, categoria_id) VALUES
-('850e8400-e29b-41d4-a716-446655440001', 'Pizza Margarita', 'Pizza clásica con salsa de tomate, mozzarella fresca y albahaca', 12.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
-('850e8400-e29b-41d4-a716-446655440002', 'Pizza Pepperoni', 'Pizza con salsa de tomate, mozzarella y pepperoni picante', 14.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
-('850e8400-e29b-41d4-a716-446655440003', 'Pizza Cuatro Quesos', 'Pizza con mozzarella, gorgonzola, parmesano y queso de cabra', 16.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440001'),
-('850e8400-e29b-41d4-a716-446655440004', 'Hamburguesa Clásica', 'Hamburguesa de ternera con lechuga, tomate, cebolla y salsa especial', 11.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
-('850e8400-e29b-41d4-a716-446655440005', 'Hamburguesa BBQ', 'Hamburguesa de ternera con bacon, queso cheddar y salsa BBQ', 13.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
-('850e8400-e29b-41d4-a716-446655440006', 'Hamburguesa Vegana', 'Hamburguesa de quinoa y verduras con aguacate y salsa tahini', 12.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440002'),
-('850e8400-e29b-41d4-a716-446655440007', 'Ensalada César', 'Lechuga romana, pollo a la plancha, parmesano y aderezo César', 9.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440003'),
-('850e8400-e29b-41d4-a716-446655440008', 'Ensalada Mediterránea', 'Mix de lechugas, tomate cherry, aceitunas, queso feta y vinagreta', 8.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440003'),
-('850e8400-e29b-41d4-a716-446655440009', 'Pasta Carbonara', 'Espaguetis con bacon, huevo, parmesano y pimienta negra', 10.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440004'),
-('850e8400-e29b-41d4-a716-446655440010', 'Pasta Boloñesa', 'Espaguetis con salsa de carne tradicional italiana', 11.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440004'),
-('850e8400-e29b-41d4-a716-446655440011', 'Risotto de Setas', 'Arroz cremoso con setas variadas y parmesano', 13.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
-('850e8400-e29b-41d4-a716-446655440012', 'Salmón a la Plancha', 'Filete de salmón con verduras salteadas y salsa de limón', 18.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
-('850e8400-e29b-41d4-a716-446655440013', 'Pollo al Curry', 'Pechuga de pollo en salsa de curry con arroz basmati', 14.90, TRUE, 'c50e8400-e29b-41d4-a716-446655440005'),
-('850e8400-e29b-41d4-a716-446655440014', 'Tiramisú', 'Postre italiano tradicional con café y mascarpone', 6.50, TRUE, 'c50e8400-e29b-41d4-a716-446655440006'),
-('850e8400-e29b-41d4-a716-446655440015', 'Cheesecake de Frutos Rojos', 'Tarta de queso con coulis de frutos del bosque', 7.20, TRUE, 'c50e8400-e29b-41d4-a716-446655440006');
-
 -- Insertar pedidos más realistas
-INSERT INTO pedidos (id, numero_pedido, usuario_id, estado, total) VALUES
-('950e8400-e29b-41d4-a716-446655440001', 'PED-2025-001', '550e8400-e29b-41d4-a716-446655440001', 'entregado', 32.40),
-('950e8400-e29b-41d4-a716-446655440002', 'PED-2025-002', '550e8400-e29b-41d4-a716-446655440002', 'en preparación', 25.80),
-('950e8400-e29b-41d4-a716-446655440003', 'PED-2025-003', '550e8400-e29b-41d4-a716-446655440003', 'listo', 18.40),
-('950e8400-e29b-41d4-a716-446655440004', 'PED-2025-004', '550e8400-e29b-41d4-a716-446655440004', 'pendiente', 41.30),
-('950e8400-e29b-41d4-a716-446655440005', 'PED-2025-005', '550e8400-e29b-41d4-a716-446655440005', 'entregado', 29.90),
-('950e8400-e29b-41d4-a716-446655440006', 'PED-2025-006', '550e8400-e29b-41d4-a716-446655440006', 'en preparación', 22.40),
-('950e8400-e29b-41d4-a716-446655440007', 'PED-2025-007', '550e8400-e29b-41d4-a716-446655440007', 'cancelado', 0.00),
-('950e8400-e29b-41d4-a716-446655440008', 'PED-2025-008', '550e8400-e29b-41d4-a716-446655440008', 'entregado', 37.80);
+INSERT INTO pedidos (id, numero_pedido, nombre_contacto, telefono_contacto, email_contacto, usuario_id, tipo_entrega, metodo_pago, direccion_calle, direccion_ciudad, direccion_codigo_postal, direccion_telefono, estado, total) VALUES
+('950e8400-e29b-41d4-a716-446655440001', 'PED-2025-001', 'María García López', '612345678', 'maria.garcia@gmail.com', '550e8400-e29b-41d4-a716-446655440001', 'domicilio', 'tarjeta', 'Calle Mayor 123, 2º B', 'Madrid', '28001', '612345678', 'entregado', 32.40),
+('950e8400-e29b-41d4-a716-446655440002', 'PED-2025-002', 'Carlos Rodríguez Pérez', '687654321', 'carlos.rodriguez@hotmail.com', '550e8400-e29b-41d4-a716-446655440002', 'recogida', 'efectivo', NULL, NULL, NULL, NULL, 'en preparación', 25.80),
+('950e8400-e29b-41d4-a716-446655440003', 'PED-2025-003', NULL, NULL, NULL, NULL, 'recogida', 'tarjeta', NULL, NULL, NULL, NULL, 'listo', 18.40),
+('950e8400-e29b-41d4-a716-446655440004', 'PED-2025-004', 'Ana Martínez Silva', '634567890', 'ana.martinez@yahoo.es', '550e8400-e29b-41d4-a716-446655440004', 'domicilio', 'efectivo', 'Avenida de la Paz 45, 1º A', 'Barcelona', '08015', '698765432', 'pendiente', 41.30),
+('950e8400-e29b-41d4-a716-446655440005', 'PED-2025-005', 'Elena Sánchez Ruiz', '645678901', 'elena.sanchez@outlook.com', '550e8400-e29b-41d4-a716-446655440005', 'domicilio', 'tarjeta', 'Plaza España 8, 3º C', 'Valencia', '46001', '645678901', 'entregado', 29.90),
+('950e8400-e29b-41d4-a716-446655440006', 'PED-2025-006', NULL, NULL, NULL, NULL, 'recogida', 'tarjeta', NULL, NULL, NULL, NULL, 'en preparación', 22.40),
+('950e8400-e29b-41d4-a716-446655440007', 'PED-2025-007', 'Carmen Jiménez Vega', '623456789', 'carmen.jimenez@hotmail.com', '550e8400-e29b-41d4-a716-446655440007', 'recogida', 'efectivo', NULL, NULL, NULL, NULL, 'cancelado', 0.00),
+('950e8400-e29b-41d4-a716-446655440008', 'PED-2025-008', NULL, NULL, NULL, NULL, 'domicilio', 'tarjeta', 'Calle del Sol 67, 4º D', 'Sevilla', '41001', '689012345', 'entregado', 37.80);
 
 -- Insertar detalles de pedido más realistas
 INSERT INTO detalles_pedido (id, pedido_id, producto_id, cantidad, subtotal) VALUES
@@ -232,19 +242,32 @@ ORDER BY r.fecha, r.hora;
 SELECT 
     p.id AS pedido_id, 
     p.numero_pedido,
-    u.nombre AS nombre_usuario,
-    u.telefono,
+    CASE 
+        WHEN p.usuario_id IS NOT NULL THEN u.nombre 
+        ELSE 'Cliente anónimo' 
+    END AS nombre_usuario,
+    CASE 
+        WHEN p.usuario_id IS NOT NULL THEN u.telefono 
+        ELSE p.direccion_telefono 
+    END AS telefono,
+    p.tipo_entrega,
+    p.metodo_pago,
+    CASE 
+        WHEN p.tipo_entrega = 'domicilio' THEN CONCAT(p.direccion_calle, ', ', p.direccion_ciudad, ' ', p.direccion_codigo_postal)
+        ELSE 'Recogida en tienda'
+    END AS direccion_entrega,
     p.estado, 
     p.total,
+    p.fecha_creacion,
     pr.nombre AS producto, 
     pr.precio, 
     dp.cantidad, 
     dp.subtotal 
 FROM pedidos p 
-JOIN usuarios u ON p.usuario_id = u.id
+LEFT JOIN usuarios u ON p.usuario_id = u.id
 JOIN detalles_pedido dp ON p.id = dp.pedido_id 
 JOIN productos pr ON dp.producto_id = pr.id 
-ORDER BY p.numero_pedido, pr.nombre;
+ORDER BY p.fecha_creacion DESC, p.numero_pedido, pr.nombre;
 
 -- Ver todos los productos con sus imágenes
 SELECT 
@@ -264,5 +287,72 @@ LEFT JOIN
 GROUP BY 
     p.id, p.nombre, p.descripcion, p.precio, p.disponible, cp.nombre
 ORDER BY p.nombre;
+
+-- Consultas específicas para el nuevo modelo de pedidos
+
+-- Ver pedidos por tipo de entrega
+SELECT 
+    tipo_entrega,
+    COUNT(*) as total_pedidos,
+    SUM(total) as facturacion_total,
+    AVG(total) as ticket_promedio
+FROM pedidos 
+GROUP BY tipo_entrega;
+
+-- Ver pedidos por método de pago
+SELECT 
+    metodo_pago,
+    COUNT(*) as total_pedidos,
+    SUM(total) as facturacion_total
+FROM pedidos 
+GROUP BY metodo_pago;
+
+-- Ver pedidos a domicilio con direcciones completas
+SELECT 
+    p.numero_pedido,
+    CASE 
+        WHEN p.usuario_id IS NOT NULL THEN u.nombre 
+        ELSE 'Cliente anónimo' 
+    END AS cliente,
+    CONCAT(p.direccion_calle, ', ', p.direccion_ciudad, ' ', p.direccion_codigo_postal) as direccion_completa,
+    p.direccion_telefono,
+    p.metodo_pago,
+    p.estado,
+    p.total,
+    p.fecha_creacion
+FROM pedidos p
+LEFT JOIN usuarios u ON p.usuario_id = u.id
+WHERE p.tipo_entrega = 'domicilio'
+ORDER BY p.fecha_creacion DESC;
+
+-- Ver estadísticas de pedidos por usuario registrado vs anónimo
+SELECT 
+    CASE 
+        WHEN usuario_id IS NOT NULL THEN 'Registrado' 
+        ELSE 'Anónimo' 
+    END AS tipo_cliente,
+    tipo_entrega,
+    metodo_pago,
+    COUNT(*) as cantidad_pedidos,
+    SUM(total) as facturacion_total
+FROM pedidos
+GROUP BY 
+    CASE WHEN usuario_id IS NOT NULL THEN 'Registrado' ELSE 'Anónimo' END,
+    tipo_entrega,
+    metodo_pago
+ORDER BY tipo_cliente, tipo_entrega, metodo_pago;
+
+-- Modificaciones para la tabla pedidos (si ya existe)
+ALTER TABLE pedidos 
+MODIFY COLUMN usuario_id CHAR(36) NULL,
+ADD COLUMN tipo_entrega ENUM('recogida', 'domicilio') NOT NULL DEFAULT 'recogida' AFTER usuario_id,
+ADD COLUMN metodo_pago ENUM('efectivo', 'tarjeta') NOT NULL DEFAULT 'efectivo' AFTER tipo_entrega,
+ADD COLUMN direccion_calle VARCHAR(255) NULL AFTER metodo_pago,
+ADD COLUMN direccion_ciudad VARCHAR(100) NULL AFTER direccion_calle,
+ADD COLUMN direccion_codigo_postal VARCHAR(10) NULL AFTER direccion_ciudad,
+ADD COLUMN direccion_telefono VARCHAR(15) NULL AFTER direccion_codigo_postal,
+ADD COLUMN fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER total,
+DROP FOREIGN KEY pedidos_ibfk_1,
+ADD FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL;
 
 

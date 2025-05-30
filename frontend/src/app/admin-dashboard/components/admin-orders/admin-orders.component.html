@@ -11,8 +11,7 @@
           <th>Nº Pedido</th>
           <th>Cliente</th>
           <th>Productos</th>
-          <td>Estado</td>
-          <td>Acciones</td>
+          <th>Acciones</th>
         </tr>
       </thead>
 
@@ -29,26 +28,7 @@
           </td>
           <td>
             @for(product of order.productos; track $index) {
-              <p>- {{ product.nombre }}</p>
-            }
-          </td>
-          <td>
-            @switch (order.estado) {
-              @case ('pendiente') {
-                <span class="text-yellow-500">{{ order.estado }}</span>
-              }
-              @case ('en preparación') {
-                <span class="text-blue-500">{{ order.estado }}</span>
-              }
-              @case ('listo') {
-                <span class="text-green-500">{{ order.estado }}</span>
-              }
-              @case ('entregado') {
-                <span class="text-gray-500">{{ order.estado }}</span>
-              }
-              @case ('cancelado') {
-                <span class="text-red-500">{{ order.estado }}</span>
-              }
+              <p class="text-xs">{{ product.cantidad }}x {{ product.nombre }}</p>
             }
           </td>
           <td class="flex flex-col align-middle justify-center gap-5">
@@ -82,7 +62,6 @@
         </tr>
         }
         <tr>
-          <td></td>
           <td></td>
           <td></td>
           <td></td>

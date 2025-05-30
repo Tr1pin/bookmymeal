@@ -10,6 +10,10 @@ export interface Order {
     pedido_id: string;
     estado: string;
     total: string;
+    tipo_entrega: 'recogida' | 'domicilio';
+    metodo_pago: 'efectivo' | 'tarjeta';
+    direccion_entrega: string;
+    fecha_creacion: string;
     productos: ProductOrder[];
     usuario: User;
 }
