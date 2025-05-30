@@ -1,0 +1,52 @@
+<main class="min-h-screen flex flex-col justify-center items-center bg-gray-50 font-mono">
+  <div class="container mx-auto px-4 py-8">
+    
+    @if (cartItems.length === 0) {
+      <section class="text-center py-12" aria-live="polite">
+        <div class="bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 1.5M7 13l1.5-1.5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />
+          </svg>
+          <h1 class="text-2xl font-semibold text-gray-800 mb-4">Tu carrito está vacío</h1>
+          <p class="text-gray-600 mb-6">Añade algunos productos deliciosos para continuar con tu pedido.</p>
+          <button 
+            (click)="redirectToCarta()"
+            class="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors"
+          >
+            Ver nuestra carta
+          </button>
+        </div>
+      </section>
+    } @else {
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold text-center text-blue-950">Finalizar Pedido</h1>
+        <p class="text-center text-gray-600 mt-2">Revisa tu pedido y completa la imformación necesaria</p>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        <!-- Left Column: Delivery and Payment Options -->
+        <aside class="flex">
+          <app-opciones-pedido
+            class="flex-1"
+            (deliveryOptionChange)="onDeliveryOptionChange($event)"
+            (paymentMethodChange)="onPaymentMethodChange($event)"
+            (optionsChange)="onOptionsChange($event)">
+          </app-opciones-pedido>
+        </aside>
+
+        <!-- Right Column: Order Summary -->
+        <section class="flex">
+          <app-detalles-pedido
+            class="flex-1"
+            [cartItems]="cartItems"
+            [deliveryOption]="deliveryOption"
+            [deliveryCost]="deliveryCost"
+            [ivaRate]="ivaRate"
+            [canPlaceOrder]="canPlaceOrder"
+            (placeOrder)="placeOrder()">
+          </app-detalles-pedido>
+        </section>
+      </div>
+    }
+  </div>
+</main>

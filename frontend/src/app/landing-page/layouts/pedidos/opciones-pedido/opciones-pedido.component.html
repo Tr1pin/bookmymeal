@@ -1,0 +1,217 @@
+<section class="bg-white p-6 rounded-lg shadow-md h-full">
+  <h2 class="text-2xl font-bold mb-6 text-blue-950">Opciones de Entrega y Pago</h2>
+  
+  <form class="space-y-8">
+    <!-- Delivery Options -->
+    <fieldset class="space-y-4 font-bold text-black">
+      <h3 class="text-lg text-black font-bold">Opciones de Entrega</h3>
+      
+      <div class="space-y-3">
+        <div class="relative">
+          <input type="radio" id="pickup" name="delivery" value="pickup" 
+                 [checked]="deliveryOption === 'pickup'"
+                 (change)="onDeliveryOptionChange('pickup')"
+                 class="sr-only peer">
+          <label for="pickup" 
+                 class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-colors">
+            <div class="flex items-center justify-between w-full">
+              <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-blue-600">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <path d="m16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-800">Recogida en tienda</p>
+                    <p class="text-sm text-gray-500">Disponible en 30-45 minutos</p>
+                  </div>
+                </div>
+              </div>
+              <span class="text-lg font-semibold text-green-600">GRATIS</span>
+            </div>
+          </label>
+        </div>
+        
+        <div class="relative">
+          <input type="radio" id="delivery" name="delivery" value="delivery" 
+                 [checked]="deliveryOption === 'delivery'"
+                 (change)="onDeliveryOptionChange('delivery')"
+                 class="sr-only peer">
+          <label for="delivery" 
+                 class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-colors">
+            <div class="flex items-center justify-between w-full">
+              <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-blue-600">
+                      <rect x="1" y="3" width="15" height="13"></rect>
+                      <polygon points="16,8 20,8 23,11 23,16 16,16"></polygon>
+                      <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                      <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-800">Entrega a domicilio</p>
+                    <p class="text-sm text-gray-500">Entrega en 45-60 minutos</p>
+                  </div>
+                </div>
+              </div>
+              <span class="text-lg font-semibold text-gray-800">5.00 €</span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Delivery Address (only if delivery is selected) -->
+    @if (deliveryOption === 'delivery') {
+      <section class="space-y-4" role="region">
+        <h3 class="text-lg font-bold text-black">Dirección de Entrega</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="street" class="block text-sm font-medium text-gray-700 mb-1">Calle y número</label>
+            <input type="text" id="street" name="street" 
+                   [(ngModel)]="deliveryAddress.street"
+                   required
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                   placeholder="Ej: Calle Mayor, 123">
+          </div>
+          
+          <div>
+            <label for="city" class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+            <input type="text" id="city" name="city" 
+                   [(ngModel)]="deliveryAddress.city"
+                   required
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                   placeholder="Ej: Madrid">
+          </div>
+          
+          <div>
+            <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Código postal</label>
+            <input type="text" id="postalCode" name="postalCode" 
+                   [(ngModel)]="deliveryAddress.postalCode"
+                   required
+                   pattern="[0-9]{5}"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                   placeholder="28001">
+          </div>
+          
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <input type="tel" id="phone" name="phone" 
+                   [(ngModel)]="deliveryAddress.phone"
+                   required
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                   placeholder="Ej: 612 345 678">
+          </div>
+        </div>
+        
+        <div>
+          <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notas adicionales (opcional)</label>
+          <textarea id="notes" name="notes" 
+                    [(ngModel)]="deliveryAddress.notes"
+                    rows="2"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    placeholder="Ej: 2º piso, puerta B"></textarea>
+        </div>
+      </section>
+    }
+
+    <!-- Payment Methods -->
+    <fieldset class="space-y-4">
+      <h3 class="text-lg font-bold text-black">Método de Pago</h3>
+      
+      <div class="space-y-3">
+        <div class="relative">
+          <input type="radio" id="card" name="payment" value="card" 
+                 [checked]="paymentMethod === 'card'"
+                 (change)="onPaymentMethodChange('card')"
+                 class="sr-only peer">
+          <label for="card" 
+                 class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-colors">
+            <div class="flex items-center space-x-3">
+              <div class="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <span class="font-medium text-gray-800">Tarjeta de crédito/débito</span>
+              </div>
+            </div>
+          </label>
+        </div>
+        
+        <div class="relative">
+          <input type="radio" id="cash" name="payment" value="cash" 
+                 [checked]="paymentMethod === 'cash'"
+                 (change)="onPaymentMethodChange('cash')"
+                 class="sr-only peer">
+          <label for="cash" 
+                 class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-colors">
+            <div class="flex items-center space-x-3">
+              <div class="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span class="font-medium text-gray-800">Efectivo</span>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Credit Card Form (only if card is selected) -->
+    @if (paymentMethod === 'card') {
+      <section class="space-y-4" role="region" aria-label="Información de tarjeta">
+        <h3 class="text-lg font-bold text-black">Información de la Tarjeta</h3>
+        
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-1">Número de tarjeta</label>
+            <input type="text" id="cardNumber" name="cardNumber" 
+                   [(ngModel)]="cardInfo.number"
+                   required
+                   maxlength="19"
+                   placeholder="1234 5678 9012 3456"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="cardExpiry" class="block text-sm font-medium text-gray-700 mb-1">Fecha de expiración</label>
+              <input type="text" id="cardExpiry" name="cardExpiry" 
+                     [(ngModel)]="cardInfo.expiry"
+                     required
+                     placeholder="MM/AA"
+                     maxlength="5"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">
+            </div>
+            
+            <div>
+              <label for="cardCvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+              <input type="text" id="cardCvv" name="cardCvv" 
+                     [(ngModel)]="cardInfo.cvv"
+                     required
+                     maxlength="4"
+                     placeholder="123"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">
+            </div>
+          </div>
+          
+          <div>
+            <label for="cardName" class="block text-sm font-medium text-gray-700 mb-1">Nombre del titular</label>
+            <input type="text" id="cardName" name="cardName" 
+                   [(ngModel)]="cardInfo.name"
+                   required
+                   placeholder="Nombre completo"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">
+          </div>
+        </div>
+      </section>
+    }
+  </form>
+</section>
