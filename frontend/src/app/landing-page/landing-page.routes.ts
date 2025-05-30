@@ -3,8 +3,7 @@ import { LandingPageLayoutComponent } from "./layouts/landing-page-layout/landin
 import { HomeComponent } from "./layouts/home/home.component";
 import { CartaComponent } from "./layouts/carta/carta.component";
 import { ReservasComponent } from "./layouts/reservas/reservas.component";
-import { PedidoComponent } from "./layouts/pedido/pedido.component";
-
+import { PedidosComponent } from "./layouts/pedidos/pedidos.component";
 
 export const landingPageRoutes: Routes = [
    {
@@ -21,7 +20,7 @@ export const landingPageRoutes: Routes = [
          },
          {
             path: 'confirmar-pedido',
-            component: PedidoComponent
+            component: PedidosComponent
          },
          {
             path: 'reservas',
