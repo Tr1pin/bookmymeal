@@ -21,20 +21,27 @@ export class PedidoModel {
             SELECT 
                 p.id AS pedido_id, 
                 p.numero_pedido,
-                u.nombre AS nombre_usuario,
-                u.telefono,
+                COALESCE(p.nombre_contacto, u.nombre, 'Cliente anónimo') AS nombre_usuario,
+                COALESCE(p.telefono_contacto, u.telefono, p.direccion_telefono) AS telefono,
+                p.tipo_entrega,
+                p.metodo_pago,
+                CASE 
+                    WHEN p.tipo_entrega = 'domicilio' THEN CONCAT(p.direccion_calle, ', ', p.direccion_ciudad, ' ', p.direccion_codigo_postal)
+                    ELSE 'Recogida en tienda'
+                END AS direccion_entrega,
                 p.estado, 
                 p.total,
+                p.fecha_creacion,
                 p.usuario_id, 
                 pr.nombre AS producto, 
                 pr.precio, 
                 dp.cantidad, 
                 dp.subtotal 
             FROM pedidos p 
-            JOIN usuarios u ON p.usuario_id = u.id
+            LEFT JOIN usuarios u ON p.usuario_id = u.id
             JOIN detalles_pedido dp ON p.id = dp.pedido_id 
             JOIN productos pr ON dp.producto_id = pr.id 
-            ORDER BY p.id;
+            ORDER BY p.fecha_creacion DESC, p.numero_pedido;
         `);
         
         const pedidosAgrupados = [];
@@ -46,6 +53,10 @@ export class PedidoModel {
                     estado: item.estado,
                     total: item.total,
                     numero_pedido: item.numero_pedido,
+                    tipo_entrega: item.tipo_entrega,
+                    metodo_pago: item.metodo_pago,
+                    direccion_entrega: item.direccion_entrega,
+                    fecha_creacion: item.fecha_creacion,
                     productos: [],
                     usuario:{
                         nombre: '',
@@ -85,17 +96,24 @@ export class PedidoModel {
             `SELECT 
                 p.id AS pedido_id, 
                 p.numero_pedido,
-                u.nombre AS nombre_usuario,
-                u.telefono,
+                COALESCE(p.nombre_contacto, u.nombre, 'Cliente anónimo') AS nombre_usuario,
+                COALESCE(p.telefono_contacto, u.telefono, p.direccion_telefono) AS telefono,
+                p.tipo_entrega,
+                p.metodo_pago,
+                CASE 
+                    WHEN p.tipo_entrega = 'domicilio' THEN CONCAT(p.direccion_calle, ', ', p.direccion_ciudad, ' ', p.direccion_codigo_postal)
+                    ELSE 'Recogida en tienda'
+                END AS direccion_entrega,
                 p.estado, 
                 p.total,
+                p.fecha_creacion,
                 p.usuario_id, 
                 pr.nombre AS producto, 
                 pr.precio, 
                 dp.cantidad, 
                 dp.subtotal 
             FROM pedidos p 
-            JOIN usuarios u ON p.usuario_id = u.id
+            LEFT JOIN usuarios u ON p.usuario_id = u.id
             JOIN detalles_pedido dp ON p.id = dp.pedido_id 
             JOIN productos pr ON dp.producto_id = pr.id 
             WHERE p.id = ?`,
@@ -112,6 +130,10 @@ export class PedidoModel {
             numero_pedido: res[0].numero_pedido,
             pedido_id: res[0].pedido_id,
             total: res[0].total,
+            tipo_entrega: res[0].tipo_entrega,
+            metodo_pago: res[0].metodo_pago,
+            direccion_entrega: res[0].direccion_entrega,
+            fecha_creacion: res[0].fecha_creacion,
             productos: res.map(item => ({
                 nombre: item.producto,
                 cantidad: item.cantidad,
@@ -129,15 +151,26 @@ export class PedidoModel {
         return pedido;
     }
 
-    static async crearPedido({ usuario_id, total, estado, productos }) {
-        if (!usuario_id || !total || !estado || !productos || productos.length === 0) {
+    static async crearPedido({ usuario_id, nombre_contacto, telefono_contacto, email_contacto, tipo_entrega, metodo_pago, direccion_calle, direccion_ciudad, direccion_codigo_postal, direccion_telefono, total, estado, productos }) {
+        if (!tipo_entrega || !metodo_pago || !total || !estado || !productos || productos.length === 0) {
             throw new Error("Faltan datos para crear un pedido");
         }
 
         const uuid = randomUUID();
-        const numero_pedido = Math.floor(Math.random() * 1000) + 1;
+        const numero_pedido = `PED-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 999).toString().padStart(3, '0')}`;
 
-        const validation = validatePedido({usuario_id, total, estado});
+        const validation = validatePedido({
+            usuario_id, 
+            tipo_entrega, 
+            metodo_pago, 
+            direccion_calle, 
+            direccion_ciudad, 
+            direccion_codigo_postal, 
+            direccion_telefono, 
+            total, 
+            estado
+        });
+        
         if (!validation.success) {
             throw new Error(validation.error.message);
         }
@@ -149,8 +182,9 @@ export class PedidoModel {
 
             // Insertar el pedido
             await connection.query(
-                'INSERT INTO pedidos (id, usuario_id, numero_pedido, total, estado) VALUES (?, ?, ?, ?, ?)',
-                [uuid, usuario_id, numero_pedido, total, estado]
+                `INSERT INTO pedidos (id, numero_pedido, nombre_contacto, telefono_contacto, email_contacto, usuario_id, tipo_entrega, metodo_pago, direccion_calle, direccion_ciudad, direccion_codigo_postal, direccion_telefono, total, estado) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [uuid, numero_pedido, nombre_contacto || null, telefono_contacto || null, email_contacto || null, usuario_id || null, tipo_entrega, metodo_pago, direccion_calle || null, direccion_ciudad || null, direccion_codigo_postal || null, direccion_telefono || null, total, estado]
             );
 
             // Insertar los detalles del pedido
@@ -169,7 +203,9 @@ export class PedidoModel {
                 message: "Pedido creado correctamente",
                 pedido: {
                     pedido_id: uuid,
-                    numero_pedido: numero_pedido.toString(),
+                    numero_pedido: numero_pedido,
+                    tipo_entrega,
+                    metodo_pago,
                     estado,
                     total: total.toString(),
                     productos: productos.map(p => ({
@@ -223,22 +259,29 @@ export class PedidoModel {
             `SELECT 
                 p.id AS pedido_id, 
                 p.numero_pedido,
-                u.nombre AS nombre_usuario,
-                u.telefono,
+                COALESCE(p.nombre_contacto, u.nombre, 'Cliente anónimo') AS nombre_usuario,
+                COALESCE(p.telefono_contacto, u.telefono, p.direccion_telefono) AS telefono,
+                p.tipo_entrega,
+                p.metodo_pago,
+                CASE 
+                    WHEN p.tipo_entrega = 'domicilio' THEN CONCAT(p.direccion_calle, ', ', p.direccion_ciudad, ' ', p.direccion_codigo_postal)
+                    ELSE 'Recogida en tienda'
+                END AS direccion_entrega,
                 p.estado, 
                 p.total,
+                p.fecha_creacion,
                 p.usuario_id, 
                 pr.nombre AS producto, 
                 pr.precio, 
                 dp.cantidad, 
                 dp.subtotal 
             FROM pedidos p 
-            JOIN usuarios u ON p.usuario_id = u.id
+            LEFT JOIN usuarios u ON p.usuario_id = u.id
             JOIN detalles_pedido dp ON p.id = dp.pedido_id 
             JOIN productos pr ON dp.producto_id = pr.id 
-            WHERE u.nombre LIKE ?
-            ORDER BY p.id;`,
-            [`%${username}%`]
+            WHERE u.nombre LIKE ? OR p.direccion_telefono LIKE ? OR p.nombre_contacto LIKE ? OR p.telefono_contacto LIKE ?
+            ORDER BY p.fecha_creacion DESC, p.numero_pedido;`,
+            [`%${username}%`, `%${username}%`, `%${username}%`, `%${username}%`]
         );
         
         const pedidosAgrupados = [];
@@ -250,6 +293,10 @@ export class PedidoModel {
                     estado: item.estado,
                     total: item.total,
                     numero_pedido: item.numero_pedido,
+                    tipo_entrega: item.tipo_entrega,
+                    metodo_pago: item.metodo_pago,
+                    direccion_entrega: item.direccion_entrega,
+                    fecha_creacion: item.fecha_creacion,
                     productos: [],
                     usuario:{
                         nombre: '',
