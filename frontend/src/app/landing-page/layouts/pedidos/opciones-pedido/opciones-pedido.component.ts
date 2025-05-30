@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -6,8 +6,12 @@ interface DeliveryAddress {
   street: string;
   city: string;
   postalCode: string;
+}
+
+interface ContactInfo {
+  name: string;
+  email: string;
   phone: string;
-  notes: string;
 }
 
 interface CardInfo {
@@ -24,12 +28,13 @@ interface CardInfo {
   templateUrl: './opciones-pedido.component.html',
   styleUrls: ['./opciones-pedido.component.css']
 })
-export class OpcionesPedidoComponent {
+export class OpcionesPedidoComponent implements AfterViewInit {
   @Output() deliveryOptionChange = new EventEmitter<'pickup' | 'delivery'>();
   @Output() paymentMethodChange = new EventEmitter<'card' | 'cash'>();
   @Output() optionsChange = new EventEmitter<{
     deliveryOption: 'pickup' | 'delivery';
     paymentMethod: 'card' | 'cash';
+    contactInfo: ContactInfo;
     deliveryAddress?: DeliveryAddress;
     cardInfo?: CardInfo;
     isValid: boolean;
@@ -38,12 +43,16 @@ export class OpcionesPedidoComponent {
   deliveryOption: 'pickup' | 'delivery' = 'pickup';
   paymentMethod: 'card' | 'cash' = 'card';
   
+  contactInfo: ContactInfo = {
+    name: '',
+    email: '',
+    phone: ''
+  };
+  
   deliveryAddress: DeliveryAddress = {
     street: '',
     city: '',
     postalCode: '',
-    phone: '',
-    notes: ''
   };
 
   cardInfo: CardInfo = {
@@ -65,12 +74,13 @@ export class OpcionesPedidoComponent {
     this.emitOptionsChange();
   }
 
-  private emitOptionsChange() {
+  emitOptionsChange() {
     const isValid = this.isFormValid();
     
     this.optionsChange.emit({
       deliveryOption: this.deliveryOption,
       paymentMethod: this.paymentMethod,
+      contactInfo: this.contactInfo,
       deliveryAddress: this.deliveryOption === 'delivery' ? this.deliveryAddress : undefined,
       cardInfo: this.paymentMethod === 'card' ? this.cardInfo : undefined,
       isValid
@@ -78,6 +88,18 @@ export class OpcionesPedidoComponent {
   }
 
   private isFormValid(): boolean {
+    // Para efectivo, no permitimos el pedido online
+    if (this.paymentMethod === 'cash') {
+      return false;
+    }
+
+    // Validar información de contacto (siempre obligatoria)
+    const contactValid = !!(
+      this.contactInfo.name &&
+      this.contactInfo.phone &&
+      this.contactInfo.phone.length >= 9
+    );
+
     let deliveryValid = true;
     let paymentValid = true;
 
@@ -87,7 +109,6 @@ export class OpcionesPedidoComponent {
         this.deliveryAddress.street &&
         this.deliveryAddress.city &&
         this.deliveryAddress.postalCode &&
-        this.deliveryAddress.phone &&
         /^[0-9]{5}$/.test(this.deliveryAddress.postalCode)
       );
     }
@@ -105,6 +126,10 @@ export class OpcionesPedidoComponent {
       );
     }
 
-    return deliveryValid && paymentValid;
+    return contactValid && deliveryValid && paymentValid;
+  }
+
+  ngAfterViewInit() {
+    this.emitOptionsChange();
   }
 }

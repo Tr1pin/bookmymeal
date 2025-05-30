@@ -3,11 +3,12 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { OrdersService } from '../../../orders/services/orders.service';
 import { RouterLink } from '@angular/router';
 import { ToastService } from '../../../shared/services/toast.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe],
   templateUrl: './admin-orders.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

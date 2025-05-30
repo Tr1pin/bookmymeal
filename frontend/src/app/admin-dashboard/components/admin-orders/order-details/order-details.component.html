@@ -29,13 +29,30 @@
             }
           </p>
           <p><span class="text-blue-300">Total:</span> {{ order.total }}€</p>
+          <p><span class="text-blue-300">Tipo de entrega:</span> 
+            <span [class]="order.tipo_entrega === 'domicilio' ? 'text-blue-400' : 'text-green-400'">
+              {{ order.tipo_entrega === 'domicilio' ? '🚚 Domicilio' : '🏪 Recogida' }}
+            </span>
+          </p>
+          <p><span class="text-blue-300">Método de pago:</span> 
+            <span [class]="order.metodo_pago === 'tarjeta' ? 'text-purple-400' : 'text-yellow-400'">
+              {{ order.metodo_pago === 'tarjeta' ? '💳 Tarjeta' : '💵 Efectivo' }}
+            </span>
+          </p>
+          <p><span class="text-blue-300">Fecha:</span> {{ order.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}</p>
         </div>
 
         <div class="col-span-2 md:col-span-1">
           <h2 class="text-xl mb-4 text-blue-500">Información del Cliente</h2>
           <p><span class="text-blue-300">Nombre:</span> {{ order.usuario.nombre }}</p>
           <p><span class="text-blue-300">Teléfono:</span> {{ order.usuario.telefono }}</p>
-          <p><span class="text-blue-300">ID:</span> {{ order.usuario.id }}</p>
+          @if (order.usuario.id) {
+            <p><span class="text-blue-300">ID:</span> {{ order.usuario.id }}</p>
+          }
+          <div class="mt-4">
+            <p class="text-blue-300 font-semibold">Dirección de entrega:</p>
+            <p class="text-sm text-gray-300">{{ order.direccion_entrega }}</p>
+          </div>
         </div>
 
         <div class="col-span-2">

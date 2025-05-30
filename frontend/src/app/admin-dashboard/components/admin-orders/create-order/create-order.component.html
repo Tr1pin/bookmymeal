@@ -3,35 +3,192 @@
     <h1 class="text-2xl text-blue-500">Crear Pedido</h1>
   </div>
 
-  <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 max-w-2xl mx-auto w-full p-4">
-    <div class="form-control w-full">
-      <label class="label">
-        <span class="label-text text-blue-300">ID Usuario</span>
-      </label>
-      <input type="text" formControlName="usuario_id" class="input input-bordered w-full bg-gray-700 text-white" />
+  <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 max-w-4xl mx-auto w-full p-4">
+    <!-- Información de Contacto -->
+    <div class="bg-blue-950/30 p-6 rounded-lg border border-blue-500/30">
+      <h3 class="text-blue-300 text-lg font-semibold mb-4">👤 Información de Contacto</h3>
+      <p class="text-gray-300 text-sm mb-4">Esta información es necesaria para coordinar la entrega del pedido.</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text text-blue-300">
+              Nombre completo <span class="text-red-400">*</span>
+            </span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="nombre_contacto" 
+            class="input input-bordered w-full bg-gray-700 text-white" 
+            placeholder="Ej: Juan Pérez"
+            [class.input-error]="orderForm.get('nombre_contacto')?.invalid && orderForm.get('nombre_contacto')?.touched"
+          />
+        </div>
+        
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text text-blue-300">
+              Teléfono de contacto <span class="text-red-400">*</span>
+            </span>
+          </label>
+          <input 
+            type="tel" 
+            formControlName="telefono_contacto" 
+            class="input input-bordered w-full bg-gray-700 text-white" 
+            placeholder="Ej: 612 345 678"
+            [class.input-error]="orderForm.get('telefono_contacto')?.invalid && orderForm.get('telefono_contacto')?.touched"
+          />
+        </div>
+      </div>
+      
+      <div class="form-control w-full mt-4">
+        <label class="label">
+          <span class="label-text text-blue-300">Email (opcional)</span>
+        </label>
+        <input 
+          type="email" 
+          formControlName="email_contacto" 
+          class="input input-bordered w-full bg-gray-700 text-white" 
+          placeholder="Ej: juan@email.com"
+        />
+      </div>
     </div>
 
-    <div class="form-control w-full">
-      <label class="label">
-        <span class="text-blue-300">Estado</span>
-      </label>
-      <select formControlName="estado" class="select select-bordered w-full bg-gray-700 text-white">
-        <option value="pendiente">Pendiente</option>
-        <option value="en preparación">En preparación</option>
-        <option value="listo">Listo</option>
-        <option value="entregado">Entregado</option>
-        <option value="cancelado">Cancelado</option>
-      </select>
+    <!-- Usuario ID y Estado -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text text-blue-300">
+            ID Usuario 
+            <span class="text-gray-400">(opcional)</span>
+          </span>
+        </label>
+        <input 
+          type="text" 
+          formControlName="usuario_id" 
+          class="input input-bordered w-full bg-gray-700 text-white" 
+          placeholder="UUID del usuario registrado (opcional)"
+        />
+        <label class="label">
+          <span class="label-text-alt text-gray-400">
+            Deja vacío para pedidos anónimos
+          </span>
+        </label>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="text-blue-300">Estado</span>
+        </label>
+        <select formControlName="estado" class="select select-bordered w-full bg-gray-700 text-white">
+          <option value="pendiente">Pendiente</option>
+          <option value="en preparación">En preparación</option>
+          <option value="listo">Listo</option>
+          <option value="entregado">Entregado</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
     </div>
 
+    <!-- Tipo de Entrega -->
     <div class="form-control w-full">
       <label class="label">
-        <span class="text-blue-300">Productos</span>
+        <span class="text-blue-300 text-lg font-semibold">Tipo de Entrega</span>
+      </label>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button 
+          type="button"
+          (click)="selectDeliveryType('recogida')"
+          class="btn btn-lg h-auto py-6 flex flex-col gap-2 transition-all duration-300"
+          [class]="selectedDeliveryType === 'recogida' ? 'btn-primary bg-blue-600 border-blue-600' : 'btn-outline btn-primary'"
+        >
+          <div class="text-3xl">🏪</div>
+          <div class="font-semibold">Recogida en tienda</div>
+          <div class="text-sm opacity-70">Gratis - Recoge tu pedido cuando esté listo</div>
+        </button>
+        
+        <button 
+          type="button"
+          (click)="selectDeliveryType('domicilio')"
+          class="btn btn-lg h-auto py-6 flex flex-col gap-2 transition-all duration-300"
+          [class]="selectedDeliveryType === 'domicilio' ? 'btn-primary bg-blue-600 border-blue-600' : 'btn-outline btn-primary'"
+        >
+          <div class="text-3xl">🚚</div>
+          <div class="font-semibold">Entrega a domicilio</div>
+          <div class="text-sm opacity-70">5.00€ - Entregamos en tu dirección</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Campos de dirección (solo para domicilio) -->
+    @if (selectedDeliveryType === 'domicilio') {
+      <div class="bg-blue-950/30 p-6 rounded-lg border border-blue-500/30">
+        <h3 class="text-blue-300 text-lg font-semibold mb-4">📍 Dirección de entrega</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text text-blue-300">Calle y número <span class="text-red-400">*</span></span>
+            </label>
+            <input 
+              type="text" 
+              formControlName="direccion_calle" 
+              class="input input-bordered w-full bg-gray-700 text-white" 
+              placeholder="Ej: Calle Mayor 123, 2º B"
+              [class.input-error]="orderForm.get('direccion_calle')?.invalid && orderForm.get('direccion_calle')?.touched"
+            />
+          </div>
+
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text text-blue-300">Ciudad <span class="text-red-400">*</span></span>
+            </label>
+            <input 
+              type="text" 
+              formControlName="direccion_ciudad" 
+              class="input input-bordered w-full bg-gray-700 text-white" 
+              placeholder="Ej: Madrid"
+              [class.input-error]="orderForm.get('direccion_ciudad')?.invalid && orderForm.get('direccion_ciudad')?.touched"
+            />
+          </div>
+
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text text-blue-300">Código Postal <span class="text-red-400">*</span></span>
+            </label>
+            <input 
+              type="text" 
+              formControlName="direccion_codigo_postal" 
+              class="input input-bordered w-full bg-gray-700 text-white" 
+              placeholder="Ej: 28001"
+              [class.input-error]="orderForm.get('direccion_codigo_postal')?.invalid && orderForm.get('direccion_codigo_postal')?.touched"
+            />
+          </div>
+
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text text-blue-300">Teléfono de contacto <span class="text-red-400">*</span></span>
+            </label>
+            <input 
+              type="text" 
+              formControlName="direccion_telefono" 
+              class="input input-bordered w-full bg-gray-700 text-white" 
+              placeholder="Ej: 612345678"
+              [class.input-error]="orderForm.get('direccion_telefono')?.invalid && orderForm.get('direccion_telefono')?.touched"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Productos -->
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="text-blue-300 text-lg font-semibold">🛍️ Productos del Pedido</span>
       </label>
       
       <div formArrayName="productos" class="flex flex-col gap-4">
         @for (producto of productosFormArray.controls; track producto.get('id')?.value; let i = $index) {
-          <div [formGroupName]="i" class="flex gap-4 items-end">
+          <div [formGroupName]="i" class="bg-gray-800/50 p-4 rounded-lg border border-gray-600 flex gap-4 items-end">
             <div class="flex-1">
               <label class="label">
                 <span class="text-white text-sm">Producto</span>
@@ -62,7 +219,7 @@
               <input type="number" formControlName="subtotal" readonly class="input input-bordered w-full bg-gray-700 text-white" />
             </div>
 
-            <button type="button" class="btn btn-error" (click)="removeProducto(i)">
+            <button type="button" class="btn btn-error btn-sm" (click)="removeProducto(i)">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
                 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
@@ -70,23 +227,73 @@
             </button>
           </div>
         }
+        
+        @if (productosFormArray.length === 0) {
+          <div class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
+            <div class="text-4xl mb-2">📦</div>
+            <p>No hay productos añadidos</p>
+            <p class="text-sm">Haz clic en "Añadir Producto" para comenzar</p>
+          </div>
+        }
       </div>
 
-      <button type="button" class="btn btn-primary mt-4" (click)="addProducto()">
+      <button type="button" class="btn btn-outline btn-primary mt-4" (click)="addProducto()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+        </svg>
         Añadir Producto
       </button>
     </div>
 
-    <div class="form-control w-full">
-      <label class="label">
-        <span class="text-blue-300">Total (IVA incluido)</span>
-      </label>
-      <input type="number" formControlName="total" readonly class="input input-bordered w-full bg-gray-700 text-white" />
+    <!-- Resumen del Pedido -->
+    <div class="bg-green-950/30 p-6 rounded-lg border border-green-500/30">
+      <h3 class="text-green-300 text-lg font-semibold mb-4">💰 Resumen del Pedido</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="text-green-300">Total (IVA incluido)</span>
+          </label>
+          <input type="number" formControlName="total" readonly class="input input-bordered w-full bg-gray-700 text-white font-bold text-lg" />
+        </div>
+        
+        <div class="text-center">
+          <div class="text-sm text-gray-400">Tipo de entrega</div>
+          <div class="font-semibold text-white">
+            @if (selectedDeliveryType === 'recogida') {
+              🏪 Recogida (Gratis)
+            } @else {
+              🚚 Domicilio (+5.00€)
+            }
+          </div>
+        </div>
+        
+        <div class="text-center">
+          <div class="text-sm text-gray-400">Método de pago</div>
+          <div class="font-semibold text-white">
+            💵 Efectivo
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="flex justify-end gap-4 mt-4">
-      <a routerLink="/admin-dashboard/pedidos" class="btn">Cancelar</a>
-      <button type="submit" class="btn btn-primary">Crear Pedido</button>
+    <!-- Botones de acción -->
+    <div class="flex justify-end gap-4 mt-6">
+      <a routerLink="/admin-dashboard/pedidos" class="btn btn-outline">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+        </svg>
+        Cancelar
+      </a>
+      <button 
+        type="submit" 
+        class="btn btn-primary"
+        [disabled]="!canSubmitForm"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+          <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
+        </svg>
+        Crear Pedido
+      </button>
     </div>
   </form>
 </section> 

@@ -5,7 +5,13 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 
 interface CreateOrderData {
-  usuario_id: string;
+  usuario_id?: string;
+  tipo_entrega: 'recogida' | 'domicilio';
+  metodo_pago: 'efectivo' | 'tarjeta';
+  direccion_calle?: string;
+  direccion_ciudad?: string;
+  direccion_codigo_postal?: string;
+  direccion_telefono?: string;
   total: number;
   estado: string;
   productos: Array<{

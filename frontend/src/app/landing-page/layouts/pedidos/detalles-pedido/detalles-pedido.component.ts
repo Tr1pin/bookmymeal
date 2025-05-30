@@ -11,6 +11,7 @@ import { CartItem } from '../../../../cart/interfaces/CartItem';
 export class DetallesPedidoComponent {
   @Input() cartItems: CartItem[] = [];
   @Input() deliveryOption: 'pickup' | 'delivery' = 'pickup';
+  @Input() paymentMethod: 'card' | 'cash' = 'card';
   @Input() deliveryCost: number = 5.00;
   @Input() ivaRate: number = 0.21;
   @Input() canPlaceOrder: boolean = false;
