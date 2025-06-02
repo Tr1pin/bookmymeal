@@ -212,34 +212,79 @@ export class ReservaModel {
     }
 
     //Post verification of a possible reservation
-    /* static async checkReservation({ fecha, hora, personas }) {
-        if (!fecha || !hora  || !personas) {
+    static async checkReservation({ fecha, hora, personas }) {
+        if (!fecha || !hora || !personas) {
             throw new Error("Faltan datos para verificar la reserva");
         }
       
         const connection = await mysql.createConnection(connectionString);
 
-        
-        connection.query(
-            `SELECT m.id FROM mesas m 
-             WHERE m.capacidad >= ? 
-             AND m.id NOT IN (
-                SELECT r.mesa_id FROM reservas r 
-                WHERE r.fecha = ? AND r.hora = ? AND r.estado IN ('pendiente', 'confirmada')
-             ) 
-             LIMIT 1`,
-            [personas, fecha, hora],
-            (err, results) => {
-                if (err) return ({ message: err.message });
-    
-                if (results.length === 0) {
-                    return res.json({ mensaje: "No hay mesas disponibles a esa hora." });
-                }
-    
-                return ({ disponible: true, mesa_id: results[0].id });
+        try {
+            // Verificar si hay mesas disponibles para la fecha y hora solicitada
+            const [mesasDisponibles] = await connection.execute(
+                `SELECT id FROM mesas 
+                 WHERE (capacidad +1) >= ? 
+                 AND id NOT IN (
+                    SELECT mesa_id FROM reservas 
+                    WHERE fecha = ? AND hora = ? AND estado IN ('pendiente', 'confirmada')
+                 ) 
+                 LIMIT 1`,
+                [personas, fecha, hora]
+            );
+
+            if (mesasDisponibles.length > 0) {
+                await connection.end();
+                return { 
+                    disponible: true, 
+                    mensaje: "Mesa disponible para la fecha y hora solicitada",
+                    mesa_id: mesasDisponibles[0].id 
+                };
             }
-        );
-    } */
+
+            // Si no hay mesas disponibles, buscar horarios alternativos para ese día
+            const [horariosAlternativos] = await connection.execute(
+                `SELECT DISTINCT r.hora 
+                 FROM (
+                    SELECT DISTINCT '12:00:00' as hora
+                    UNION SELECT '12:30:00' as hora
+                    UNION SELECT '13:00:00' as hora  
+                    UNION SELECT '13:30:00' as hora
+                    UNION SELECT '14:00:00' as hora
+                    UNION SELECT '14:30:00' as hora
+                    UNION SELECT '15:00:00' as hora
+                    UNION SELECT '20:00:00' as hora
+                    UNION SELECT '20:30:00' as hora
+                    UNION SELECT '21:00:00' as hora
+                    UNION SELECT '21:30:00' as hora
+                    UNION SELECT '22:00:00' as hora
+                    UNION SELECT '22:30:00' as hora
+                    UNION SELECT '23:00:00' as hora
+                 ) r
+                 WHERE EXISTS (
+                    SELECT 1 FROM mesas m 
+                    WHERE m.capacidad >= ? 
+                    AND m.id NOT IN (
+                        SELECT mesa_id FROM reservas 
+                        WHERE fecha = ? AND hora = r.hora AND estado IN ('pendiente', 'confirmada')
+                    )
+                 )
+                 ORDER BY r.hora`,
+                [personas, fecha]
+            );
+
+            await connection.end();
+
+            return { 
+                disponible: false, 
+                mensaje: "No hay mesas disponibles a esa hora",
+                horariosAlternativos: horariosAlternativos.map(h => h.hora.substring(0, 5)) // Formato HH:MM
+            };
+
+        } catch (error) {
+            await connection.end();
+            throw new Error("Error en la base de datos: " + error.message);
+        }
+    }
     
     //Update reservation
     static async updateReservation({ id, estado, date, hour, personas }) {
