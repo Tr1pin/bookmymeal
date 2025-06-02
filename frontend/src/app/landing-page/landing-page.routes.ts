@@ -4,6 +4,8 @@ import { HomeComponent } from "./layouts/home/home.component";
 import { CartaComponent } from "./layouts/carta/carta.component";
 import { ReservasComponent } from "./layouts/reservas/reservas.component";
 import { PedidosComponent } from "./layouts/pedidos/pedidos.component";
+import { DetallesReservaComponent } from "./layouts/reservas/detalles-reserva/detalles-reserva.component";
+import { GraciasReservaComponent } from "./layouts/reservas/gracias-reserva/gracias-reserva.component";
 
 export const landingPageRoutes: Routes = [
    {
@@ -31,7 +33,11 @@ export const landingPageRoutes: Routes = [
                },
                {
                   path: 'detalles',
-                  component: ReservasComponent
+                  component: DetallesReservaComponent
+               },
+               {
+                  path: 'gracias',
+                  component: GraciasReservaComponent
                }
             ]
          },
