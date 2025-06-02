@@ -105,4 +105,22 @@ export class ProductController {
       res.status(500).json({ message: err.message });
     }
   }
+
+  static async getFeaturedProducts(req, res) {
+    try {
+      const limit = parseInt(req.params.limit) || 10; // Default a 10 si no se especifica o no es válido
+      
+      // Validar que el límite sea razonable (entre 1 y 50 por ejemplo)
+      if (limit < 1 || limit > 50) {
+        return res.status(400).json({ 
+          message: "El límite debe estar entre 1 y 50 productos" 
+        });
+      }
+      
+      const featuredProducts = await ProductModel.getFeaturedProducts(limit);
+      res.status(200).json(featuredProducts);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
 }

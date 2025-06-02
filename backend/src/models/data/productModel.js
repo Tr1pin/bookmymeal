@@ -310,53 +310,105 @@ export class ProductModel {
 
   static async getProductsGroupedByCategoryWithImages() {
     const connection = await mysql.createConnection(connectionString);
+    
     try {
-      const [rows] = await connection.query(`
-        SELECT
-          p.id AS producto_id,
-          p.nombre,
-          p.descripcion,
-          FORMAT(p.precio, 2) AS precio,
-          p.disponible,
-          p.categoria_id,
-          cp.nombre AS categoria_nombre,
-          (SELECT JSON_ARRAYAGG(i.filename) FROM imagenes_productos i WHERE i.producto_id = p.id) AS imagens
-        FROM
-          productos p
-        LEFT JOIN
-          categorias_producto cp ON p.categoria_id = cp.id
-        ORDER BY
-          cp.nombre, p.nombre;
+      const [categories] = await connection.query(`
+        SELECT 
+          c.id AS categoria_id,
+          c.nombre AS categoria_nombre
+        FROM 
+          categorias_producto c
+        ORDER BY c.nombre
       `);
 
       const groupedProducts = {};
-      for (const row of rows) {
-        
-        // Ensure 'imagens' is an array and handle cases where it might be null or contain a single null from DB
-        if (row.imagens === null || (Array.isArray(row.imagens) && row.imagens.length === 1 && row.imagens[0] === null)) {
-          row.imagens = []; 
-        } else if (!Array.isArray(row.imagens)) {
-          // Fallback if it's somehow not an array and not null (e.g., unexpected string)
-          row.imagens = [];
+
+      for (const category of categories) {
+        const [products] = await connection.query(`
+          SELECT 
+            p.id AS producto_id,
+            p.nombre,
+            p.descripcion,
+            FORMAT(p.precio, 2) AS precio,
+            p.disponible,
+            JSON_ARRAYAGG(i.filename) AS imagens
+          FROM 
+            productos p
+          LEFT JOIN 
+            imagenes_productos i ON p.id = i.producto_id
+          WHERE 
+            p.categoria_id = ? AND p.disponible = 1
+          GROUP BY 
+            p.id, p.nombre, p.descripcion, p.precio, p.disponible
+        `, [category.categoria_id]);
+
+        if (products.length > 0) {
+          groupedProducts[category.categoria_nombre] = products;
         }
-        
-        const categoryName = row.categoria_nombre || 'Otros'; // Default to 'Otros' if no category
-        if (!groupedProducts[categoryName]) {
-          groupedProducts[categoryName] = [];
-        }
-        // Create a new object for the product to avoid modifying the original row directly if it's used elsewhere
-        const productData = {
-          producto_id: row.producto_id,
-          nombre: row.nombre,
-          descripcion: row.descripcion,
-          precio: row.precio,
-          disponible: row.disponible,
-          categoria_id: row.categoria_id, // Keep categoria_id if needed within the product object
-          imagens: row.imagens
-        };
-        groupedProducts[categoryName].push(productData);
       }
+
       return groupedProducts;
+    } finally {
+      await connection.end();
+    }
+  }
+
+  static async getFeaturedProducts(limit = 10) {
+    const connection = await mysql.createConnection(connectionString);
+    
+    try {
+      // Primero obtener el número de categorías disponibles
+      const [categoriesCount] = await connection.query(`
+        SELECT COUNT(DISTINCT p.categoria_id) as total_categories
+        FROM productos p 
+        WHERE p.disponible = 1
+      `);
+      
+      const totalCategories = categoriesCount[0].total_categories;
+      
+      // Calcular cuántos productos por categoría (mínimo 1, máximo según el límite)
+      const productsPerCategory = Math.max(1, Math.floor(limit / totalCategories));
+      const remainingProducts = limit % totalCategories;
+      
+      // Usar subconsulta para evitar el error con el alias de la función window
+      const [products] = await connection.query(`
+        SELECT 
+          producto_id,
+          nombre,
+          descripcion,
+          precio,
+          disponible,
+          categoria_nombre,
+          imagens
+        FROM (
+          SELECT 
+            p.id AS producto_id,
+            p.nombre,
+            p.descripcion,
+            FORMAT(p.precio, 2) AS precio,
+            p.disponible,
+            cp.nombre AS categoria_nombre,
+            JSON_ARRAYAGG(i.filename) AS imagens,
+            ROW_NUMBER() OVER (PARTITION BY p.categoria_id ORDER BY p.nombre) AS row_num
+          FROM 
+            productos p
+          LEFT JOIN 
+            imagenes_productos i ON p.id = i.producto_id
+          LEFT JOIN
+            categorias_producto cp ON p.categoria_id = cp.id
+          WHERE 
+            p.disponible = 1
+          GROUP BY 
+            p.id, p.nombre, p.descripcion, p.precio, p.disponible, cp.nombre, p.categoria_id
+        ) AS ranked_products
+        WHERE 
+          row_num <= ?
+        ORDER BY 
+          categoria_nombre, nombre
+        LIMIT ?
+      `, [productsPerCategory + (remainingProducts > 0 ? 1 : 0), limit]);
+
+      return products;
     } finally {
       await connection.end();
     }

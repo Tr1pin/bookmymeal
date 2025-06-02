@@ -7,10 +7,11 @@ const router = Router();
 // Getters de Productos
 router.get('', ProductController.getAll);
 router.get('/productsImages', ProductController.getProductsImages);
+router.get('/grouped', ProductController.getGroupedProductsWithImages);
 router.get('/id/:id', ProductController.getById);
 router.get('/nombre/:nombre', ProductController.getByNombre);
 router.get('/disponible/:disponible', ProductController.getByDisponibilidad);
-router.get('/grouped', ProductController.getGroupedProductsWithImages);
+router.get('/:limit(\\d+)', ProductController.getFeaturedProducts);
 
 // Operaciones Create, Update y Delete.
 router.post("", uploadImages.array('imagen', 10), ProductController.crearProducto);
