@@ -4,7 +4,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Reservation } from '../interfaces/Reservation';
 
-interface CreateReservationData {
+export interface CreateReservationData {
   nombre: string;
   telefono: string;
   fecha: string;
@@ -12,19 +12,32 @@ interface CreateReservationData {
   personas: number;
 }
 
-interface CreateReservationWithUserData {
+export interface CreateReservationWithUserData {
   usuario_id: string;
   fecha: string;
   hora: string;
   personas: number;
 }
 
-interface UpdateReservationData {
+export interface UpdateReservationData {
   id: string;
   estado?: string;
   fecha?: string;
   hora?: string;
   personas?: number;
+}
+
+export interface CheckReservationData {
+  fecha: string;
+  hora: string;
+  personas: number;
+}
+
+export interface CheckReservationResponse {
+  disponible: boolean;
+  mensaje: string;
+  mesa_id?: string;
+  horariosAlternativos?: string[];
 }
 
 @Injectable({
@@ -33,6 +46,9 @@ interface UpdateReservationData {
 export class RservationService {
     private readonly baseUrl: string = 'http://localhost:3001';
     private http = inject(HttpClient);
+    
+    // Propiedad simple para almacenar datos del formulario
+    private formData: any = null;
       
     getReservas(): Observable<Reservation[]> {
       return this.http.get<Reservation[]>(this.baseUrl+'/reservas/');
@@ -40,6 +56,19 @@ export class RservationService {
 
     getReservationById(id: string): Observable<Reservation> {
       return this.http.get<Reservation>(`${this.baseUrl}/reservas/id/${id}`);
+    }
+
+    // Métodos simples para manejar los datos del formulario
+    setFormData(data: any) {
+      this.formData = data;
+    }
+
+    getFormData() {
+      return this.formData;
+    }
+
+    clearFormData() {
+      this.formData = null;
     }
 
     async createReservation(reservationData: CreateReservationData): Promise<any> {
@@ -66,6 +95,13 @@ export class RservationService {
     async deleteReservation(id: string): Promise<any> {
       const response = await firstValueFrom(
         this.http.delete<any>(`${this.baseUrl}/reservas/${id}`)
+      );
+      return response;
+    }
+
+    async checkReservationAvailability(checkData: CheckReservationData): Promise<CheckReservationResponse> {
+      const response = await firstValueFrom(
+        this.http.post<CheckReservationResponse>(`${this.baseUrl}/reservas/checkReservation`, checkData)
       );
       return response;
     }
