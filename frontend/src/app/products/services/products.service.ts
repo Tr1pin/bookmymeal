@@ -17,6 +17,11 @@ export class ProductsService {
       .pipe(tap((resp) => console.log(resp)));
   }
 
+  getFeaturedProducts(limit: number = 10): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.baseUrl}/productos/${limit}`)
+      .pipe(tap((resp) => console.log(`Featured products (${limit}):`, resp)));
+  }
+
   getProduct(id: string): Observable<Product> {
     return this.http.get<Product>(`${this.baseUrl}/productos/id/${id}`);
   }
