@@ -15,7 +15,7 @@ router.get('/fecha/:date', ReservaController.getReservationByDate);
 router.post('', ReservaController.createReservation);
 router.post('/with-user', ReservaController.createReservationWithUserId);
 router.put('', ReservaController.updateReservation);
-/* router.post('/checkReservation', ReservaController.checkReservation); */
+router.post('/checkReservation', ReservaController.checkReservation);
 
 //Delete de Reservas
 router.delete('/:id', ReservaController.deleteReservation);
