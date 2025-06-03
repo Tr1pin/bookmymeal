@@ -6,6 +6,7 @@ import { ReservasComponent } from "./layouts/reservas/reservas.component";
 import { PedidosComponent } from "./layouts/pedidos/pedidos.component";
 import { DetallesReservaComponent } from "./layouts/reservas/detalles-reserva/detalles-reserva.component";
 import { GraciasReservaComponent } from "./layouts/reservas/gracias-reserva/gracias-reserva.component";
+import { authGuard } from "../auth/guards/auth.guard";
 
 export const landingPageRoutes: Routes = [
    {
@@ -26,6 +27,7 @@ export const landingPageRoutes: Routes = [
          },
          {
             path: 'reservas',
+            canActivate: [authGuard],
             children: [
                {
                   path: '',
@@ -42,7 +44,7 @@ export const landingPageRoutes: Routes = [
             ]
          },
     ]
-   },
+   }
 ] 
 
 export default landingPageRoutes;
