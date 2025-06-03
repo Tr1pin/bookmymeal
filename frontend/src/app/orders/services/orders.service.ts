@@ -6,12 +6,31 @@ import { tap, catchError } from 'rxjs/operators';
 
 interface CreateOrderData {
   usuario_id?: string;
+  nombre_contacto?: string;
+  telefono_contacto?: string;
+  email_contacto?: string;
   tipo_entrega: 'recogida' | 'domicilio';
   metodo_pago: 'efectivo' | 'tarjeta';
   direccion_calle?: string;
   direccion_ciudad?: string;
   direccion_codigo_postal?: string;
   direccion_telefono?: string;
+  total: number;
+  estado: string;
+  productos: Array<{
+    producto_id: string;
+    cantidad: number;
+    subtotal: number;
+  }>;
+}
+
+interface CreateOrderWithUserData {
+  usuario_id: string;
+  tipo_entrega: 'recogida' | 'domicilio';
+  metodo_pago: 'efectivo' | 'tarjeta';
+  direccion_calle?: string;
+  direccion_ciudad?: string;
+  direccion_codigo_postal?: string;
   total: number;
   estado: string;
   productos: Array<{
@@ -68,6 +87,13 @@ export class OrdersService {
   async createOrder(orderData: CreateOrderData): Promise<Order> {
     const response = await firstValueFrom(
       this.http.post<Order>(`${this.baseUrl}/pedidos`, orderData)
+    );
+    return response;
+  }
+
+  async createOrderWithUser(orderData: CreateOrderWithUserData): Promise<Order> {
+    const response = await firstValueFrom(
+      this.http.post<Order>(`${this.baseUrl}/pedidos/with-user`, orderData)
     );
     return response;
   }
