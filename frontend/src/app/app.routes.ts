@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './auth/login/login.component';
-import { RegisterComponent } from './auth/register/register.component';
+import { LoginComponent } from './auth/components/login/login.component';
+import { RegisterComponent } from './auth/components/register/register.component';
+import { adminGuard } from './auth/guards/admin.guard';
+import { authGuard } from './auth/guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -9,7 +11,8 @@ export const routes: Routes = [
     },
     {
         path: 'admin-dashboard',
-        loadChildren: () => import('./admin-dashboard/admin-dashboard.routes'), 
+        loadChildren: () => import('./admin-dashboard/admin-dashboard.routes'),
+        canActivate: [adminGuard]
     },
     {
         path: 'login',
@@ -18,6 +21,10 @@ export const routes: Routes = [
     {
         path: 'register',
         component: RegisterComponent
+    },
+    {
+        path: '**',
+        redirectTo: ''
     },
 
 ];
