@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DetallesPedidoComponent } from './detalles-pedido/detalles-pedido.component';
 import { OpcionesPedidoComponent } from './opciones-pedido/opciones-pedido.component';
+import { AuthService } from '../../../auth/services/auth.service';
 
 interface DeliveryAddress {
   street: string;
@@ -43,6 +44,7 @@ export class PedidosComponent implements OnInit {
   
   // Track if options are valid
   canPlaceOrder: boolean = false;
+  isUserAuthenticated: boolean = false;
   
   // Data from child components
   private contactInfo?: ContactInfo;
@@ -53,7 +55,8 @@ export class PedidosComponent implements OnInit {
     private cartService: CartService,
     private router: Router,
     private ordersService: OrdersService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -75,6 +78,7 @@ export class PedidosComponent implements OnInit {
     deliveryAddress?: DeliveryAddress;
     cardInfo?: CardInfo;
     isValid: boolean;
+    isUserAuthenticated?: boolean;
   }) {
     this.deliveryOption = event.deliveryOption;
     this.paymentMethod = event.paymentMethod;
@@ -82,6 +86,7 @@ export class PedidosComponent implements OnInit {
     this.deliveryAddress = event.deliveryAddress;
     this.cardInfo = event.cardInfo;
     this.canPlaceOrder = event.isValid;
+    this.isUserAuthenticated = event.isUserAuthenticated || false;
   }
 
   redirectToCarta() {
@@ -99,34 +104,61 @@ export class PedidosComponent implements OnInit {
       return;
     }
 
-    // Preparar los datos del pedido
-    const orderData = {
-      // Información de contacto
-      nombre_contacto: this.contactInfo?.name,
-      telefono_contacto: this.contactInfo?.phone,
-      email_contacto: this.contactInfo?.email,
-      // Información del pedido
-      tipo_entrega: (this.deliveryOption === 'pickup' ? 'recogida' : 'domicilio') as 'recogida' | 'domicilio',
-      metodo_pago: (this.paymentMethod === 'card' ? 'tarjeta' : 'efectivo') as 'tarjeta' | 'efectivo',
-      direccion_calle: this.deliveryOption === 'delivery' ? this.deliveryAddress?.street : undefined,
-      direccion_ciudad: this.deliveryOption === 'delivery' ? this.deliveryAddress?.city : undefined,
-      direccion_codigo_postal: this.deliveryOption === 'delivery' ? this.deliveryAddress?.postalCode : undefined,
-      direccion_telefono: this.deliveryOption === 'delivery' ? this.contactInfo?.phone : undefined,
-      usuario_id: undefined, // Por ahora pedidos anónimos
-      total: this.calculateTotal(),
-      estado: 'pendiente',
-      productos: this.cartItems.map(item => ({
-        producto_id: item.product.producto_id,
-        cantidad: item.quantity,
-        subtotal: parseFloat(item.product.precio) * item.quantity
-      }))
-    };
-
-    console.log('Order data to send:', orderData);
-
     try {
-      // Llamar al servicio para crear el pedido
-      await this.ordersService.createOrder(orderData);
+      let orderResult;
+
+      if (this.isUserAuthenticated) {
+        // Usar endpoint withUser para usuarios autenticados
+        const currentUser = this.authService.getCurrentUser();
+        if (!currentUser) {
+          throw new Error('Usuario no encontrado');
+        }
+
+        const orderDataWithUser = {
+          usuario_id: currentUser.id,
+          tipo_entrega: (this.deliveryOption === 'pickup' ? 'recogida' : 'domicilio') as 'recogida' | 'domicilio',
+          metodo_pago: (this.paymentMethod === 'card' ? 'tarjeta' : 'efectivo') as 'tarjeta' | 'efectivo',
+          direccion_calle: this.deliveryOption === 'delivery' ? this.deliveryAddress?.street : undefined,
+          direccion_ciudad: this.deliveryOption === 'delivery' ? this.deliveryAddress?.city : undefined,
+          direccion_codigo_postal: this.deliveryOption === 'delivery' ? this.deliveryAddress?.postalCode : undefined,
+          total: this.calculateTotal(),
+          estado: 'pendiente',
+          productos: this.cartItems.map(item => ({
+            producto_id: item.product.producto_id,
+            cantidad: item.quantity,
+            subtotal: parseFloat(item.product.precio) * item.quantity
+          }))
+        };
+
+        orderResult = await this.ordersService.createOrderWithUser(orderDataWithUser);
+      } else {
+        // Preparar los datos del pedido para usuarios anónimos
+        const orderData = {
+          // Información de contacto
+          nombre_contacto: this.contactInfo?.name,
+          telefono_contacto: this.contactInfo?.phone,
+          email_contacto: this.contactInfo?.email,
+          // Información del pedido
+          tipo_entrega: (this.deliveryOption === 'pickup' ? 'recogida' : 'domicilio') as 'recogida' | 'domicilio',
+          metodo_pago: (this.paymentMethod === 'card' ? 'tarjeta' : 'efectivo') as 'tarjeta' | 'efectivo',
+          direccion_calle: this.deliveryOption === 'delivery' ? this.deliveryAddress?.street : undefined,
+          direccion_ciudad: this.deliveryOption === 'delivery' ? this.deliveryAddress?.city : undefined,
+          direccion_codigo_postal: this.deliveryOption === 'delivery' ? this.deliveryAddress?.postalCode : undefined,
+          direccion_telefono: this.deliveryOption === 'delivery' ? this.contactInfo?.phone : undefined,
+          usuario_id: undefined, // Pedidos anónimos
+          total: this.calculateTotal(),
+          estado: 'pendiente',
+          productos: this.cartItems.map(item => ({
+            producto_id: item.product.producto_id,
+            cantidad: item.quantity,
+            subtotal: parseFloat(item.product.precio) * item.quantity
+          }))
+        };
+
+        orderResult = await this.ordersService.createOrder(orderData);
+      }
+
+      console.log('Order created successfully:', orderResult);
       
       // Si llegamos aquí, el pedido se creó exitosamente
       this.cartService.clearCart();
