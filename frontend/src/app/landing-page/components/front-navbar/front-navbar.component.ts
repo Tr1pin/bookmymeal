@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../../cart/services/cart.service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'front-navbar',
@@ -10,6 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class FrontNavbarComponent {
   public cartService = inject(CartService);
+  public authService = inject(AuthService);
 
   // Expose parseFloat to the template
   public parseFloat = parseFloat;
@@ -23,4 +25,7 @@ export class FrontNavbarComponent {
     }
   }
 
+  logout(): void {
+    this.authService.logout();
+  }
 }
