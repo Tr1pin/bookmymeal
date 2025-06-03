@@ -1,10 +1,16 @@
-<div class="flex flex-col gap-5 h-130 bg-gray-300 p-5 rounded-xl">
-    <img [src]="getImageUrl(product.imagens[0])"
-         [alt]="'Imagen de ' + product.nombre"
-         class="w-full h-60 object-cover rounded-lg shadow-md hover:scale-105 transition duration-300"
-         (error)="onImageError($event)">
-    <h1 class="text-xl text-black font-bold h-7">{{product.nombre}}</h1>
-    <p class="text-gray-700 h-20">{{product.descripcion}}</p>
-    <p class="text-xl text-black font-bold">{{product.precio}} €</p>
-    <button class="btn bg-blue-950 justify-self-center rounded-lg text-white hover:bg-blue-800" (click)="addToCart()">Añadir al carrito</button>
+<div class="card w-72 h-105 bg-white shadow-lg">
+    <figure>
+        <img [src]="getImageUrl(product.imagens[0])"
+        [alt]="'Imagen de ' + product.nombre"
+        class="w-full h-48 object-cover"
+        (error)="onImageError($event)">
+    </figure>
+    <div class="card-body p-4">
+        <h3 class="card-title text-lg">{{ product.nombre }}</h3>
+        <p class="text-sm text-gray-900 line-clamp-2">{{ product.descripcion }}</p>
+        <div class="card-actions justify-between items-center mt-3">
+            <span class="text-xl font-bold text-blue-600">${{ product.precio }}</span>
+            <button class="btn bg-blue-900 text-white hover:bg-blue-800" (click)="addToCart()">Agregar</button>
+        </div>
+    </div>
 </div>
