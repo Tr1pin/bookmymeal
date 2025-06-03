@@ -327,4 +327,85 @@ export class PedidoModel {
         await connection.end();
         return pedidosAgrupados;
     }
+
+    static async crearPedidoWithUser({ usuario_id, tipo_entrega, metodo_pago, direccion_calle, direccion_ciudad, direccion_codigo_postal, total, estado, productos }) {
+        if (!usuario_id || !tipo_entrega || !metodo_pago || !total || !estado || !productos || productos.length === 0) {
+            throw new Error("Faltan datos para crear un pedido con usuario");
+        }
+
+        // Obtener información del usuario
+        const user = await UserModel.getById({ id: usuario_id });
+        if (!user) {
+            throw new Error("Usuario no encontrado");
+        }
+
+        const uuid = randomUUID();
+        const numero_pedido = `PED-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 999).toString().padStart(3, '0')}`;
+
+        const validation = validatePedido({
+            usuario_id, 
+            tipo_entrega, 
+            metodo_pago, 
+            direccion_calle, 
+            direccion_ciudad, 
+            direccion_codigo_postal, 
+            direccion_telefono: user.telefono || '', 
+            total, 
+            estado
+        });
+        
+        if (!validation.success) {
+            throw new Error(validation.error.message);
+        }
+
+        const connection = await mysql.createConnection(connectionString);
+        
+        try {
+            await connection.beginTransaction();
+
+            // Insertar el pedido usando la información del usuario autenticado
+            await connection.query(
+                `INSERT INTO pedidos (id, numero_pedido, usuario_id, tipo_entrega, metodo_pago, direccion_calle, direccion_ciudad, direccion_codigo_postal, direccion_telefono, total, estado) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [uuid, numero_pedido, usuario_id, tipo_entrega, metodo_pago, direccion_calle || null, direccion_ciudad || null, direccion_codigo_postal || null, user.telefono || '', total, estado]
+            );
+
+            // Insertar los detalles del pedido
+            for (const producto of productos) {
+                const detalleId = randomUUID();
+                await connection.query(
+                    'INSERT INTO detalles_pedido (id, pedido_id, producto_id, cantidad, subtotal) VALUES (?, ?, ?, ?, ?)',
+                    [detalleId, uuid, producto.producto_id, producto.cantidad, producto.subtotal]
+                );
+            }
+
+            await connection.commit();
+            await connection.end();
+            
+            return { 
+                message: "Pedido creado correctamente",
+                pedido: {
+                    pedido_id: uuid,
+                    numero_pedido: numero_pedido,
+                    tipo_entrega,
+                    metodo_pago,
+                    estado,
+                    total: total.toString(),
+                    productos: productos.map(p => ({
+                        ...p,
+                        subtotal: p.subtotal.toString()
+                    })),
+                    usuario: {
+                        id: usuario_id,
+                        nombre: user.nombre || '',
+                        telefono: user.telefono || ''
+                    }
+                }
+            };
+        } catch (error) {
+            await connection.rollback();
+            await connection.end();
+            throw error;
+        }
+    }
 }
