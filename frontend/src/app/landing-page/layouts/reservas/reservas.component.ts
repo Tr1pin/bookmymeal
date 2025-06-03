@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } fr
 import { CommonModule } from '@angular/common';
 import { RservationService, CheckReservationResponse } from '../../../reservations/services/reservation.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-reservas',
@@ -15,6 +16,7 @@ export class ReservasComponent {
   private reservaService = inject(RservationService);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
 
   // Propiedades para mostrar disponibilidad
   isChecking = false;
@@ -23,7 +25,7 @@ export class ReservasComponent {
   showAlternatives = false;
 
   reservaForm: FormGroup = this.fb.group({
-    usuario_id: ['550e8400-e29b-41d4-a716-446655440001', [Validators.required]],
+    usuario_id: [this.authService.getCurrentUser()?.id || '', [Validators.required]],
     estado: ['confirmada'],
     personas: [1, [Validators.required, Validators.min(1)]],
     fecha: ['', [Validators.required]],
