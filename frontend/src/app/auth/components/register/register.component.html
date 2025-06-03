@@ -1,0 +1,128 @@
+<article class="flex flex-col justify-center items-center gap-5 p-6 sm:p-8 md:p-10 lg:p-12 xl:p-16 font-mono w-full overflow-hidden min-h-screen bg-white">
+  <div class="w-full max-w-md flex flex-col justify-center items-center">
+    <div class="w-full bg-white shadow-lg rounded-lg p-8 border-2 border-gray-100">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-extrabold text-blue-900 mb-2">Registrarse</h1>
+        <p class="text-gray-600">Crea tu cuenta en BookMyMeal</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Nombre -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text text-gray-700 font-semibold">Nombre</span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="nombre"
+            placeholder="Tu nombre completo"
+            class="input input-bordered w-full bg-white text-base-100 border-2 border-gray-200"
+            [class.input-error]="getFieldError('nombre')"
+          />
+          @if (getFieldError('nombre')) {
+            <label class="label">
+              <span class="label-text-alt text-red-500">{{ getFieldError('nombre') }}</span>
+            </label>
+          }
+        </div>
+
+        <!-- Email -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text text-gray-700 font-semibold">Email</span>
+          </label>
+          <input 
+            type="email" 
+            formControlName="email"
+            placeholder="tu@email.com"
+            class="input input-bordered w-full bg-white text-base-100 border-2 border-gray-200"
+            [class.input-error]="getFieldError('email')"
+          />
+          @if (getFieldError('email')) {
+            <label class="label">
+              <span class="label-text-alt text-red-500">{{ getFieldError('email') }}</span>
+            </label>
+          }
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text text-gray-700 font-semibold">Teléfono</span>
+          </label>
+          <input 
+            type="tel" 
+            formControlName="telefono"
+            placeholder="123456789"
+            class="input input-bordered w-full bg-white text-base-100 border-2 border-gray-200"
+            [class.input-error]="getFieldError('telefono')"
+            maxlength="9"
+          />
+          @if (getFieldError('telefono')) {
+            <label class="label">
+              <span class="label-text-alt text-red-500">{{ getFieldError('telefono') }}</span>
+            </label>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text text-gray-700 font-semibold">Contraseña</span>
+          </label>
+          <input 
+            type="password" 
+            formControlName="password"
+            placeholder="Mínimo 6 caracteres"
+            class="input input-bordered w-full bg-white text-base-100 border-2 border-gray-200"
+            [class.input-error]="getFieldError('password')"
+          />
+          @if (getFieldError('password')) {
+            <label class="label">
+              <span class="label-text-alt text-red-500">{{ getFieldError('password') }}</span>
+            </label>
+          }
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text text-gray-700 font-semibold">Confirmar Contraseña</span>
+          </label>
+          <input 
+            type="password" 
+            formControlName="confirmPassword"
+            placeholder="Repite tu contraseña"
+            class="input input-bordered w-full bg-white text-base-100 border-2 border-gray-200"
+            [class.input-error]="getFieldError('confirmPassword')"
+          />
+          @if (getFieldError('confirmPassword')) {
+            <label class="label">
+              <span class="label-text-alt text-red-500">{{ getFieldError('confirmPassword') }}</span>
+            </label>
+          }
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="btn bg-blue-900 hover:bg-blue-800 text-white w-full"
+          [disabled]="isLoading"
+        >
+          @if (isLoading) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          {{ isLoading ? 'Registrando...' : 'Registrarse' }}
+        </button>
+      </form>
+
+      <!-- Links -->
+      <div class="text-center mt-6">
+        <p class="text-gray-600">
+          ¿Ya tienes cuenta? 
+          <a routerLink="/login" class="text-blue-900 hover:text-blue-700 font-semibold">Inicia sesión aquí</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</article> 
