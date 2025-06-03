@@ -85,12 +85,13 @@ export class UserModel {
   //Crear Usuario
   static async createUsuario({ nombre, email, password, telefono }) {
     
-      if (!nombre || !email || !password) {
+      if (!nombre || !email || !password || !telefono) {
         throw new Error("Faltan datos para crear un Usuario");
       }
 
-      if(validateUser({ nombre, email, password }).success === false){
-        throw new Error(validateUser().error.message);
+      const validation = validateUser({ nombre, email, password, telefono });
+      if(validation.success === false){
+        throw new Error(JSON.stringify(validation.error.errors));
       }
 
       const connection = await mysql.createConnection(connectionString);
@@ -101,7 +102,7 @@ export class UserModel {
 
       const [res] = await connection.query(
           `INSERT INTO usuarios (id, nombre, telefono, email, password, rol) VALUES (?, ?, ?, ?, ?, ?)`, 
-          [uuidRandom, nombre, telefono || null, email, passwordEncriptado, tipo]
+          [uuidRandom, nombre, telefono, email, passwordEncriptado, tipo]
       );
       
       await connection.end();
@@ -146,8 +147,9 @@ export class UserModel {
       Object.entries(values).filter(([_, value]) => value !== undefined)
     );
 
-    if(validatePartialUser(values).success === false){
-      throw new Error(validatePartialUser().error.message);
+    const validation = validatePartialUser(filteredValues);
+    if(validation.success === false){
+      throw new Error(JSON.stringify(validation.error.errors));
     }
     
     const query = `UPDATE usuarios SET ${updates.join(", ")} WHERE id = ?`;

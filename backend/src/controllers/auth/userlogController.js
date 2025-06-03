@@ -14,8 +14,8 @@ export class UserAuthController {
 
     static async register( req, res ) {
        try {
-            const { nombre, email, password } = req.body;
-            const newUser = await UserAuthModel.register({ nombre, email, password });
+            const { nombre, email, password, telefono } = req.body;
+            const newUser = await UserAuthModel.register({ nombre, email, password, telefono });
 
             res.status(201).json(newUser);
         } catch (error) {
