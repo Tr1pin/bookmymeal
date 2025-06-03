@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, Output, EventEmitter, AfterViewInit, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService, User } from '../../../../auth/services/auth.service';
 
 interface DeliveryAddress {
   street: string;
@@ -25,10 +26,9 @@ interface CardInfo {
   selector: 'app-opciones-pedido',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './opciones-pedido.component.html',
-  styleUrls: ['./opciones-pedido.component.css']
+  templateUrl: './opciones-pedido.component.html'
 })
-export class OpcionesPedidoComponent implements AfterViewInit {
+export class OpcionesPedidoComponent implements AfterViewInit, OnInit {
   @Output() deliveryOptionChange = new EventEmitter<'pickup' | 'delivery'>();
   @Output() paymentMethodChange = new EventEmitter<'card' | 'cash'>();
   @Output() optionsChange = new EventEmitter<{
@@ -38,7 +38,10 @@ export class OpcionesPedidoComponent implements AfterViewInit {
     deliveryAddress?: DeliveryAddress;
     cardInfo?: CardInfo;
     isValid: boolean;
+    isUserAuthenticated?: boolean;
   }>();
+
+  private authService = inject(AuthService);
 
   deliveryOption: 'pickup' | 'delivery' = 'pickup';
   paymentMethod: 'card' | 'cash' = 'card';
@@ -62,6 +65,31 @@ export class OpcionesPedidoComponent implements AfterViewInit {
     name: ''
   };
 
+  isUserAuthenticated = false;
+
+  async ngOnInit() {
+    this.isUserAuthenticated = this.authService.isAuthenticated();
+    
+    if (this.isUserAuthenticated) {
+      await this.loadUserProfile();
+    }
+  }
+
+  private async loadUserProfile() {
+    try {
+      const userProfile = await this.authService.getUserProfile();
+      if (userProfile) {
+        this.contactInfo = {
+          name: userProfile.nombre || '',
+          email: userProfile.email || '',
+          phone: userProfile.telefono || ''
+        };
+      }
+    } catch (error) {
+      console.error('Error al cargar el perfil del usuario:', error);
+    }
+  }
+
   onDeliveryOptionChange(option: 'pickup' | 'delivery') {
     this.deliveryOption = option;
     this.deliveryOptionChange.emit(option);
@@ -83,7 +111,8 @@ export class OpcionesPedidoComponent implements AfterViewInit {
       contactInfo: this.contactInfo,
       deliveryAddress: this.deliveryOption === 'delivery' ? this.deliveryAddress : undefined,
       cardInfo: this.paymentMethod === 'card' ? this.cardInfo : undefined,
-      isValid
+      isValid,
+      isUserAuthenticated: this.isUserAuthenticated
     });
   }
 
@@ -93,12 +122,16 @@ export class OpcionesPedidoComponent implements AfterViewInit {
       return false;
     }
 
-    // Validar información de contacto (siempre obligatoria)
-    const contactValid = !!(
-      this.contactInfo.name &&
-      this.contactInfo.phone &&
-      this.contactInfo.phone.length >= 9
-    );
+    // Si el usuario está autenticado, no necesitamos validar información de contacto
+    let contactValid = true;
+    if (!this.isUserAuthenticated) {
+      // Validar información de contacto solo si no está autenticado
+      contactValid = !!(
+        this.contactInfo.name &&
+        this.contactInfo.phone &&
+        this.contactInfo.phone.length >= 9
+      );
+    }
 
     let deliveryValid = true;
     let paymentValid = true;
