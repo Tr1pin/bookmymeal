@@ -60,12 +60,14 @@ export class ReservasComponent {
         // Guardar los datos del formulario en el servicio
         this.reservaService.setFormData(this.reservaForm.value);
         this.router.navigate(['/reservas/detalles']);
-      } else if (result.horariosAlternativos) {
-        // Si no está disponible, mostrar horarios alternativos
+      } else if (result.horariosAlternativos && result.horariosAlternativos.length > 0) {
+        // Si no está disponible pero hay horarios alternativos, mostrarlos
         this.alternativeHours = result.horariosAlternativos;
         this.showAlternatives = true;
         this.cdr.detectChanges(); // Forzar detección de cambios para mostrar alternativas
       } else {
+        // Si no hay horarios alternativos disponibles, el día está completo
+        this.availabilityMessage = 'Lo sentimos, este día está completo de aforo. Por favor, selecciona otra fecha.';
         this.showAlternatives = false;
         this.alternativeHours = [];
         this.cdr.detectChanges();
