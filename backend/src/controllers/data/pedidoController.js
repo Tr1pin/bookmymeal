@@ -39,6 +39,17 @@ export class PedidoController {
         }
     }
 
+    static async crearPedidoWithUser(req, res) {
+        try { 
+            const result = await PedidoModel.crearPedidoWithUser(req.body);
+            res.status(200).json(result); 
+        }
+        catch (err) { 
+            console.error('Error en crearPedidoWithUser:', err);
+            res.status(500).json({ message: err.message }); 
+        }
+    }
+
     static async actualizarPedido(req, res) {
         try { 
             res.status(200).json(await PedidoModel.actualizarPedido(req.body)); 

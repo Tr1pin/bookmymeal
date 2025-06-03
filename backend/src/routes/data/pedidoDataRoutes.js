@@ -12,6 +12,7 @@ router.get('/usuario/:username', PedidoController.getPedidosByUsername);
 
 //Post, Put, Delete
 router.post("", PedidoController.crearPedido);
+router.post("/with-user", PedidoController.crearPedidoWithUser);
 router.put("", PedidoController.actualizarPedido);
 router.delete("/:id", PedidoController.eliminarPedido);
 
