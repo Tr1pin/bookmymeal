@@ -107,22 +107,11 @@
                 <section #carousel class="carousel rounded-box gap-4 p-4 bg-white overflow-x-auto mx-auto" style="max-width: 1000px; width: 1000px;">
                     @for (product of featuredProductsResource.value(); track $index) {
                         <div class="carousel-item flex-none bg-white">
-                            <div class="card w-72 bg-white shadow-lg">
-                                <figure>
-                                    <img [src]="getImageUrl(product.imagens[0])"
-                                    [alt]="'Imagen de ' + product.nombre"
-                                    class="w-full h-48 object-cover"
-                                    (error)="onImageError($event)">
-                                </figure>
-                                <div class="card-body p-4">
-                                    <h3 class="card-title text-lg">{{ product.nombre }}</h3>
-                                    <p class="text-sm text-gray-900 line-clamp-2">{{ product.descripcion }}</p>
-                                    <div class="card-actions justify-between items-center mt-3">
-                                        <span class="text-xl font-bold text-blue-600">${{ product.precio }}</span>
-                                        <button class="btn bg-blue-900 text-white hover:bg-blue-800" (click)="addToCart(product)">Agregar</button>
-                                    </div>
-                                </div>
-                            </div>
+                            <carta-product-details 
+                                [product]="product"
+                                [getImageUrl]="getImageUrl.bind(this)"
+                                [onImageError]="onImageError.bind(this)">
+                            </carta-product-details>
                         </div>
                     }
                 </section>
