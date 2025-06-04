@@ -6,7 +6,7 @@
   <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 max-w-4xl mx-auto w-full p-4">
     <!-- Información de Contacto -->
     <div class="bg-blue-950/30 p-6 rounded-lg border border-blue-500/30">
-      <h3 class="text-blue-300 text-lg font-semibold mb-4">👤 Información de Contacto</h3>
+      <h3 class="text-blue-300 text-lg font-semibold mb-4">Información de Contacto</h3>
       <p class="text-gray-300 text-sm mb-4">Esta información es necesaria para coordinar la entrega del pedido.</p>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -55,30 +55,10 @@
     </div>
 
     <!-- Usuario ID y Estado -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="flex flex-col justify-center items-center gap-4">
       <div class="form-control w-full">
-        <label class="label">
-          <span class="label-text text-blue-300">
-            ID Usuario 
-            <span class="text-gray-400">(opcional)</span>
-          </span>
-        </label>
-        <input 
-          type="text" 
-          formControlName="usuario_id" 
-          class="input input-bordered w-full bg-gray-700 text-white" 
-          placeholder="UUID del usuario registrado (opcional)"
-        />
-        <label class="label">
-          <span class="label-text-alt text-gray-400">
-            Deja vacío para pedidos anónimos
-          </span>
-        </label>
-      </div>
-
-      <div class="form-control w-full">
-        <label class="label">
-          <span class="text-blue-300">Estado</span>
+        <label class="label text-center w-full">
+          <span class="text-blue-300 text-lg text-center font-semibold w-full">Estado</span>
         </label>
         <select formControlName="estado" class="select select-bordered w-full bg-gray-700 text-white">
           <option value="pendiente">Pendiente</option>
@@ -102,9 +82,8 @@
           class="btn btn-lg h-auto py-6 flex flex-col gap-2 transition-all duration-300"
           [class]="selectedDeliveryType === 'recogida' ? 'btn-primary bg-blue-600 border-blue-600' : 'btn-outline btn-primary'"
         >
-          <div class="text-3xl">🏪</div>
           <div class="font-semibold">Recogida en tienda</div>
-          <div class="text-sm opacity-70">Gratis - Recoge tu pedido cuando esté listo</div>
+          <div class="text-sm opacity-70">Gratis</div>
         </button>
         
         <button 
@@ -113,9 +92,8 @@
           class="btn btn-lg h-auto py-6 flex flex-col gap-2 transition-all duration-300"
           [class]="selectedDeliveryType === 'domicilio' ? 'btn-primary bg-blue-600 border-blue-600' : 'btn-outline btn-primary'"
         >
-          <div class="text-3xl">🚚</div>
           <div class="font-semibold">Entrega a domicilio</div>
-          <div class="text-sm opacity-70">5.00€ - Entregamos en tu dirección</div>
+          <div class="text-sm opacity-70">5.00€</div>
         </button>
       </div>
     </div>
@@ -123,7 +101,7 @@
     <!-- Campos de dirección (solo para domicilio) -->
     @if (selectedDeliveryType === 'domicilio') {
       <div class="bg-blue-950/30 p-6 rounded-lg border border-blue-500/30">
-        <h3 class="text-blue-300 text-lg font-semibold mb-4">📍 Dirección de entrega</h3>
+        <h3 class="text-blue-300 text-lg font-semibold mb-4">Dirección de entrega</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control w-full">
             <label class="label">
@@ -230,7 +208,6 @@
         
         @if (productosFormArray.length === 0) {
           <div class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
-            <div class="text-4xl mb-2">📦</div>
             <p>No hay productos añadidos</p>
             <p class="text-sm">Haz clic en "Añadir Producto" para comenzar</p>
           </div>

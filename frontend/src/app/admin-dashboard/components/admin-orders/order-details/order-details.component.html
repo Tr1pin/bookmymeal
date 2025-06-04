@@ -4,88 +4,91 @@
   </div>
 
   @if (orderResource.value(); as order) {
-    <div class="max-w-2xl mx-auto w-full p-4">
-      <div class="grid grid-cols-2 gap-4">
-        <div class="col-span-2 md:col-span-1">
-          <h2 class="text-xl mb-4 text-blue-500">Información del Pedido</h2>
-          <p><span class="text-blue-300">Nº Pedido:</span> {{ order.numero_pedido }}</p>
-          <p><span class="text-blue-300">Estado:</span> 
-            @switch (order.estado) {
-              @case ('pendiente') {
-                <span class="text-yellow-500"> {{ order.estado }}</span>
-              }
-              @case ('en preparación') {
-                <span class="text-blue-500"> {{ order.estado }}</span>
-              }
-              @case ('listo') {
-                <span class="text-green-500"> {{ order.estado }}</span>
-              }
-              @case ('entregado') {
-                <span class="text-gray-500"> {{ order.estado }}</span>
-              }
-              @case ('cancelado') {
-                <span class="text-red-500"> {{ order.estado }}</span>
-              }
-            }
-          </p>
-          <p><span class="text-blue-300">Total:</span> {{ order.total }}€</p>
-          <p><span class="text-blue-300">Tipo de entrega:</span> 
-            <span [class]="order.tipo_entrega === 'domicilio' ? 'text-blue-400' : 'text-green-400'">
-              {{ order.tipo_entrega === 'domicilio' ? '🚚 Domicilio' : '🏪 Recogida' }}
-            </span>
-          </p>
-          <p><span class="text-blue-300">Método de pago:</span> 
-            <span [class]="order.metodo_pago === 'tarjeta' ? 'text-purple-400' : 'text-yellow-400'">
-              {{ order.metodo_pago === 'tarjeta' ? '💳 Tarjeta' : '💵 Efectivo' }}
-            </span>
-          </p>
-          <p><span class="text-blue-300">Fecha:</span> {{ order.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}</p>
-        </div>
-
-        <div class="col-span-2 md:col-span-1">
-          <h2 class="text-xl mb-4 text-blue-500">Información del Cliente</h2>
-          <p><span class="text-blue-300">Nombre:</span> {{ order.usuario.nombre }}</p>
-          <p><span class="text-blue-300">Teléfono:</span> {{ order.usuario.telefono }}</p>
-          @if (order.usuario.id) {
-            <p><span class="text-blue-300">ID:</span> {{ order.usuario.id }}</p>
-          }
-          <div class="mt-4">
-            <p class="text-blue-300 font-semibold">Dirección de entrega:</p>
-            <p class="text-sm text-gray-300">{{ order.direccion_entrega }}</p>
-          </div>
-        </div>
-
-        <div class="col-span-2">
-          <h2 class="text-xl mb-4 text-blue-500">Productos</h2>
-          <div class="overflow-x-auto">
-            <table class="table w-full">
-              <thead>
-                <tr class="text-center text-blue-300">
-                  <th>Producto</th>
-                  <th>Cantidad</th>
-                  <th>Precio</th>
-                  <th>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (product of order.productos; track $index) {
-                  <tr class="text-center">
-                    <td>{{ product.nombre }}</td>
-                    <td>{{ product.cantidad }}</td>
-                    <td>{{ product.precio }}€</td>
-                    <td>{{ product.subtotal }}€</td>
-                  </tr>
+    <div class="max-w-2xl mx-auto w-full p-4 flex flex-col gap-10">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col md:flex-row lg:flex-row xl:flex-row justify-center items-center md:items-start lg:items-start xl:items-start gap-4 w-full">
+          <section class="flex flex-col gap-4 w-100">
+            <h2 class="text-xl mb-4 text-blue-500">Información del Pedido</h2>
+            <p><span class="text-blue-300">Nº Pedido:</span> {{ order.numero_pedido }}</p>
+            <p><span class="text-blue-300">Estado:</span> 
+              @switch (order.estado) {
+                @case ('pendiente') {
+                  <span class="text-yellow-500"> {{ order.estado }}</span>
                 }
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+                @case ('en preparación') {
+                  <span class="text-blue-500"> {{ order.estado }}</span>
+                }
+                @case ('listo') {
+                  <span class="text-green-500"> {{ order.estado }}</span>
+                }
+                @case ('entregado') {
+                  <span class="text-gray-500"> {{ order.estado }}</span>
+                }
+                @case ('cancelado') {
+                  <span class="text-red-500"> {{ order.estado }}</span>
+                }
+              }
+            </p>
+            <p><span class="text-blue-300">Total:</span> {{ order.total }}€</p>
+            <p><span class="text-blue-300">Tipo de entrega:</span> 
+              <span [class]="order.tipo_entrega === 'domicilio' ? 'text-blue-400' : 'text-green-400'">
+                {{ order.tipo_entrega === 'domicilio' ? 'Domicilio' : 'Tienda' }}
+              </span>
+            </p>
+            <p><span class="text-blue-300">Método de pago:</span> 
+              <span [class]="order.metodo_pago === 'tarjeta' ? 'text-purple-400' : 'text-yellow-400'">
+                {{ order.metodo_pago === 'tarjeta' ? 'Tarjeta' : 'Efectivo' }}
+              </span>
+            </p>
+            <p><span class="text-blue-300">Fecha Pedido:</span> {{ order.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}</p>
+          </section>
+          <section class="flex flex-col gap-4 w-100">
 
-      <div class="flex justify-end gap-4 mt-8">
+            <h2 class="text-xl mb-4 text-blue-500">Información del Cliente</h2>
+            <p><span class="text-blue-300">Nombre:</span> {{ order.usuario.nombre }}</p>
+            <p><span class="text-blue-300">Teléfono:</span> {{ order.usuario.telefono }}</p>
+            @if (order.usuario.id) {
+              <p><span class="text-blue-300">ID:</span> {{ order.usuario.id }}</p>
+            }
+            <div class="mt-4">
+              <p class="text-blue-300 font-semibold">Dirección de entrega:</p>
+              <p class="text-sm text-gray-300">{{ order.direccion_entrega }}</p>
+            </div>
+          </section>
+        </div>
+
+      </div>
+      <div class="flex flex-col gap-4">
+        <h2 class="text-xl text-center mb-4 text-blue-500">Productos</h2>
+        <div class="overflow-x-auto">
+          <table class="table w-full">
+            <thead>
+              <tr class="text-center text-blue-300">
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (product of order.productos; track $index) {
+                <tr class="text-center">
+                  <td>{{ product.nombre }}</td>
+                  <td>{{ product.cantidad }}</td>
+                  <td>{{ product.precio }}€</td>
+                  <td>{{ product.subtotal }}€</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex justify-end gap-4 mt-8">
         <a routerLink="/admin-dashboard/pedidos" class="btn">Volver</a>
-        <a [routerLink]="['/admin-dashboard/pedidos/actualizar', order.pedido_id]" class="btn btn-primary">Actualizar Estado</a>
+        <a [routerLink]="['/admin-dashboard/pedidos/actualizar', order.pedido_id]" class="btn bg-blue-900 hover:bg-blue-800 text-white">Actualizar Estado</a>
       </div>
     </div>
+      </div>
+
   }
 </section> 
