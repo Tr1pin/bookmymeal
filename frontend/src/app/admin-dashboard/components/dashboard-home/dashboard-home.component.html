@@ -1,5 +1,11 @@
-
-<h1 class="text-4xl font-mono mt-72 text-center">
-    Bienvenido, 
-    <strong class="text-blue-500">Admin</strong>.
-</h1>
+@if (isLoading()) {
+      <div class="flex flex-col items-center gap-4">
+        <span class="loading loading-spinner loading-lg text-blue-500"></span>
+        <p class="text-lg text-gray-400">Cargando...</p>
+      </div>
+    } @else {
+      <h1 class="text-4xl font-mono mt-72 text-center">
+        Bienvenido, 
+        <strong class="text-blue-500">{{getUserDisplayName()}}</strong>.
+    </h1>
+    }
