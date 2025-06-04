@@ -212,7 +212,7 @@ export class ProductModel {
 
       try {
         if (updates.length > 0) {
-          const query = `UPDATE productos SET \${updates.join(", ")} WHERE id = ?`;
+          const query = `UPDATE productos SET ${updates.join(", ")} WHERE id = ?`;
           const queryValues = [...Object.values(values), id];
           await connection.query(query, queryValues);
         }
