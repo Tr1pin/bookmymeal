@@ -41,20 +41,24 @@
       </label>
       <select formControlName="hora" class="select select-bordered w-full bg-gray-700 text-white">
         <option value="">Seleccione una hora</option>
-        <option value="12:00">12:00</option>
-        <option value="12:30">12:30</option>
-        <option value="13:00">13:00</option>
-        <option value="13:30">13:30</option>
-        <option value="14:00">14:00</option>
-        <option value="14:30">14:30</option>
-        <option value="15:00">15:00</option>
-        <option value="20:00">20:00</option>
-        <option value="20:30">20:30</option>
-        <option value="21:00">21:00</option>
-        <option value="21:30">21:30</option>
-        <option value="22:00">22:00</option>
-        <option value="22:30">22:30</option>
-        <option value="23:00">23:00</option>
+        <optgroup label="🍽️ Comida">
+          <option value="12:00">12:00</option>
+          <option value="12:30">12:30</option>
+          <option value="13:00">13:00</option>
+          <option value="13:30">13:30</option>
+          <option value="14:00">14:00</option>
+          <option value="14:30">14:30</option>
+          <option value="15:00">15:00</option>
+        </optgroup>
+        <optgroup label="🌙 Cena">
+          <option value="20:00">20:00</option>
+          <option value="20:30">20:30</option>
+          <option value="21:00">21:00</option>
+          <option value="21:30">21:30</option>
+          <option value="22:00">22:00</option>
+          <option value="22:30">22:30</option>
+          <option value="23:00">23:00</option>
+        </optgroup>
       </select>
     </div>
 
@@ -65,9 +69,66 @@
       <input type="number" formControlName="personas" min="1" max="10" class="input input-bordered w-full bg-gray-700 text-white" />
     </div>
 
-    <div class="flex justify-end gap-4 mt-4">
+    <!-- Botón para verificar disponibilidad -->
+    <button type="button" class="btn bg-blue-900 hover:bg-blue-800 text-white mt-4" (click)="checkAvailability()" [disabled]="isChecking">
+      @if (isChecking) {
+        <span class="loading loading-spinner loading-sm"></span>
+      }
+      {{ isChecking ? 'Verificando...' : 'Verificar Disponibilidad' }}
+    </button>
+
+    <!-- Mensaje de disponibilidad -->
+    @if (availabilityMessage) {
+      <div class="mt-4 p-3 rounded" 
+           [ngClass]="{
+             'bg-green-800 text-white border border-green-800': isAvailable,
+             'bg-red-100 text-red-800 border border-red-300': availabilityMessage.includes('No hay mesas disponibles para este día'),
+             'bg-yellow-100 text-yellow-800 border border-yellow-300': !isAvailable && !availabilityMessage.includes('completo de aforo')
+           }">
+        <div class="flex items-center">
+          @if (isAvailable) {
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+          }
+          @if (availabilityMessage.includes('completo de aforo')) {
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+          }
+          <span class="font-semibold">{{ availabilityMessage }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Horarios alternativos -->
+    @if (showAlternatives && alternativeHours.length > 0) {
+      <div class="mt-4 p-4 rounded ">
+        <h3 class="text-blue-500 font-semibold mb-3">Horarios disponibles para esta fecha:</h3>
+        <div class="grid grid-cols-3 md:grid-cols-4 gap-2">
+          @for (hour of alternativeHours; track hour) {
+            <button 
+              type="button"
+              class="btn btn-sm  bg-blue-900 hover:bg-blue-800 text-white"
+              (click)="selectAlternativeHour(hour)"
+            >
+              {{ hour }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="flex justify-end gap-4 mt-6">
       <a routerLink="/admin-dashboard/reservas" class="btn">Cancelar</a>
-      <button type="submit" class="btn btn-primary">Crear Reserva</button>
+      <button 
+        type="submit" 
+        class="btn bg-blue-900 hover:bg-blue-800 text-white"
+        [disabled]="!isAvailable"
+        [ngClass]="{ 'btn-disabled': !isAvailable }"
+      >
+        Crear Reserva
+      </button>
     </div>
   </form>
 </section>

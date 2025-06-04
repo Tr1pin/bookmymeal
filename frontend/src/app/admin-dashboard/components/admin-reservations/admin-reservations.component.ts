@@ -23,6 +23,12 @@ export class AdminReservationsComponent {
   // Control para el filtro de fecha
   dateFilter = new FormControl('');
   
+  // Control para el filtro de hora
+  timeFilter = new FormControl('');
+  
+  // Opciones de tiempo válidas (solo :00 y :30 minutos, :00 segundos)
+  timeOptions: string[] = [];
+  
   // Signal para las reservas filtradas
   filteredReservations = signal<Reservation[]>([]);
   
@@ -34,44 +40,88 @@ export class AdminReservationsComponent {
   });
 
   constructor() {
+    // Generar opciones de tiempo válidas
+    this.generateTimeOptions();
+    
     // Effect para reaccionar a cambios en el resource
     effect(() => {
       const reservations = this.reservationResource.value();
       if (reservations) {
-        this.applyDateFilter(reservations);
+        this.applyFilters(reservations);
       }
     });
 
-    // Suscribirse a cambios en el filtro de fecha
+    // Suscribirse a cambios en los filtros
     this.dateFilter.valueChanges.subscribe(() => {
       const reservations = this.reservationResource.value();
       if (reservations) {
-        this.applyDateFilter(reservations);
+        this.applyFilters(reservations);
+      }
+    });
+
+    this.timeFilter.valueChanges.subscribe(() => {
+      const reservations = this.reservationResource.value();
+      if (reservations) {
+        this.applyFilters(reservations);
       }
     });
   }
 
-  // Método para aplicar el filtro de fecha
-  private applyDateFilter(reservations: Reservation[]) {
-    const selectedDate = this.dateFilter.value;
-    
-    if (!selectedDate) {
-      // Si no hay fecha seleccionada, mostrar todas las reservas
-      this.filteredReservations.set(reservations);
-    } else {
-      // Filtrar reservas por la fecha seleccionada
-      const filtered = reservations.filter(reservation => {
-        // Usar el pipe fechaUtcIso para comparar fechas en formato YYYY-MM-DD
-        const reservationDateStr = new Date(reservation.fecha).toISOString().split('T')[0];
-        return reservationDateStr === selectedDate;
-      });
-      this.filteredReservations.set(filtered);
+  // Generar opciones de tiempo válidas
+  private generateTimeOptions() {
+    this.timeOptions = [];
+    for (let hour = 0; hour < 24; hour++) {
+      const hourStr = hour.toString().padStart(2, '0');
+      // Solo minutos 00 y 30
+      this.timeOptions.push(`${hourStr}:00:00`);
+      this.timeOptions.push(`${hourStr}:30:00`);
     }
   }
 
-  // Método para limpiar el filtro
+  // Método para aplicar todos los filtros
+  private applyFilters(reservations: Reservation[]) {
+    const selectedDate = this.dateFilter.value;
+    const selectedTime = this.timeFilter.value;
+    
+    let filtered = reservations;
+    
+    // Filtro por fecha
+    if (selectedDate) {
+      filtered = filtered.filter(reservation => {
+        const reservationDateStr = new Date(reservation.fecha).toISOString().split('T')[0];
+        return reservationDateStr === selectedDate;
+      });
+    }
+    
+    // Filtro por hora
+    if (selectedTime) {
+      filtered = filtered.filter(reservation => {
+        // Comparar las horas (formato HH:MM:SS)
+        // Si la reserva tiene formato HH:MM, convertir a HH:MM:00
+        const reservationTime = reservation.hora.includes(':') && reservation.hora.split(':').length === 2 
+          ? `${reservation.hora}:00` 
+          : reservation.hora;
+        return reservationTime === selectedTime;
+      });
+    }
+    
+    this.filteredReservations.set(filtered);
+  }
+
+  // Método para limpiar el filtro de fecha
   clearDateFilter() {
     this.dateFilter.setValue('');
+  }
+
+  // Método para limpiar el filtro de hora
+  clearTimeFilter() {
+    this.timeFilter.setValue('');
+  }
+
+  // Método para limpiar todos los filtros
+  clearAllFilters() {
+    this.dateFilter.setValue('');
+    this.timeFilter.setValue('');
   }
 
   // Filtros rápidos
@@ -89,7 +139,7 @@ export class AdminReservationsComponent {
   filterThisWeek() {
     // Para esta semana, limpiar el filtro y mostrar todas las reservas
     // (se podría implementar un filtro más complejo si se necesita)
-    this.clearDateFilter();
+    this.clearAllFilters();
   }
 
   editReservation(reservationId: string) {

@@ -3,34 +3,66 @@
     <h1 class="text-2xl text-blue-500">Reservas</h1>
   </div>
 
-  <!-- Filtro de fecha -->
-  <div class="w-full flex justify-around items-center">
-    <div class="flex flex-col items-center gap-4 mb-6">
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text text-blue-300">Filtrar por fecha:</span>
-        </label>
-        <div class="flex justify-center items-center gap-2 label-text">
-          <input 
-            type="date" 
-            [formControl]="dateFilter"
-            class="input input-bordered bg-gray-700 text-white"
-            placeholder="Seleccionar fecha"
-          />
-          <button 
-            type="button" 
-            (click)="clearDateFilter()"
-            class="btn btn-outline btn-sm w-10 h-10"
-            title="Limpiar filtro"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+  <!-- Filtros de fecha y hora -->
+  <div class="w-full flex justify-around items-start md:items-start lg:items-center xl:items-center">
+    <div>
+      <div class="flex flex-col lg:flex-row items-center gap-6 mb-6">
+        <!-- Filtro de fecha -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-blue-300">Filtrar por fecha:</span>
+          </label>
+          <div class="flex justify-center items-center gap-2 label-text">
+            <input 
+              type="date" 
+              [formControl]="dateFilter"
+              class="input input-bordered bg-gray-700 text-white"
+              placeholder="Seleccionar fecha"
+            />
+            <button 
+              type="button" 
+              (click)="clearDateFilter()"
+              class="btn btn-outline btn-sm w-10 h-10"
+              title="Limpiar filtro de fecha"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
+  
+        <!-- Filtro de hora -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-blue-300">Filtrar por hora:</span>
+          </label>
+          <div class="flex justify-center items-center gap-2 label-text">
+            <select 
+              [formControl]="timeFilter"
+              class="select select-bordered bg-gray-700 text-white"
+            >
+              <option value="">Horas</option>
+              @for (timeOption of timeOptions; track timeOption) {
+                <option [value]="timeOption">{{ timeOption }}</option>
+              }
+            </select>
+            <button 
+              type="button" 
+              (click)="clearTimeFilter()"
+              class="btn btn-outline btn-sm w-10 h-10"
+              title="Limpiar filtro de hora"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+  
       </div>
-
-  </div>
+    </div>
+     <!-- Crear reserva -->
   <div class="flex flex-col items-center gap-0 mb-6">
     <label class="label">
       <span class="label-text text-blue-300">Crear Reserva:</span>
@@ -53,10 +85,10 @@
 
       <!-- body -->
       <tbody class="text-sm text-center">
-        @if (filteredReservations().length === 0 && dateFilter.value) {
+        @if (filteredReservations().length === 0 && (dateFilter.value || timeFilter.value)) {
           <tr>
             <td colspan="4" class="text-center text-gray-400 py-8">
-              No se encontraron reservas para la fecha seleccionada
+              No se encontraron reservas para los filtros seleccionados
             </td>
           </tr>
         } @else if (filteredReservations().length === 0) {
