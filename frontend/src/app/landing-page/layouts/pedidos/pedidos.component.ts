@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { DetallesPedidoComponent } from './detalles-pedido/detalles-pedido.component';
 import { OpcionesPedidoComponent } from './opciones-pedido/opciones-pedido.component';
 import { AuthService } from '../../../auth/services/auth.service';
+import { StripeService } from '../../../payments/services/stripe.service';
 
 interface DeliveryAddress {
   street: string;
@@ -45,18 +46,19 @@ export class PedidosComponent implements OnInit {
   // Track if options are valid
   canPlaceOrder: boolean = false;
   isUserAuthenticated: boolean = false;
+  isProcessingPayment: boolean = false;
   
   // Data from child components
   private contactInfo?: ContactInfo;
   private deliveryAddress?: DeliveryAddress;
-  private cardInfo?: CardInfo;
 
   constructor(
     private cartService: CartService,
     private router: Router,
     private ordersService: OrdersService,
     private toastService: ToastService,
-    private authService: AuthService
+    private authService: AuthService,
+    private stripeService: StripeService
   ) {}
 
   ngOnInit() {
@@ -76,7 +78,6 @@ export class PedidosComponent implements OnInit {
     paymentMethod: 'card' | 'cash';
     contactInfo: ContactInfo;
     deliveryAddress?: DeliveryAddress;
-    cardInfo?: CardInfo;
     isValid: boolean;
     isUserAuthenticated?: boolean;
   }) {
@@ -84,7 +85,6 @@ export class PedidosComponent implements OnInit {
     this.paymentMethod = event.paymentMethod;
     this.contactInfo = event.contactInfo;
     this.deliveryAddress = event.deliveryAddress;
-    this.cardInfo = event.cardInfo;
     this.canPlaceOrder = event.isValid;
     this.isUserAuthenticated = event.isUserAuthenticated || false;
   }
@@ -94,7 +94,7 @@ export class PedidosComponent implements OnInit {
   }
 
   async placeOrder() {
-    if (!this.canPlaceOrder) {
+    if (!this.canPlaceOrder || this.isProcessingPayment) {
       return;
     }
 
@@ -104,70 +104,104 @@ export class PedidosComponent implements OnInit {
       return;
     }
 
+    this.isProcessingPayment = true;
+    this.toastService.showToast('Preparando pago...', 'success');
+
     try {
-      let orderResult;
+      // 🎯 PREPARAR DATOS DEL PEDIDO SIN CREAR EN BD
+      let orderData;
 
       if (this.isUserAuthenticated) {
-        // Usar endpoint withUser para usuarios autenticados
+        // Datos del pedido para usuarios autenticados
         const currentUser = this.authService.getCurrentUser();
         if (!currentUser) {
           throw new Error('Usuario no encontrado');
         }
 
-        const orderDataWithUser = {
+        orderData = {
           usuario_id: currentUser.id,
           tipo_entrega: (this.deliveryOption === 'pickup' ? 'recogida' : 'domicilio') as 'recogida' | 'domicilio',
-          metodo_pago: (this.paymentMethod === 'card' ? 'tarjeta' : 'efectivo') as 'tarjeta' | 'efectivo',
+          metodo_pago: 'tarjeta',
           direccion_calle: this.deliveryOption === 'delivery' ? this.deliveryAddress?.street : undefined,
           direccion_ciudad: this.deliveryOption === 'delivery' ? this.deliveryAddress?.city : undefined,
           direccion_codigo_postal: this.deliveryOption === 'delivery' ? this.deliveryAddress?.postalCode : undefined,
           total: this.calculateTotal(),
-          estado: 'pendiente',
           productos: this.cartItems.map(item => ({
             producto_id: item.product.producto_id,
+            nombre: item.product.nombre,
+            descripcion: item.product.descripcion || '',
+            imagen: item.product.imagens || '',
+            precio: item.product.precio,
             cantidad: item.quantity,
             subtotal: parseFloat(item.product.precio) * item.quantity
           }))
         };
-
-        orderResult = await this.ordersService.createOrderWithUser(orderDataWithUser);
       } else {
-        // Preparar los datos del pedido para usuarios anónimos
-        const orderData = {
-          // Información de contacto
+        // Datos del pedido para usuarios anónimos
+        orderData = {
           nombre_contacto: this.contactInfo?.name,
           telefono_contacto: this.contactInfo?.phone,
           email_contacto: this.contactInfo?.email,
-          // Información del pedido
           tipo_entrega: (this.deliveryOption === 'pickup' ? 'recogida' : 'domicilio') as 'recogida' | 'domicilio',
-          metodo_pago: (this.paymentMethod === 'card' ? 'tarjeta' : 'efectivo') as 'tarjeta' | 'efectivo',
+          metodo_pago: 'tarjeta',
           direccion_calle: this.deliveryOption === 'delivery' ? this.deliveryAddress?.street : undefined,
           direccion_ciudad: this.deliveryOption === 'delivery' ? this.deliveryAddress?.city : undefined,
           direccion_codigo_postal: this.deliveryOption === 'delivery' ? this.deliveryAddress?.postalCode : undefined,
           direccion_telefono: this.deliveryOption === 'delivery' ? this.contactInfo?.phone : undefined,
-          usuario_id: undefined, // Pedidos anónimos
           total: this.calculateTotal(),
-          estado: 'pendiente',
           productos: this.cartItems.map(item => ({
             producto_id: item.product.producto_id,
+            nombre: item.product.nombre,
+            descripcion: item.product.descripcion || '',
+            imagen: item.product.imagens || '',
+            precio: item.product.precio,
             cantidad: item.quantity,
             subtotal: parseFloat(item.product.precio) * item.quantity
           }))
         };
-
-        orderResult = await this.ordersService.createOrder(orderData);
       }
 
-      console.log('Order created successfully:', orderResult);
+      console.log('Datos del pedido preparados:', orderData);
       
-      // Si llegamos aquí, el pedido se creó exitosamente
-      this.cartService.clearCart();
-      this.toastService.showToast('¡Pedido realizado con éxito! Gracias por tu compra.', 'success');
-      this.router.navigate(['/carta']);
+      // 🚀 PROCEDER DIRECTAMENTE CON STRIPE (sin crear pedido en BD)
+      await this.processStripePayment(orderData);
+
     } catch (error: any) {
-      console.error('Error creating order:', error);
-      const errorMessage = error.message || 'Error al procesar el pedido. Por favor, inténtalo de nuevo.';
+      console.error('Error preparando pago:', error);
+      const errorMessage = error.message || 'Error al preparar el pago. Por favor, inténtalo de nuevo.';
       this.toastService.showToast(`Error: ${errorMessage}`, 'error');
+    } finally {
+      this.isProcessingPayment = false;
+    }
+  }
+
+  private async processStripePayment(orderData: any) {
+    try {
+      this.toastService.showToast('Redirigiendo al pago...', 'success');
+
+      // Generar ID temporal para las URLs
+      const tempId = `temp_${Date.now()}`;
+      
+      // Obtener URLs de éxito y cancelación
+      const paymentUrls = this.stripeService.getPaymentUrls(tempId);
+
+      // Crear sesión de checkout en Stripe con datos del pedido
+      const checkoutSession = await this.stripeService.createCheckoutSession({
+        order_data: orderData,
+        success_url: paymentUrls.success_url,
+        cancel_url: paymentUrls.cancel_url
+      });
+
+      // Guardar el carrito temporalmente en localStorage por si el usuario vuelve
+      localStorage.setItem('temp_cart', JSON.stringify(this.cartItems));
+      localStorage.setItem('temp_order_data', JSON.stringify(orderData));
+
+      // Redirigir a Stripe
+      this.stripeService.redirectToCheckout(checkoutSession.url);
+
+    } catch (error: any) {
+      console.error('Error processing Stripe payment:', error);
+      this.toastService.showToast('Error al procesar el pago. Inténtalo de nuevo.', 'error');
     }
   }
 
