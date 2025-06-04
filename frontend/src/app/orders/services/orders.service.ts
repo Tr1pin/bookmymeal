@@ -40,6 +40,28 @@ interface CreateOrderWithUserData {
   }>;
 }
 
+// Nueva interfaz para la respuesta de creación de pedido
+interface CreateOrderResponse {
+  message: string;
+  pedido: {
+    pedido_id: string;
+    numero_pedido: string;
+    tipo_entrega: string;
+    metodo_pago: string;
+    estado: string;
+    total: string;
+    productos: Array<{
+      producto_id: string;
+      cantidad: number;
+      subtotal: string;
+    }>;
+    usuario: {
+      id: string;
+      nombre: string;
+    };
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -84,16 +106,16 @@ export class OrdersService {
     );
   }
 
-  async createOrder(orderData: CreateOrderData): Promise<Order> {
+  async createOrder(orderData: CreateOrderData): Promise<CreateOrderResponse> {
     const response = await firstValueFrom(
-      this.http.post<Order>(`${this.baseUrl}/pedidos`, orderData)
+      this.http.post<CreateOrderResponse>(`${this.baseUrl}/pedidos`, orderData)
     );
     return response;
   }
 
-  async createOrderWithUser(orderData: CreateOrderWithUserData): Promise<Order> {
+  async createOrderWithUser(orderData: CreateOrderWithUserData): Promise<CreateOrderResponse> {
     const response = await firstValueFrom(
-      this.http.post<Order>(`${this.baseUrl}/pedidos/with-user`, orderData)
+      this.http.post<CreateOrderResponse>(`${this.baseUrl}/pedidos/with-user`, orderData)
     );
     return response;
   }
