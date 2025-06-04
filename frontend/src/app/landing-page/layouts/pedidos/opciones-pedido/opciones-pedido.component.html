@@ -252,58 +252,41 @@
       </div>
     }
 
-    <!-- Credit Card Form (only if card is selected) -->
+    <!-- Información sobre pago con tarjeta -->
     @if (paymentMethod === 'card') {
-      <section class="space-y-4" role="region" aria-label="Información de tarjeta">
-        <h3 class="text-lg font-bold text-black">Información de la Tarjeta</h3>
-        
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-1">Número de tarjeta</label>
-            <input type="text" id="cardNumber" name="cardNumber" 
-                   [(ngModel)]="cardInfo.number"
-                   (ngModelChange)="emitOptionsChange()"
-                   required
-                   maxlength="19"
-                   placeholder="1234 5678 9012 3456"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
           </div>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label for="cardExpiry" class="block text-sm font-medium text-gray-700 mb-1">Fecha de expiración</label>
-              <input type="text" id="cardExpiry" name="cardExpiry" 
-                     [(ngModel)]="cardInfo.expiry"
-                     (ngModelChange)="emitOptionsChange()"
-                     required
-                     placeholder="MM/AA"
-                     maxlength="5"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">
-            </div>
-            
-            <div>
-              <label for="cardCvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-              <input type="text" id="cardCvv" name="cardCvv" 
-                     [(ngModel)]="cardInfo.cvv"
-                     (ngModelChange)="emitOptionsChange()"
-                     required
-                     maxlength="4"
-                     placeholder="123"
-                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">
-            </div>
-          </div>
-          
-          <div>
-            <label for="cardName" class="block text-sm font-medium text-gray-700 mb-1">Nombre del titular</label>
-            <input type="text" id="cardName" name="cardName" 
-                   [(ngModel)]="cardInfo.name"
-                   (ngModelChange)="emitOptionsChange()"
-                   required
-                   placeholder="Nombre completo"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900">
+          <div class="ml-4 flex-1">
+            <h4 class="text-lg font-semibold text-blue-800 mb-2">Pago Seguro con Stripe</h4>
+            <p class="text-blue-700 mb-3">
+              Al procesar tu pedido, serás redirigido a la página segura de Stripe para introducir los datos de tu tarjeta.
+            </p>
+
+            <!-- Tarjetas de prueba para desarrollo -->
+            <details class="bg-blue-100 rounded-lg p-3">
+              <summary class="text-sm font-medium text-blue-700 cursor-pointer mb-2">
+                Tarjetas de prueba para desarrollo
+              </summary>
+              <div class="text-xs text-blue-600 space-y-1">
+                <p><strong>Pago exitoso:</strong> 4242 4242 4242 4242</p>
+                <p><strong>Pago declinado:</strong> 4000 0000 0000 0002</p>
+                <p><strong>Requiere 3D Secure:</strong> 4000 0025 0000 3155</p>
+                <p><strong>Fecha:</strong> Cualquier fecha futura | <strong>CVV:</strong> Cualquier 3 dígitos</p>
+                <p class="text-blue-500 font-medium">!!Solo usar en modo de prueba!!</p>
+              </div>
+            </details>
+
+            <p class="text-xs text-blue-600 mt-3">
+              No almacenamos ningún dato de tu tarjeta. Todo el proceso de pago es hecho por Stripe.
+            </p>
           </div>
         </div>
-      </section>
+      </div>
     }
   </form>
 </section>

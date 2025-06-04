@@ -15,13 +15,6 @@ interface ContactInfo {
   phone: string;
 }
 
-interface CardInfo {
-  number: string;
-  expiry: string;
-  cvv: string;
-  name: string;
-}
-
 @Component({
   selector: 'app-opciones-pedido',
   standalone: true,
@@ -36,7 +29,6 @@ export class OpcionesPedidoComponent implements AfterViewInit, OnInit {
     paymentMethod: 'card' | 'cash';
     contactInfo: ContactInfo;
     deliveryAddress?: DeliveryAddress;
-    cardInfo?: CardInfo;
     isValid: boolean;
     isUserAuthenticated?: boolean;
   }>();
@@ -56,13 +48,6 @@ export class OpcionesPedidoComponent implements AfterViewInit, OnInit {
     street: '',
     city: '',
     postalCode: '',
-  };
-
-  cardInfo: CardInfo = {
-    number: '',
-    expiry: '',
-    cvv: '',
-    name: ''
   };
 
   isUserAuthenticated = false;
@@ -110,59 +95,44 @@ export class OpcionesPedidoComponent implements AfterViewInit, OnInit {
       paymentMethod: this.paymentMethod,
       contactInfo: this.contactInfo,
       deliveryAddress: this.deliveryOption === 'delivery' ? this.deliveryAddress : undefined,
-      cardInfo: this.paymentMethod === 'card' ? this.cardInfo : undefined,
-      isValid,
+      isValid: isValid,
       isUserAuthenticated: this.isUserAuthenticated
     });
   }
 
   private isFormValid(): boolean {
-    // Para efectivo, no permitimos el pedido online
-    if (this.paymentMethod === 'cash') {
-      return false;
-    }
-
-    // Si el usuario está autenticado, no necesitamos validar información de contacto
-    let contactValid = true;
+    // Validar información de contacto (solo para usuarios no autenticados)
     if (!this.isUserAuthenticated) {
-      // Validar información de contacto solo si no está autenticado
-      contactValid = !!(
-        this.contactInfo.name &&
-        this.contactInfo.phone &&
-        this.contactInfo.phone.length >= 9
-      );
+      // Solo nombre y teléfono son requeridos, email es opcional
+      if (!this.contactInfo.name.trim() || !this.contactInfo.phone.trim()) {
+        return false;
+      }
+
+      // Validación básica de email solo si se proporciona
+      if (this.contactInfo.email.trim()) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(this.contactInfo.email)) {
+          return false;
+        }
+      }
     }
 
-    let deliveryValid = true;
-    let paymentValid = true;
-
-    // Validate delivery address if delivery is selected
+    // Validar dirección de entrega si es delivery
     if (this.deliveryOption === 'delivery') {
-      deliveryValid = !!(
-        this.deliveryAddress.street &&
-        this.deliveryAddress.city &&
-        this.deliveryAddress.postalCode &&
-        /^[0-9]{5}$/.test(this.deliveryAddress.postalCode)
-      );
+      if (!this.deliveryAddress.street.trim() || 
+          !this.deliveryAddress.city.trim() || 
+          !this.deliveryAddress.postalCode.trim()) {
+        return false;
+      }
     }
 
-    // Validate card info if card is selected
-    if (this.paymentMethod === 'card') {
-      paymentValid = !!(
-        this.cardInfo.number &&
-        this.cardInfo.expiry &&
-        this.cardInfo.cvv &&
-        this.cardInfo.name &&
-        this.cardInfo.number.length >= 13 &&
-        /^[0-9]{2}\/[0-9]{2}$/.test(this.cardInfo.expiry) &&
-        /^[0-9]{3,4}$/.test(this.cardInfo.cvv)
-      );
-    }
-
-    return contactValid && deliveryValid && paymentValid;
+    return true;
   }
 
   ngAfterViewInit() {
-    this.emitOptionsChange();
+    // Emitir estado inicial
+    setTimeout(() => {
+      this.emitOptionsChange();
+    });
   }
 }
