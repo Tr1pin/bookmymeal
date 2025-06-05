@@ -357,58 +357,56 @@ export class ProductModel {
     const connection = await mysql.createConnection(connectionString);
     
     try {
-      // Primero obtener el número de categorías disponibles
-      const [categoriesCount] = await connection.query(`
-        SELECT COUNT(DISTINCT p.categoria_id) as total_categories
-        FROM productos p 
-        WHERE p.disponible = 1
-      `);
+      console.log('getFeaturedProducts: Starting with limit:', limit);
       
-      const totalCategories = categoriesCount[0].total_categories;
-      
-      // Calcular cuántos productos por categoría (mínimo 1, máximo según el límite)
-      const productsPerCategory = Math.max(1, Math.floor(limit / totalCategories));
-      const remainingProducts = limit % totalCategories;
-      
-      // Usar subconsulta para evitar el error con el alias de la función window
+      // Versión ultra simple para debugging
       const [products] = await connection.query(`
         SELECT 
-          producto_id,
-          nombre,
-          descripcion,
-          precio,
-          disponible,
-          categoria_nombre,
-          imagens
-        FROM (
-          SELECT 
-            p.id AS producto_id,
-            p.nombre,
-            p.descripcion,
-            FORMAT(p.precio, 2) AS precio,
-            p.disponible,
-            cp.nombre AS categoria_nombre,
-            JSON_ARRAYAGG(i.filename) AS imagens,
-            ROW_NUMBER() OVER (PARTITION BY p.categoria_id ORDER BY p.nombre) AS row_num
-          FROM 
-            productos p
-          LEFT JOIN 
-            imagenes_productos i ON p.id = i.producto_id
-          LEFT JOIN
-            categorias_producto cp ON p.categoria_id = cp.id
-          WHERE 
-            p.disponible = 1
-          GROUP BY 
-            p.id, p.nombre, p.descripcion, p.precio, p.disponible, cp.nombre, p.categoria_id
-        ) AS ranked_products
+          p.id AS producto_id,
+          p.nombre,
+          p.descripcion,
+          FORMAT(p.precio, 2) AS precio,
+          p.disponible
+        FROM 
+          productos p
         WHERE 
-          row_num <= ?
+          p.disponible = 1
         ORDER BY 
-          categoria_nombre, nombre
+          p.nombre
         LIMIT ?
-      `, [productsPerCategory + (remainingProducts > 0 ? 1 : 0), limit]);
+      `, [limit]);
 
+      console.log(`getFeaturedProducts: Found ${products.length} products`);
+      
+      // Agregar imágenes y categoría de forma separada para evitar problemas
+      for (let i = 0; i < products.length; i++) {
+        const product = products[i];
+        
+        // Obtener imágenes
+        const [images] = await connection.query(`
+          SELECT filename 
+          FROM imagenes_productos 
+          WHERE producto_id = ?
+        `, [product.producto_id]);
+        
+        product.imagens = images.map(img => img.filename);
+        
+        // Obtener categoría
+        const [category] = await connection.query(`
+          SELECT nombre 
+          FROM categorias_producto 
+          WHERE id = (SELECT categoria_id FROM productos WHERE id = ?)
+        `, [product.producto_id]);
+        
+        product.categoria_nombre = category.length > 0 ? category[0].nombre : null;
+      }
+
+      console.log(`getFeaturedProducts: Returning ${products.length} products with images and categories`);
       return products;
+    } catch (error) {
+      console.error('Error in getFeaturedProducts:', error);
+      console.error('Error stack:', error.stack);
+      throw new Error(`Error al obtener productos destacados: ${error.message || 'Error desconocido'}`);
     } finally {
       await connection.end();
     }
