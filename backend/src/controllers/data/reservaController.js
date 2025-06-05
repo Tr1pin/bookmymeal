@@ -65,6 +65,11 @@ export class ReservaController {
             const { usuario_id, fecha, hora, personas } = req.body;
             const newReserva = await ReservaModel.createReservationWithUserId( { usuario_id, fecha, hora, personas } );
 
+            await EmailService.sendEmail({
+                to: req.body.usuario.email, 
+                toName: req.body.usuario.nombre, 
+                subject: "reserva"
+           });
             res.status(200).json(newReserva);
         } catch (err) {
             console.log("error");
@@ -76,7 +81,7 @@ export class ReservaController {
         try {
             const { nombre, telefono, fecha, hora, personas } = req.body;
             const newReserva = await ReservaModel.createReservation( { nombre, telefono, fecha, hora, personas } );
-
+            
             res.status(200).json(newReserva);
         } catch (err) {
             console.log("error");
