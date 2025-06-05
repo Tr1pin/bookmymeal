@@ -2,9 +2,6 @@ import { EmailService } from "../../services/email.service.js";
 import { validateEmail } from "../../../schemas/email.js";
 
 export class EmailController {
-    /**
-     * Crear una sesión de checkout de Stripe para un pedido
-     */
     static async sendEmail(req, res) {
         try {
             const { to, toName, subject, message } = req.body;
@@ -32,5 +29,5 @@ export class EmailController {
                 error: error.message
             });
         }
-}
+    }
 }
