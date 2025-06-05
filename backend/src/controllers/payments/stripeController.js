@@ -117,24 +117,24 @@ export class StripeController {
           console.log(`Pago confirmado para ${result.numero_pedido_temp}`);
           
           try {
-            // 🎯 CREAR PEDIDO SOLO DESPUÉS DEL PAGO EXITOSO
+            // CREAR PEDIDO SOLO DESPUÉS DEL PAGO EXITOSO
             const orderResult = await PedidoModel.crearPedido({
               ...result.order_data,
               numero_pedido: result.numero_pedido_temp // Usar el número temporal generado
             });
             
-            console.log(`✅ Pedido ${result.numero_pedido_temp} creado en BD después del pago exitoso`);
+            console.log(`Pedido ${result.numero_pedido_temp} creado en BD después del pago exitoso`);
             
-            // 💰 REEMBOLSO AUTOMÁTICO SIEMPRE ACTIVO
+            // REEMBOLSO AUTOMÁTICO SIEMPRE ACTIVO
             if (result.payment_intent) {
               try {
-                console.log('💰 Iniciando reembolso automático...');
+                console.log('Iniciando reembolso automático...');
                 
                 // Crear reembolso completo automáticamente
                 const refund = await StripeService.createRefund(result.payment_intent);
                 
-                console.log(`✅ Reembolso automático completado: ${refund.id}`);
-                console.log(`💸 Monto reembolsado: €${(refund.amount / 100).toFixed(2)}`);
+                console.log(`Reembolso automático completado: ${refund.id}`);
+                console.log(`Reembolsado: €${(refund.amount / 100).toFixed(2)}`);
                 
                 // Actualizar el pedido como "cancelado" por el reembolso automático
                 await PedidoModel.actualizarPedido({
@@ -142,16 +142,16 @@ export class StripeController {
                   estado: 'cancelado'
                 });
                 
-                console.log(`🔄 Pedido ${result.numero_pedido_temp} marcado como cancelado tras reembolso automático`);
+                console.log(`Pedido ${result.numero_pedido_temp} marcado como cancelado tras reembolso automático`);
                 
               } catch (refundError) {
-                console.error('❌ Error en reembolso automático:', refundError);
+                console.error('Error en reembolso automático:', refundError);
                 // No lanzamos error aquí para no fallar el webhook
               }
             }
             
           } catch (orderError) {
-            console.error('❌ Error creando pedido tras pago exitoso:', orderError);
+            console.error('Error creando pedido tras pago exitoso:', orderError);
             // El pago fue exitoso pero falló crear el pedido - esto requiere intervención manual
           }
           break;
