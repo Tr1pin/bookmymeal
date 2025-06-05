@@ -23,7 +23,6 @@ export class EmailService {
           subject: "Bienvenido/a a BookMyMeal",
           html: `
              <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; padding: 24px;">
-                <h2 style="color: #fff; background-color: #1e3a8a; padding: 8px 16px; border-radius: 4px; display: inline-block;">¡Bienvenido/a a BookMyMeal!</h2>
                 <!-- <img src="https://bookmymeal.com/images/logo.png" alt="BookMyMeal Logo"> -->
                 <p>Hola <b>${toName}</b>,</p>
                 <p>¡Gracias por registrarte en <b>BookMyMeal</b>! Ya puedes empezar a descubrir y reservar en los mejores restaurantes.</p>
@@ -45,7 +44,6 @@ export class EmailService {
             subject: "Código de inicio de sesión",
             html: `
             <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; padding: 24px;">
-              <h2 style="color: #fff; background-color: #1e3a8a; padding: 8px 16px; border-radius: 4px; display: inline-block;">Código de verificación</h2>
               <p>Hola <b>${toName}</b>,</p>
               <p>Tu código de acceso para iniciar sesión en BookMyMeal es:</p>
               <div style="font-size: 2em; font-weight: bold; margin: 24px 0; color: #fff; background-color: #1e3a8a; padding: 8px 16px; border-radius: 4px; display: inline-block;">${codigo}</div>
