@@ -59,9 +59,6 @@ export class StripeService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.baseUrl}/payments/stripe`;
 
-  /**
-   * Crear una sesión de checkout para procesar el pago
-   */
   async createCheckoutSession(request: CheckoutSessionRequest): Promise<CheckoutSessionResponse> {
     try {
       const response = await firstValueFrom(
@@ -74,9 +71,7 @@ export class StripeService {
     }
   }
 
-  /**
-   * Verificar el estado de un pago
-   */
+
   async verifyPayment(sessionId: string): Promise<PaymentVerificationResponse> {
     try {
       const response = await firstValueFrom(
@@ -89,9 +84,7 @@ export class StripeService {
     }
   }
 
-  /**
-   * Crear un reembolso
-   */
+
   async createRefund(request: RefundRequest): Promise<RefundResponse> {
     try {
       const response = await firstValueFrom(
@@ -104,20 +97,16 @@ export class StripeService {
     }
   }
 
-  /**
-   * Redirigir al usuario a la página de pago de Stripe
-   */
+
   redirectToCheckout(url: string): void {
     window.location.href = url;
   }
 
-  /**
-   * Obtener URLs de éxito y cancelación
-   */
+
   getPaymentUrls(pedidoId: string) {
     const baseUrl = window.location.origin;
     return {
-      success_url: `${baseUrl}/pago-exitoso?session_id={CHECKOUT_SESSION_ID}&pedido_id=${pedidoId}`,
+      success_url: `${baseUrl}/pedido-exitoso?session_id={CHECKOUT_SESSION_ID}&pedido_id=${pedidoId}`,
       cancel_url: `${baseUrl}/pago-cancelado?pedido_id=${pedidoId}`
     };
   }
