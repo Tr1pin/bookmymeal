@@ -1,0 +1,46 @@
+/* Animaciones personalizadas */
+@keyframes pulse-gentle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Aplicar animaciones */
+.max-w-md {
+  animation: slide-in 0.6s ease-out;
+}
+
+.w-16.h-16 {
+  animation: pulse-gentle 2s infinite;
+}
+
+/* Estilos adicionales para mejorar la experiencia */
+button:focus {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+/* Responsive mejoras */
+@media (max-width: 480px) {
+  .max-w-md {
+    margin: 1rem;
+  }
+  
+  .p-8 {
+    padding: 1.5rem;
+  }
+} 

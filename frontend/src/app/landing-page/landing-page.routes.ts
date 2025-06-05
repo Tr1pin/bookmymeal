@@ -6,6 +6,7 @@ import { ReservasComponent } from "./layouts/reservas/reservas.component";
 import { PedidosComponent } from "./layouts/pedidos/pedidos.component";
 import { DetallesReservaComponent } from "./layouts/reservas/detalles-reserva/detalles-reserva.component";
 import { GraciasReservaComponent } from "./layouts/reservas/gracias-reserva/gracias-reserva.component";
+import { GraciasPedidoComponent } from "./layouts/pedidos/gracias-pedido/gracias-pedido.component";
 import { authGuard } from "../auth/guards/auth.guard";
 
 export const landingPageRoutes: Routes = [
@@ -24,6 +25,10 @@ export const landingPageRoutes: Routes = [
          {
             path: 'confirmar-pedido',
             component: PedidosComponent
+         },
+         {
+            path: 'pedido-exitoso',
+            component: GraciasPedidoComponent
          },
          {
             path: 'reservas',
