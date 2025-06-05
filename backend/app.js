@@ -29,7 +29,7 @@ export const createApp = () => {
     app.use('/images/products', express.static(path.join(dir, 'images', 'products')));
 
     // Calls to endponits
-    app.use("/", userlogContoller);
+    app.use("/auth/", userlogContoller);
     app.use("/users/", userDataRoutes);
     app.use("/productos/", productDataRoutes);
     app.use("/mesas/", tableDataRoutes);
