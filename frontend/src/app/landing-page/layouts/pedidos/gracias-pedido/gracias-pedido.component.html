@@ -1,0 +1,102 @@
+<main class="min-h-screen bg-gradient-to-br bg-white flex items-center justify-center p-4">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+    
+    <!-- Estado: Verificando pago -->
+    @if (isVerifying) {
+      <div class="mb-6">
+        <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">
+        Verificando pago...
+      </h1>
+      <p class="text-gray-600 mb-6">
+        Por favor espere mientras confirmamos su pago.
+      </p>
+    }
+
+    <!-- Estado: Pago verificado exitosamente -->
+    @else if (paymentVerified) {
+      <!-- Icono de éxito -->
+      <div class="mb-6">
+        <div class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Título principal -->
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">
+        ¡Pedido realizado con éxito!
+      </h1>
+
+      <!-- Mensaje de confirmación -->
+      <p class="text-gray-600 mb-6">
+        Tu pedido ha sido procesado correctamente. Recibirás una confirmación por email y podrás seguir el estado de tu pedido.
+      </p>
+
+      <!-- Detalles del pago (si están disponibles) -->
+      @if (paymentDetails) {
+        <div class="bg-gray-100 rounded-lg p-4 mb-6 text-left flex flex-col justify-center">
+          <h3 class="font-bold text-center text-lg text-gray-800 mb-4">Detalles del pago</h3>
+          <div class="text-smspace-y-1">
+            @if (paymentDetails.metadata?.numero_pedido_temp) {
+              <p class="text-gray-800 font-bold flex justify-between"><span class="font-semibold text-gray-600 ">Número de pedido:</span> {{ paymentDetails.metadata.numero_pedido_temp }}</p>
+            }
+            <p class="text-gray-800 font-bold flex justify-between"><span class="font-semibold text-gray-600">Total pagado:</span> €{{ formatAmount(paymentDetails.amount_total) }}</p>
+            <p class="text-gray-800 font-bold flex justify-between"><span class="font-semibold text-gray-600">Estado:</span> {{ paymentDetails.payment_status }}</p>
+          </div>
+        </div>
+      } @else {
+        <!-- Información adicional cuando no hay detalles específicos del pago -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+          <p class="text-sm">
+            <strong>¡Gracias por elegirnos!</strong><br>
+            Estamos preparando tu pedido con el mayor cuidado.
+          </p>
+        </div>
+      }
+
+
+    }
+
+    <!-- Estado: Error en el pago -->
+    @else {
+      <!-- Icono de error -->
+      <div class="mb-6">
+        <div class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Título de error -->
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">
+        Error en el pago
+      </h1>
+
+      <!-- Mensaje de error -->
+      <p class="text-gray-600 mb-6">
+        No se pudo verificar el pago. Por favor contacte con soporte o intente nuevamente.
+      </p>
+
+      <!-- Botones de acción para error -->
+      <div class="space-y-3">
+        <button 
+          (click)="goToOrderHistory()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+          Intentar de nuevo
+        </button>
+        
+        <button 
+          (click)="goToHome()"
+          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+          Volver al inicio
+        </button>
+      </div>
+    }
+  </div>
+</main> 
