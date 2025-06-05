@@ -398,7 +398,8 @@ export class PedidoModel {
                     usuario: {
                         id: usuario_id,
                         nombre: user.nombre || '',
-                        telefono: user.telefono || ''
+                        telefono: user.telefono || '',
+                        email: user.email || ''
                     }
                 }
             };
