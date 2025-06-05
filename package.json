@@ -8,7 +8,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "start cmd /k \"cd backend && npm run dev\" & start cmd /k \"cd frontend && ng serve\""
+    "dev": "cd backend && start /B npm run dev && cd ../frontend && ng serve"
   },
   "workspaces": [
     "backend",
