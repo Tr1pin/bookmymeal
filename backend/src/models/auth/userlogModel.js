@@ -31,7 +31,7 @@ export class UserAuthModel {
                 { expiresIn: "2h" }
             );
     
-            return { message: "Inicio de sesión exitoso", token };
+            return { message: "Inicio de sesión exitoso", token, nombre:user.nombre };
         } catch (error) {
             console.error("Error en login:", error);
             return { message: "Error en el servidor" };
