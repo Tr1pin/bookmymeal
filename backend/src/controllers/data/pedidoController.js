@@ -31,6 +31,12 @@ export class PedidoController {
     static async crearPedido(req, res) {
         try { 
             const result = await PedidoModel.crearPedido(req.body);
+
+            await EmailService.sendEmail({
+                 to: req.body.email_contacto, 
+                 toName: req.body.nombre_contacto, 
+                 subject: "pedido"
+            });
             res.status(200).json(result); 
         }
         catch (err) { 
