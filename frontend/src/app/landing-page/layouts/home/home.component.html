@@ -29,7 +29,7 @@
                             <h3 class="text-2xl font-bold mb-2">{{ product.nombre }}</h3>
                             <p class="text-sm mb-3 line-clamp-2">{{ product.descripcion }}</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-xl font-bold">${{ product.precio }}</span>
+                                <span class="text-xl font-bold">{{ product.precio }}€</span>
                                 <button class="btn bg-blue-900 btn-lg" (click)="addToCart(product)">Agregar al carrito</button>
                             </div>
                         </div>

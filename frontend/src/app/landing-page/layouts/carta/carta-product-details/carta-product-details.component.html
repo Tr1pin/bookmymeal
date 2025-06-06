@@ -9,7 +9,7 @@
         <h3 class="card-title text-lg">{{ product.nombre }}</h3>
         <p class="text-sm text-gray-900 line-clamp-2">{{ product.descripcion }}</p>
         <div class="card-actions justify-between items-center mt-3">
-            <span class="text-xl font-bold text-blue-600">${{ product.precio }}</span>
+            <span class="text-xl font-bold text-blue-600">{{ product.precio }}€</span>
             <button class="btn bg-blue-900 text-white hover:bg-blue-800" (click)="addToCart()">Agregar</button>
         </div>
     </div>
