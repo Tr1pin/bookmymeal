@@ -1,5 +1,13 @@
 import 'dotenv/config';
 import nodemailer from 'nodemailer';
+import mysql from 'mysql2/promise'
+import bcrypt from 'bcrypt';
+import { DEFAULT_MYSQL_CONECTION, SALT_ROUNDS } from '../../config.js'
+import { UserModel } from '../models/data/userModel.js'
+import { randomUUID } from 'crypto';
+
+const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION
+
 
 
 export class EmailService {
@@ -37,7 +45,26 @@ export class EmailService {
         break;
 
       case "login":
+          const user = await UserModel.getByEmail({ email: data.email });
+          if (!user) {
+            return { message: "El usuario no existe" };
+          }
+
           const codigo = Math.floor(100000 + Math.random() * 900000);
+          const codigoHash = await bcrypt.hash(codigo.toString(), SALT_ROUNDS);
+
+          const connection = await mysql.createConnection(connectionString);
+
+          const uuid = randomUUID();
+          const activo = true;
+
+          const [res] = await connection.query(
+                `INSERT INTO two_factor_codes (id, user_id, codigo, activo, fecha_creacion) VALUES (?, ?, ?, ?, ?)`, 
+            [uuid, user.id, codigoHash, activo, new Date()]
+          );
+
+          await connection.end();
+
           transporter.sendMail({
             from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER}>`,
             to: `${toName} <${to}>`,
