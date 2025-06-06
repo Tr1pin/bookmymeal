@@ -87,6 +87,15 @@ CREATE TABLE IF NOT EXISTS imagenes_productos (
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
 );
 
+CREATE TABLE two_factor_codes (
+    id CHAR(36) PRIMARY KEY,
+    user_id CHAR(36) NOT NULL,
+    codigo VARCHAR(255) NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES usuarios(id)
+);
+
 -- Insertar categorias de producto
 INSERT INTO categorias_producto (id, nombre) VALUES
 ('c50e8400-e29b-41d4-a716-446655440001', 'Pizzas'),
