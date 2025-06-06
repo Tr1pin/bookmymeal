@@ -103,7 +103,7 @@
         } @else {
             <div class="relative w-full flex justify-center">
                 <!-- Flechas de navegación -->
-                <button (click)="scrollCarousel('left')" class="mt-35 static left-4 top-3/4 transform -translate-y-1/4 z-50 btn btn-circle bg-black/80 hover:bg-base-200 shadow-lg">❮</button>
+                <button (click)="scrollCarousel('left')" class="mt-35 static left-4 top-3/4 transform -translate-y-1/4 z-30 btn btn-circle bg-black/80 hover:bg-base-200 shadow-lg">❮</button>
                 <section #carousel class="carousel rounded-box gap-4 p-4 bg-white overflow-x-auto mx-auto" style="max-width: 1000px; width: 1000px;">
                     @for (product of featuredProductsResource.value(); track $index) {
                         <div class="carousel-item flex-none bg-white">
@@ -115,7 +115,7 @@
                         </div>
                     }
                 </section>
-                <button (click)="scrollCarousel('right')" class="mt-35 static right-4 top-3/4 transform -translate-y-1/4 z-50 btn btn-circle bg-black/80 hover:bg-base-200  shadow-lg">❯</button>
+                <button (click)="scrollCarousel('right')" class="mt-35 static right-4 top-3/4 transform -translate-y-1/4 z-30 btn btn-circle bg-black/80 hover:bg-base-200  shadow-lg">❯</button>
             </div>
         }
         <button class="btn bg-blue-900 text-white hover:bg-blue-900" routerLink='/carta'>Ver toda la carta</button>
