@@ -2,7 +2,6 @@ import mysql from 'mysql2/promise'
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION } from '../../../config.js'
 import { validateReserva, validatePartialReserva } from '../../../schemas/reserva.js'
-import { EmailService } from '../../services/email.service.js';
 import { UserModel } from './userModel.js';
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION
@@ -109,6 +108,7 @@ export class ReservaModel {
         if (!usuario_id || !fecha || !hora || !personas) {
             throw new Error("Faltan datos para crear la reserva");
         }
+        console.log({ usuario_id, fecha, hora, personas });
 
         const connection = await mysql.createConnection(connectionString);
         const estado = 'confirmada';
@@ -131,7 +131,9 @@ export class ReservaModel {
             }
 
             const mesa_id = mesas[0].id;
+
             const id = randomUUID();
+
 
             const validation = validateReserva({ usuario_id, mesa_id, fecha, hora, estado, personas });
             if(!validation.success){
@@ -151,37 +153,14 @@ export class ReservaModel {
                 [mesa_id]
             );
 
-            await connection.end();
-            
-            // ENVIAR EMAIL DE CONFIRMACIÓN
-            try {
-                // Obtener información del usuario
-                const user = await UserModel.getById({ id: usuario_id });
-                
-                if (user && user.email) {
-                    // Enviar email de confirmación
-                    await EmailService.sendEmail({
-                        to: user.email,
-                        toName: user.nombre || 'Cliente',
-                        subject: 'reserva',
-                        data: {
-                            fecha: fecha,
-                            hora: hora.substring(0, 5), // Formato HH:MM
-                            personas: personas,
-                            numeroMesa: mesaInfo[0]?.numero
-                        }
-                    });
+            const [user] = await connection.execute(
+                `SELECT * FROM usuarios WHERE id = ?`,
+                [usuario_id]
+            );
 
-                    console.log(`Email de confirmación de reserva enviado a ${user.email}`);
-                } else {
-                    console.log(`No se pudo enviar email de reserva para usuario ${usuario_id} - email no disponible`);
-                }
-            } catch (emailError) {
-                console.error(`Error enviando email de confirmación de reserva:`, emailError);
-                // No lanzamos error aquí para no fallar la creación de la reserva
-            }
-            
-            return { message: "Reserva creada correctamente" };
+            await connection.end();
+          
+            return { message: "Reserva creada correctamente", mesaInfo: mesaInfo, usuario: user  };
 
         } catch (error) {
             console.error("Error " + error);
