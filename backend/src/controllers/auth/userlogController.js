@@ -7,10 +7,23 @@ export class UserAuthController {
           const { email, password } = req.body;
           const resp = await UserAuthModel.login({ email, password });
 
-          await EmailService.sendEmail({ to: email, toName: resp.nombre, subject: "login"});
-          res.status(200).json(resp);
+          //Mandamos email para el login es decir para que el usario meta el codigo de 2FA
+          await EmailService.sendEmail({ to: email, toName: resp.nombre, subject: "login", data: { email: req.body.email }});
+          res.status(200).json({resp});
       } catch (err) {
           res.status(500).json({ error: err.message });
+      }
+    }
+
+    static async login2FA(req, res){
+      try {
+        const { email, codigo } = req.body;
+        
+        const resp = await UserAuthModel.login2FA({ email, codigo });
+        
+        res.status(200).json({message: resp.message , token: resp.token});
+      } catch (error) {
+        res.status(500).json({ error: error.message });
       }
     }
 
