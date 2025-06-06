@@ -13,12 +13,16 @@ import reservasDataRoutes from './src/routes/data/reservasDataRouter.js';
 import imagesDataRoutes from './src/routes/data/imagesRouter.js';
 import productCategoryDataRoutes from './src/routes/data/productCategoryDataRoutes.js';
 import userlogContoller from './src/routes/auth/userlogRouter.js';
+import stripeRoutes from './src/routes/payments/stripeRoutes.js';
 import emailDataRoutes from './src/routes/emails/emailRoutes.js';
 
 export const createApp = () => {
     const app = express();
 
     app.use(cors());
+
+    app.use("/payments/stripe/webhook", express.raw({ type: 'application/json' }));
+
     app.use(express.json());
 
     // Get the directory name of the current module
@@ -39,6 +43,7 @@ export const createApp = () => {
     app.use("/images/",  imagesDataRoutes);
     app.use("/product-categories/", productCategoryDataRoutes);
     app.use("/emails/", emailDataRoutes);
+    app.use("/payments/stripe/", stripeRoutes);
 
     app.listen( DEFAULT_PORT, () =>{
         console.log(`Server listening on port  http://localhost:${DEFAULT_PORT}`);

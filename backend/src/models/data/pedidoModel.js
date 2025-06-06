@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION } from '../../../config.js';
 import { validatePedido, validatePartialPedido } from '../../../schemas/pedido.js';
 import { UserModel } from '../../models/data/userModel.js';
+import { EmailService } from '../../services/email.service.js';
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION;
 
@@ -151,13 +152,14 @@ export class PedidoModel {
         return pedido;
     }
 
-    static async crearPedido({ usuario_id, nombre_contacto, telefono_contacto, email_contacto, tipo_entrega, metodo_pago, direccion_calle, direccion_ciudad, direccion_codigo_postal, direccion_telefono, total, estado, productos }) {
+    static async crearPedido({ usuario_id, nombre_contacto, telefono_contacto, email_contacto, tipo_entrega, metodo_pago, direccion_calle, direccion_ciudad, direccion_codigo_postal, direccion_telefono, total, estado, productos, numero_pedido }) {
         if (!tipo_entrega || !metodo_pago || !total || !estado || !productos || productos.length === 0) {
             throw new Error("Faltan datos para crear un pedido");
         }
 
         const uuid = randomUUID();
-        const numero_pedido = `PED-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 999).toString().padStart(3, '0')}`;
+        // Si no viene numero_pedido desde el webhook, generar uno nuevo
+        const finalNumeroPedido = numero_pedido || `PED-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 999).toString().padStart(3, '0')}`;
 
         const validation = validatePedido({
             usuario_id, 
@@ -180,11 +182,11 @@ export class PedidoModel {
         try {
             await connection.beginTransaction();
 
-            // Insertar el pedido
+            // Insertar el pedido con el número correcto
             await connection.query(
                 `INSERT INTO pedidos (id, numero_pedido, nombre_contacto, telefono_contacto, email_contacto, usuario_id, tipo_entrega, metodo_pago, direccion_calle, direccion_ciudad, direccion_codigo_postal, direccion_telefono, total, estado) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [uuid, numero_pedido, nombre_contacto || null, telefono_contacto || null, email_contacto || null, usuario_id || null, tipo_entrega, metodo_pago, direccion_calle || null, direccion_ciudad || null, direccion_codigo_postal || null, direccion_telefono || null, total, estado]
+                [uuid, finalNumeroPedido, nombre_contacto || null, telefono_contacto || null, email_contacto || null, usuario_id || null, tipo_entrega, metodo_pago, direccion_calle || null, direccion_ciudad || null, direccion_codigo_postal || null, direccion_telefono || null, total, estado]
             );
 
             // Insertar los detalles del pedido
@@ -199,11 +201,59 @@ export class PedidoModel {
             await connection.commit();
             await connection.end();
             
+            // ENVIAR EMAIL DE CONFIRMACIÓN
+            try {
+                // Determinar email y nombre del destinatario
+                let recipientEmail, recipientName;
+                
+                if (usuario_id) {
+                    // Usuario registrado
+                    const user = await UserModel.getById({ id: usuario_id });
+                    recipientEmail = user?.email;
+                    recipientName = user?.nombre || 'Cliente';
+                } else {
+                    // Usuario anónimo
+                    recipientEmail = email_contacto;
+                    recipientName = nombre_contacto || 'Cliente';
+                }
+
+                if (recipientEmail) {
+                    // Preparar dirección de entrega
+                    let direccionEntrega = '';
+                    if (tipo_entrega === 'domicilio') {
+                        const partes = [direccion_calle, direccion_ciudad, direccion_codigo_postal].filter(Boolean);
+                        direccionEntrega = partes.join(', ');
+                    }
+
+                    // Enviar email de confirmación
+                    await EmailService.sendEmail({
+                        to: recipientEmail,
+                        toName: recipientName,
+                        subject: 'pedido',
+                        data: {
+                            numeroPedido: finalNumeroPedido,
+                            productos: productos,
+                            total: total,
+                            tipoEntrega: tipo_entrega,
+                            direccionEntrega: direccionEntrega
+                        }
+                    });
+
+                    console.log(`Email de confirmación enviado a ${recipientEmail} para pedido ${finalNumeroPedido}`);
+                } else {
+                    console.log(`No se pudo enviar email para pedido ${finalNumeroPedido} - email no disponible`);
+                }
+            } catch (emailError) {
+                console.error(`Error enviando email de confirmación para pedido ${finalNumeroPedido}:`, emailError);
+                // No lanzamos error aquí para no fallar la creación del pedido
+            }
+            
+            
             return { 
                 message: "Pedido creado correctamente",
                 pedido: {
                     pedido_id: uuid,
-                    numero_pedido: numero_pedido,
+                    numero_pedido: finalNumeroPedido,
                     tipo_entrega,
                     metodo_pago,
                     estado,
@@ -381,6 +431,39 @@ export class PedidoModel {
 
             await connection.commit();
             await connection.end();
+            
+            // ENVIAR EMAIL DE CONFIRMACIÓN
+            try {
+                if (user.email) {
+                    // Preparar dirección de entrega
+                    let direccionEntrega = '';
+                    if (tipo_entrega === 'domicilio') {
+                        const partes = [direccion_calle, direccion_ciudad, direccion_codigo_postal].filter(Boolean);
+                        direccionEntrega = partes.join(', ');
+                    }
+
+                    // Enviar email de confirmación
+                    await EmailService.sendEmail({
+                        to: user.email,
+                        toName: user.nombre || 'Cliente',
+                        subject: 'pedido',
+                        data: {
+                            numeroPedido: numero_pedido,
+                            productos: productos,
+                            total: total,
+                            tipoEntrega: tipo_entrega,
+                            direccionEntrega: direccionEntrega
+                        }
+                    });
+
+                    console.log(`Email de confirmación enviado a ${user.email} para pedido ${numero_pedido}`);
+                } else {
+                    console.log(`No se pudo enviar email para pedido ${numero_pedido} - usuario sin email`);
+                }
+            } catch (emailError) {
+                console.error(`Error enviando email de confirmación para pedido ${numero_pedido}:`, emailError);
+                // No lanzamos error aquí para no fallar la creación del pedido
+            }
             
             return { 
                 message: "Pedido creado correctamente",

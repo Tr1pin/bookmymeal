@@ -108,7 +108,7 @@ export class PedidosComponent implements OnInit {
     this.toastService.showToast('Preparando pago...', 'success');
 
     try {
-      // 🎯 PREPARAR DATOS DEL PEDIDO SIN CREAR EN BD
+      // PREPARAR DATOS DEL PEDIDO SIN CREAR EN BD
       let orderData;
 
       if (this.isUserAuthenticated) {
@@ -163,7 +163,7 @@ export class PedidosComponent implements OnInit {
 
       console.log('Datos del pedido preparados:', orderData);
       
-      // 🚀 PROCEDER DIRECTAMENTE CON STRIPE (sin crear pedido en BD)
+      //  PROCEDER DIRECTAMENTE CON STRIPE (sin crear pedido en BD)
       await this.processStripePayment(orderData);
 
     } catch (error: any) {
