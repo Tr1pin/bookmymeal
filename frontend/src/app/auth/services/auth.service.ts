@@ -10,6 +10,11 @@ export interface LoginData {
   password: string;
 }
 
+export interface Login2faData {
+  email: string;
+  codigo: string;
+}
+
 export interface RegisterData {
   nombre: string;
   email: string;
@@ -93,7 +98,7 @@ export class AuthService {
     this.userRole.set(user?.role || null);
   }
 
-  async login(loginData: LoginData): Promise<void> {
+  async login(loginData: LoginData): Promise<boolean> {
     try {
       const response = await firstValueFrom(
         this.http.post<LoginResponse>(`${this.baseUrl}/login`, loginData).pipe(
@@ -103,10 +108,32 @@ export class AuthService {
           })
         )
       );
+      // Después de login exitoso, marcar pending2FA
+      sessionStorage.setItem('pending2FA', 'true');
+      return true;
+    } catch (error: any) {
+      this.toastService.showToast(error.message, 'error');
+      return false;
+    }
+  }
+
+  async login2FA(login2FA: Login2faData): Promise<void> {
+    try {
+      console.log(login2FA);
+      const response = await firstValueFrom(
+        this.http.post<LoginResponse>(`${this.baseUrl}/login2fa`, login2FA).pipe(
+          catchError((error: HttpErrorResponse) => {
+            console.error('Error en login2fa:', error);
+            throw new Error(error.error?.message || 'Error al iniciar sesión');
+          })
+        )
+      );
 
       if (response.token) {
         // Guardar el token
         localStorage.setItem('authToken', response.token);
+        // Eliminar el flag pending2FA porque ya pasó 2FA
+        sessionStorage.removeItem('pending2FA');
         
         // Decodificar y establecer el usuario actual
         const payload = this.decodeToken(response.token);
@@ -124,6 +151,7 @@ export class AuthService {
         } else {
           this.router.navigate(['/']);
         }
+        
       } else {
         throw new Error(response.message || 'Error al iniciar sesión');
       }
@@ -132,6 +160,7 @@ export class AuthService {
       throw error;
     }
   }
+  
 
   async register(registerData: RegisterData): Promise<void> {
     try {
