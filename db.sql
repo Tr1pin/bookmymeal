@@ -163,7 +163,7 @@ INSERT INTO reservas (id, usuario_id, mesa_id, fecha, hora, estado, personas) VA
 ('750e8400-e29b-41d4-a716-446655440009', '550e8400-e29b-41d4-a716-446655440009', '650e8400-e29b-41d4-a716-446655440005', '2025-01-19', '20:00:00', 'completada', 4),
 ('750e8400-e29b-41d4-a716-446655440010', '550e8400-e29b-41d4-a716-446655440001', '650e8400-e29b-41d4-a716-446655440010', '2025-01-20', '13:30:00', 'confirmada', 4),
 
--- 🔥 RESERVAS PARA SATURAR EL DÍA 2025-01-20 (día completo para pruebas) 🔥
+-- RESERVAS PARA SATURAR EL DÍA 2025-01-20 (día completo para pruebas) 
 -- Mesa 1 (capacidad 2) - SATURADA CENA
 ('750e8400-e29b-41d4-a716-446655440011', '550e8400-e29b-41d4-a716-446655440002', '650e8400-e29b-41d4-a716-446655440001', '2025-01-20', '20:00:00', 'confirmada', 2),
 ('750e8400-e29b-41d4-a716-446655440012', '550e8400-e29b-41d4-a716-446655440003', '650e8400-e29b-41d4-a716-446655440001', '2025-01-20', '20:30:00', 'confirmada', 2),
@@ -221,7 +221,7 @@ INSERT INTO reservas (id, usuario_id, mesa_id, fecha, hora, estado, personas) VA
 -- Mesa 10 (capacidad 4) - ALGUNAS HORAS LIBRES (para mostrar alternativas)
 ('750e8400-e29b-41d4-a716-446655440047', '550e8400-e29b-41d4-a716-446655440008', '650e8400-e29b-41d4-a716-446655440010', '2025-01-20', '20:00:00', 'confirmada', 4),
 ('750e8400-e29b-41d4-a716-446655440048', '550e8400-e29b-41d4-a716-446655440009', '650e8400-e29b-41d4-a716-446655440010', '2025-01-20', '21:00:00', 'confirmada', 4),
--- ⚠️ 20:30 y 21:30 LIBRES en mesa 10 para mostrar alternativas
+-- 20:30 y 21:30 LIBRES en mesa 10 para mostrar alternativas
 
 -- ALGUNAS HORAS DE COMIDA TAMBIÉN OCUPADAS
 ('750e8400-e29b-41d4-a716-446655440049', '550e8400-e29b-41d4-a716-446655440010', '650e8400-e29b-41d4-a716-446655440003', '2025-01-20', '12:00:00', 'confirmada', 4),
@@ -298,7 +298,7 @@ INSERT INTO imagenes_productos (producto_id, filename) VALUES
 ('850e8400-e29b-41d4-a716-446655440014', 'tiramisu.jpg'),
 ('850e8400-e29b-41d4-a716-446655440015', 'cheesecake_frutos_rojos.jpg');
 
--- Consultas útiles para verificar los datos
+-- Consultas para comprobar los datos
 
 -- Ver todas las reservas con información completa
 SELECT 
@@ -418,18 +418,3 @@ GROUP BY
     tipo_entrega,
     metodo_pago
 ORDER BY tipo_cliente, tipo_entrega, metodo_pago;
-
--- Modificaciones para la tabla pedidos (si ya existe)
-ALTER TABLE pedidos 
-MODIFY COLUMN usuario_id CHAR(36) NULL,
-ADD COLUMN tipo_entrega ENUM('recogida', 'domicilio') NOT NULL DEFAULT 'recogida' AFTER usuario_id,
-ADD COLUMN metodo_pago ENUM('efectivo', 'tarjeta') NOT NULL DEFAULT 'efectivo' AFTER tipo_entrega,
-ADD COLUMN direccion_calle VARCHAR(255) NULL AFTER metodo_pago,
-ADD COLUMN direccion_ciudad VARCHAR(100) NULL AFTER direccion_calle,
-ADD COLUMN direccion_codigo_postal VARCHAR(10) NULL AFTER direccion_ciudad,
-ADD COLUMN direccion_telefono VARCHAR(15) NULL AFTER direccion_codigo_postal,
-ADD COLUMN fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER total,
-DROP FOREIGN KEY pedidos_ibfk_1,
-ADD FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL;
-
-
