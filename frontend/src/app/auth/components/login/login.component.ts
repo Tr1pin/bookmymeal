@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { AuthService, LoginData } from '../../services/auth.service';
 
 @Component({
@@ -14,6 +14,7 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   isLoading = false;
 
@@ -28,12 +29,10 @@ export class LoginComponent {
       
       try {
         const loginData: LoginData = this.loginForm.value;
-        await this.authService.login(loginData);
-        
-        // Verificar si hay una URL de retorno
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-        if (returnUrl) {
-          // El AuthService ya maneja la redirección
+        const ok = await this.authService.login(loginData);
+        if (ok) {
+          sessionStorage.setItem('pending2FA', 'true');
+          this.router.navigate(['/login2fa', this.loginForm.value.email]);
         }
       } catch (error) {
         console.error('Error en login:', error);
