@@ -1,4 +1,5 @@
 import { ReservaModel } from "../../models/data/reservaModel.js";
+import { EmailService } from "../../services/email.service.js";
 
 export class ReservaController {
     //Getters de Reservas
@@ -64,12 +65,23 @@ export class ReservaController {
         try {
             const { usuario_id, fecha, hora, personas } = req.body;
             const newReserva = await ReservaModel.createReservationWithUserId( { usuario_id, fecha, hora, personas } );
-
-            await EmailService.sendEmail({
-                to: req.body.usuario.email, 
-                toName: req.body.usuario.nombre, 
-                subject: "reserva"
-           });
+            
+            const usuario = newReserva.usuario && newReserva.usuario[0];
+            if (usuario && usuario.email) {
+                await EmailService.sendEmail({
+                    to: usuario.email,
+                    toName: usuario.nombre,
+                    subject: "reserva",
+                    data: {
+                        fecha: fecha,
+                        hora: hora.substring(0, 5),
+                        personas: personas,
+                        numeroMesa: newReserva.mesaInfo
+                    }
+                });
+            } else {
+                console.log("No se pudo enviar email: usuario o email no disponible");
+            }
             res.status(200).json(newReserva);
         } catch (err) {
             console.log("error");
