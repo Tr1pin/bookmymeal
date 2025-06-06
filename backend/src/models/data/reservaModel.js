@@ -2,6 +2,8 @@ import mysql from 'mysql2/promise'
 import { randomUUID } from 'crypto';
 import { DEFAULT_MYSQL_CONECTION } from '../../../config.js'
 import { validateReserva, validatePartialReserva } from '../../../schemas/reserva.js'
+import { EmailService } from '../../services/email.service.js';
+import { UserModel } from './userModel.js';
 
 const connectionString = process.env.DATABASE_URL ?? DEFAULT_MYSQL_CONECTION
 
@@ -109,7 +111,7 @@ export class ReservaModel {
         }
 
         const connection = await mysql.createConnection(connectionString);
-        const estado = 'pendiente';
+        const estado = 'confirmada';
 
         try {
             //Comprobar si hay mesas disponibles
@@ -143,7 +145,42 @@ export class ReservaModel {
                 [id, usuario_id, mesa_id, fecha, hora, estado, personas]
             );
 
+            // Obtener información de la mesa asignada
+            const [mesaInfo] = await connection.execute(
+                `SELECT numero FROM mesas WHERE id = ?`,
+                [mesa_id]
+            );
+
             await connection.end();
+            
+            // ENVIAR EMAIL DE CONFIRMACIÓN
+            try {
+                // Obtener información del usuario
+                const user = await UserModel.getById({ id: usuario_id });
+                
+                if (user && user.email) {
+                    // Enviar email de confirmación
+                    await EmailService.sendEmail({
+                        to: user.email,
+                        toName: user.nombre || 'Cliente',
+                        subject: 'reserva',
+                        data: {
+                            fecha: fecha,
+                            hora: hora.substring(0, 5), // Formato HH:MM
+                            personas: personas,
+                            numeroMesa: mesaInfo[0]?.numero
+                        }
+                    });
+
+                    console.log(`Email de confirmación de reserva enviado a ${user.email}`);
+                } else {
+                    console.log(`No se pudo enviar email de reserva para usuario ${usuario_id} - email no disponible`);
+                }
+            } catch (emailError) {
+                console.error(`Error enviando email de confirmación de reserva:`, emailError);
+                // No lanzamos error aquí para no fallar la creación de la reserva
+            }
+            
             return { message: "Reserva creada correctamente" };
 
         } catch (error) {
@@ -202,7 +239,22 @@ export class ReservaModel {
             [id, usuario_id, mesa_id, fecha, hora, estado, personas]
           );
 
+          // Obtener información de la mesa asignada
+          const [mesaInfo] = await connection.execute(
+              `SELECT numero FROM mesas WHERE id = ?`,
+              [mesa_id]
+          );
+
           await connection.end();
+          
+          try {
+              console.log(`Reserva creada para usuario anónimo: ${nombre} - ${telefono}`);
+              console.log(`Mesa asignada: ${mesaInfo[0]?.numero || 'N/A'}`);
+              
+          } catch (emailError) {
+              console.error(`Error en proceso de email para reserva anónima:`, emailError);
+          }
+          
           return { message: "Reserva confirmada" };
 
         } catch (error) {
