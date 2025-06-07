@@ -211,20 +211,30 @@ export class AuthService {
 
   async getUserProfile(): Promise<User | null> {
     const currentUser = this.getCurrentUser();
+    console.log('Current user:', currentUser);
+    
     if (!currentUser || !currentUser.id) {
+      console.log('No hay usuario actual o no tiene ID');
       return null;
     }
 
     try {
+      const url = `http://localhost:3001/users/id/${currentUser.id}`;
+      console.log('Haciendo petición a:', url);
+      
       const response = await firstValueFrom(
-        this.http.get<User>(`http://localhost:3001/data/users/id/${currentUser.id}`).pipe(
+        this.http.get<User>(url).pipe(
           catchError((error: HttpErrorResponse) => {
-            console.error('Error al obtener perfil de usuario:', error);
+            console.error('Error HTTP al obtener perfil de usuario:', error);
+            console.error('Status:', error.status);
+            console.error('Message:', error.message);
+            console.error('Error body:', error.error);
             return throwError(() => new Error('Error al cargar información del usuario'));
           })
         )
       );
       
+      console.log('Respuesta del servidor:', response);
       return response;
     } catch (error) {
       console.error('Error en getUserProfile:', error);
