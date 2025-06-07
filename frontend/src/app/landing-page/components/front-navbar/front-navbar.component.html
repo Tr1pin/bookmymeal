@@ -118,7 +118,7 @@
                             @if (authService.isAdmin()) {
                                 <a class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl" routerLink="admin-dashboard">Panel Admin</a>
                             }
-                            <button class="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl">Mi Perfil</button>
+                            <a routerLink="mis-datos" class="block px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl">Mi Perfil</a>
                             <button (click)="logout()" class="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200 text-xl">Cerrar sesión</button>
                         }
                     </div>
@@ -178,12 +178,12 @@
                           </li>
                       }
                       <li class="w-57 text-xl text-black hover:bg-gray-100">
-                          <button class="gap-5 w-full text-left flex items-center">
+                          <a routerLink="mis-datos" class="gap-5 flex items-center">
                               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
                                   <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
                               </svg>
                               Mi Perfil
-                          </button>
+                          </a>
                       </li>
                       <li class="w-57 text-xl text-black hover:bg-gray-100">
                           <button (click)="logout()" class="gap-5 w-full text-left flex items-center">
