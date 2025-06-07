@@ -32,13 +32,9 @@ export class PedidoController {
         try { 
             const result = await PedidoModel.crearPedido(req.body);
 
-            await EmailService.sendEmail({
-                 to: req.body.email_contacto, 
-                 toName: req.body.nombre_contacto, 
-                 subject: "pedido"
-            });
             res.status(200).json(result); 
         }
+
         catch (err) { 
             console.error('Error en crearPedido:', err);
             res.status(500).json({ message: err.message }); 
